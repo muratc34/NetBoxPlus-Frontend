@@ -1,0 +1,48 @@
+@use "../../scss/" as *;
+
+.welcome{
+    @include flex(flex-start, center);
+    flex-direction: column;
+    margin-top: 9rem;
+    min-height: 500px;
+    
+    .welcome-title{
+        font-size: 2rem;
+        font-family: $font-family;
+        font-weight: 700;
+        margin-bottom: 1.75rem;
+    }
+    
+    .welcome-logo{
+        margin: 0 10px;
+        margin-bottom: -15px;
+    }
+
+    .welcome-text{
+        font-size: 1.25rem;
+        font-family: $font-family;
+        font-weight: 500;
+        margin-bottom: 2rem;
+    }
+
+    .email-input{
+        font-size: 1rem;
+        border: 1px solid #31343e;
+        padding: 1rem 1.8rem;
+        width: 60%;
+        border-radius: $border-radius;
+        background-color: #31343e;
+        color: silver;
+    }
+
+    .email-input:focus{
+        border: 1px solid #505052;
+    }
+
+    .form{
+        min-width: 600px;
+        @include flex(center, flex-start);
+        gap: .5rem;
+    }
+}
+
