@@ -1,0 +1,80 @@
+@use '../../scss/' as *;
+
+.sign-wrapper {
+    @include flex(center, center);
+    flex-direction: column;
+    gap: 0.8rem;
+    height: 90vh;
+
+    .sign-modal{
+        padding: 2rem;
+        border-radius: 5px;
+        background-color: #191919;
+
+        .sign-form-logo{
+            justify-content: center;
+        }
+    }
+
+    .sign-form{
+        display: flex;
+        flex-direction: column;
+
+        &-title{
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+
+        .input-wrap{
+            display: inline-flex;
+            flex-direction: column;
+            margin: 1rem;
+            
+            .form-input{
+                font-size: 1rem;
+                border: 1px solid #31343e;
+                padding: 1rem 1.8rem;
+                border-radius: $border-radius;
+                background-color: #31343e;
+                color: silver;
+            }
+            .form-input:focus{
+                border: 1px solid #505052;
+            }
+            
+            &-link{
+                margin: .75rem auto;
+
+                .link{
+                    margin-left: .1rem;
+                    color: $main-color;
+                }
+    
+                .link:hover{
+                    color: $hover-color;
+                }
+
+                .register-logo{
+                    
+                    font-family: "logo-font";
+                    &-text{
+                        color: $main-color;
+                    }
+                }
+            }
+
+        }
+
+        .sign-btn{
+            width: 100%;
+            @include flex(center,center)
+        }
+    }
+    
+    
+}
+
+
+
+
+

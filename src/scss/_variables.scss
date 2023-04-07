@@ -1,5 +1,6 @@
 $body-bg: #0f0f0f;
-$main-color: #ff1616;
+$main-color: #4294d8;
+$hover-color:#1b598b;
 $txt-color: #fff;
 
 $white: #fff;
@@ -15,3 +16,8 @@ $mobile-width: 600px;
 $tablet-width: 1024px;
 
 $font-family: "Montserrat", sans-serif;
+
+@font-face {
+    font-family: "logo-font";
+    src: url("../assets/fonts/AstroSpace-eZ2Bg.ttf");
+}

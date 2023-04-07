@@ -1,55 +1,75 @@
-import React, {useState, useEffect} from 'react';
-// import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { SwiperSlide, Swiper } from 'swiper/react';
+import MovieContext from '../../context/MovieContext';
+import config from '../../api/configs/config';
+import { OutlineButton } from '../button/Button';
 
 import './movie-list.scss';
+const MostViewed = () => {
 
-import { SwiperSlide, Swiper } from 'swiper/react';
-import { Link } from 'react-router-dom';
-
-// import Button from '../button/Button';
-// import movieApi from '../../api/modules/movie.api';
-import config from '../../api/configs/config';
-import axios from 'axios';
-const MovieList = () => {
-
-    const [movies, setMovies] = useState([]);
-
-    // const getMovies = async () =>{
-    //   const { response } = await movieApi.getList();
-    //   if(response) setMovies(response.data);
-
-    // }
-
-    const getMovies = async () => {
-      const {data} = await axios.get("https://localhost:44372/api/movies")
-      if(data){
-        setMovies(data.data)
-      }
-    }
-
-    useEffect(() => {
-      getMovies();
-    }, [])
+    const movies = useContext(MovieContext)
     
   return (
-    <div className='movie-list'>
-      <Swiper
-        grabCursor={true}
-        spaceBetween={10}
-        slidesPerView={'auto'}
-      >
-        {
-          movies?.map((item, i) => (
-              <SwiperSlide key={i}>
+    <div className="section mb-3">
+        <div className="section-header mb-2">
+          <h2>En Çok İzlenenler</h2>
+          <Link to="/movie">
+            <OutlineButton className="small">Daha fazla</OutlineButton>
+          </Link>
+        </div>
+        <div className='movie-list'>
+          <Swiper
+            grabCursor={true}
+            slidesPerView={5}
+          >
+            {
+              movies?.map((item, i) => (
+                <SwiperSlide key={i}>
                   <Link to={`/movie/${item.id}`}>
-                      <img src={config.baseURL + item.posterPath} alt="poster.png" />
+                    <img src={config.baseURL + item.posterPath} alt="poster.png" />
                   </Link>
-              </SwiperSlide>
-          ))
-        }
-      </Swiper>
-    </div>
+                </SwiperSlide>
+              ))
+            }
+          </Swiper>
+        </div>
+      </div>
   )
 }
 
-export default MovieList
+export const RecentlyAdded = () => {
+
+  const movies = useContext(MovieContext)
+  
+return (
+  <div className="container-header">
+    <div className="section mb-3">
+      <div className="section-header mb-2">
+        <h2>En Son Eklenenler</h2>
+        <Link to="/movie">
+          <OutlineButton className="small">Daha fazla</OutlineButton>
+        </Link>
+      </div>
+      <div className='movie-list'>
+        <Swiper
+          grabCursor={true}
+          slidesPerView={5}
+        >
+          {
+            movies?.map((item, i) => (
+              <SwiperSlide key={i}>
+                <Link to={`/movie/${item.id}`}>
+                  <img src={config.baseURL + item.posterPath} alt="poster.png" />
+                </Link>
+              </SwiperSlide>
+            ))
+          }
+        </Swiper>
+      </div>
+    </div>
+  </div>
+)
+}
+
+export default MostViewed

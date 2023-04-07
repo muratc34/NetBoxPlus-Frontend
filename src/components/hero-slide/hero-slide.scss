@@ -5,7 +5,8 @@
 }
 
 .hero-slide-item{
-    padding: 9rem 0;
+    padding: 14rem;
+    @include flex(center, center);
     width: 100%;
     position: relative;
     background-position: center;
@@ -35,6 +36,8 @@
     &-content{
         @include flex(center, center);
         position: relative;
+        width: fit-content;
+        
 
         &-info{
             width: 55%;
@@ -63,8 +66,13 @@
                 font-weight: 700;
             }
 
-            .btns > * ~ * {
-                margin-left: 1rem;
+            .btns{
+                display: inline-flex;
+                gap: 1rem;
+
+                @include tablet{
+                    @include flex(center, center)
+                }
             }
 
             .btns, .title, .description{
@@ -80,7 +88,7 @@
             position: relative;
 
             img{
-                width: 400px;
+                width: 600px;
                 border-radius: $border-radius;
                 box-shadow: $box-shadow;
                 transform: scale(0);

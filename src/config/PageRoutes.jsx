@@ -5,7 +5,6 @@ import {Route, Routes } from 'react-router-dom';
 import Home from '../pages/Home';
 import Catalog from '../pages/Catalog';
 import Detail from '../pages/Detail';
-import Main from '../pages/Main';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 
@@ -13,27 +12,18 @@ const PageRoutes = () => {
   return (
     <Routes>
         <Route 
-            path='browse/search/:id' 
+            path='browse/' 
             element={<Catalog />}
         />
         <Route 
-            path='movie/id'
+            path='movie/:id'
             element={<Detail />}
         />
-        {
-            localStorage.getItem("token") ? 
-            <Route
-            path='/'
-            exact
-            element={<Home/>}/>
-            :
-            <Route 
-            path='/'
-            exact
-            element={<Main />}/>
-        }
-        
-        
+        <Route
+        path='/'
+        exact
+        element={<Home/>}
+        />
         <Route
             path='login'
             exact

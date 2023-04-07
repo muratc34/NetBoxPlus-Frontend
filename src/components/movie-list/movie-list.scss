@@ -1,15 +1,14 @@
-@use "../../scss/breakpoint" as *;
+@use "../../scss/" as *;
 
 .movie-list{
+    
     .swiper-slide{
-        max-height: 343px;
-        width: 15%;
-        @include tablet{
-            width: 30%;
-        }
-
-        @include mobile{
-            width: 40%;
-        }
+        box-sizing: border-box;
+        display: inline-block;
+        padding: 0 0.2vw;
+        position: relative;
+        vertical-align: top;
+        white-space: normal;
+        z-index: 1;
     }
 }

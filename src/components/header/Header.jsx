@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import './header.scss';
 
-import logo from '../../assets/netboxplus-logo.png';
+import logo from '../../assets/netboxplus-logo.svg';
 import Button from '../button/Button';
 
 const headerNav = [
@@ -15,7 +15,7 @@ const headerNav = [
   },
   {
     display: 'Filmler',
-    path:'/movies'
+    path:'/browse'
   },
   {
     display: 'Hesap',
@@ -31,7 +31,7 @@ const Header = () => {
 
   const active =  headerNav.findIndex(e => e.path === pathname);
 
-  function test()
+  function logout()
   {
     localStorage.removeItem("token"); 
     navigate("/");
@@ -70,7 +70,7 @@ const Header = () => {
             ))
           }
           <li className='logout'>
-            <Button onClick={()=> test()}>Çıkış</Button>
+            <Button onClick={()=> logout()}>Çıkış</Button>
           </li>
         </ul>
       </div>
@@ -78,7 +78,7 @@ const Header = () => {
   );
 }
 
-const NewHeader = () => {
+export const WelcomeHeader = () => {
 
   const headerRef = useRef(null);
 
@@ -118,5 +118,5 @@ const NewHeader = () => {
 }
 
 
-  export default localStorage.getItem("token") ? Header : NewHeader;
+  export default Header;
 

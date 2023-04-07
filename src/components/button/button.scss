@@ -18,8 +18,8 @@ button{
 }
 
 .btn:hover {
-    background-color: #9b000a;
-    border: 1px solid #9b000a;
+    background-color: $hover-color;
+    border: 1px solid $hover-color;
 }
 
 .btn-outline {

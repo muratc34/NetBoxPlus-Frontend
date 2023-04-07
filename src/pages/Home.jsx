@@ -1,33 +1,71 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
-
+import { useState, useEffect } from 'react';
 import HeroSlide from '../components/hero-slide/HeroSlide';
-import { OutlineButton } from '../components/button/Button';
-import MovieList from '../components/movie-list/MovieList';
+import MostViewed, { RecentlyAdded } from '../components/movie-list/MovieList';
 import Footer from '../components/footer/Footer';
-import Header from '../components/header/Header';
+import Header, { WelcomeHeader } from '../components/header/Header';
+import MainWelcome from '../components/main-welcome/MainWelcome';
+import movieApi from '../api/modules/movie.api';
+import MovieContext from '../context/MovieContext';
+import Loader from '../components/loader/Loader';
 
 const Home = () => {
+
+  const [movies, setMovies] = useState([]);
+  const [response, setResponse] = useState();
+  
+  const getMovies = async () => {
+    await movieApi.getList()
+    .then(({response})=>{
+      setMovies(response.data);
+      setResponse(response.success);
+    });
+  };
+
+  useEffect(() => {
+    getMovies()
+  },[]);
   
   return (
     <div>
-        <div>
-          <Header/>
-          <HeroSlide/>
-          <div className="container">
-            <div className="section mb-3">
-              <div className="section-header mb-2">
-                <h2>En Çok İzlenenler</h2>
-                <Link to="/movie">
-                  <OutlineButton className="small">Daha fazla</OutlineButton>
-                </Link>
-              </div>
-              <MovieList/>
-            </div>
+      {
+        response ? 
+        (
+          <div>
+            {
+              localStorage.getItem("token") ? 
+              (
+                <div>
+                  <Header/>
+                  <MovieContext.Provider value={movies}>
+                    <HeroSlide/>
+                    <MostViewed/>
+                    <RecentlyAdded/>
+                  </MovieContext.Provider>
+                  
+                  <Footer/>
+                </div>
+              )
+              :
+              (
+                <div>
+                  <WelcomeHeader/>
+                  <MainWelcome/>
+                  <Footer/>
+                </div>
+              )
+            }
           </div>
-        <Footer/>
-        </div>
+        )
+        : 
+        (
+          <div>
+            <Loader/>
+          </div>
+        )
+      }
     </div>
+    
   )
 }
 
