@@ -1,0 +1,29 @@
+@use '../../scss/' as *;
+
+.payment-complete{
+    @include flex(center, center);
+    flex-direction: column;
+    min-height: 470px;
+    padding-bottom: 4rem;
+
+    &-header{
+        &-title{
+            font-size: 3rem;
+        }
+    }
+
+    &-body{
+        margin-top: 1.5rem;
+        &-top{
+            text-align: center;
+            
+            &-text{
+                margin-left: 0.5rem;
+            }
+        }
+
+        &-bottom{
+            margin-top: 1.5rem;
+        }
+    }
+}

@@ -1,0 +1,131 @@
+@use "../../scss/" as *;
+
+.movie-player{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+
+  &-top{
+    @include flex(center, space-between);
+    @include make-container(4rem);
+    padding-top: 2rem;
+    position: absolute;
+    z-index: 10;
+    font-size: 2rem;
+
+    &-btn{
+      cursor: pointer;
+    }
+
+    &-text{
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  }
+
+  &-middle{
+
+    .video{
+      opacity: 1;
+      width: 100%;
+      height: 100%;
+    }
+
+  }
+
+  &-controls{
+    @include make-container(1.5rem);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+    padding-bottom: 2rem;
+    &-top{
+      @include flex(center, space-between);
+      margin-bottom: 2rem;
+      gap: 1rem;
+
+      &-text{
+        @include flex(center, center);
+        min-width: 90px;
+        font-size: 1.25rem;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .progress-bar{
+        position: relative;
+        width: 100%;
+        height: 10px;
+        background-color: #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+
+        &-inner{
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          background-color: $main-color;
+          border-radius: 5px ;
+        }
+      }
+    }
+
+    &-bottom{
+      @include flex(center, space-between);
+      
+      &-cg{
+        @include flex(center, space-between);
+        gap: 2rem;
+      }
+
+      .fullscreen{
+        width: 175px;
+      }
+
+      &-btn{
+        font-size: 3rem;
+        cursor: pointer;
+        padding-top: 1rem;
+      }
+    }
+
+
+    &-volume{
+      display: flex;
+      width: 175px;
+
+      .vol-bar{
+        background-color: transparent;
+        width: 100%;
+        padding: 1rem 0.5rem 1rem 0rem;
+        margin: auto;
+
+        .volume-bar{
+          position: relative;
+          left: 5px;
+          width: 100%;
+          height: 10px;
+          background-color: #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+  
+          &-inner{
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: $main-color;
+            border-radius: 5px;
+          }
+        }
+      }
+    }
+  }
+}

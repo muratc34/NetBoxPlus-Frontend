@@ -88,14 +88,13 @@ export const SignupForm = () => {
   const location = useLocation()
   const { from } = location.state
   
-  const [email, setEmail] = useState(from.email)
+  const [email, setEmail] = useState()
   const [firstName, setFirstName] = useState()
   const [lastName, setLastName] = useState()
   const [password, setPassword] = useState()
 
   async function register(e){
     e.preventDefault();
-
     
     await authApi.register({
       firstName: firstName,

@@ -32,7 +32,6 @@ const Movie = () => {
         response.success === true ? 
         (
           <div className='movie'>
-
             <NbpTrailerPlayer videoSrc={config.baseURL + movie.trailerPath} poster={config.baseURL + movie.backdropPicPath}/>
              <div className='movie-content container'>
               <h1 className='movie-title'>{movie.title}</h1>
@@ -41,7 +40,7 @@ const Movie = () => {
                 <span>•</span>
                 <h3 className='movie-ryear'>{movie.releaseYear}</h3>
               </div>
-              <Button className="movie-content-btn">Şimdi İzle</Button>
+              <Link to={"/watch/" + movie.id}><Button className="movie-content-btn">Şimdi İzle</Button></Link>
               <div className='movie-genres'>
                 {movie.genres?.map((item, i) => (
                   <div key={i}>

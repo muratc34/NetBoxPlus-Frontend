@@ -117,6 +117,16 @@ export const WelcomeHeader = () => {
   );
 }
 
+export const PaymentHeader = () =>
+{
+  return(
+    <div>
+      <div className="payment-logo">
+        <img src={logo} alt="logo.png"/>
+      </div>
+    </div>
+  )
+}
 
   export default Header;
 

@@ -1,0 +1,106 @@
+@use '../../scss/' as *;
+
+.plan-card{
+    width: 280px;
+    border: 4px solid $main-color;
+    border-radius: 10px;
+
+    &-header{
+        text-align: center;
+        border-bottom: 2px solid $main-color;
+
+        &-title{
+            font-size: 1.75rem;
+            padding-top: 0.5rem;
+            color: $txt-color;
+        }
+
+        &-amount{
+            font-size: 2.25rem;
+            padding: 0.5rem 0;
+        }
+    }
+
+    &-options{
+        @include flex(center, center);
+        &-list{
+            @include flex(flex-start, center);
+            flex-direction: column;
+            font-size: 1.25rem;
+            padding:0.5rem;
+            list-style-type: "-";
+
+            &-item{
+                margin: 1rem;
+            }
+        }
+    }
+
+    &-btn{
+        @include flex(center, center);
+        width: 100%;
+
+        &-link{
+            width: 100%;
+            border-radius: 0 0 5px 5px;
+
+            .w100{
+                width: 100%;
+            }
+        }
+
+        &-icon{
+            font-size: 1.5rem;
+        }
+        
+    }
+
+    
+}
+
+.plan{
+    @include flex(center, center);
+    gap: 4rem;
+    margin-top: 3rem;
+
+}
+
+.cc-pc{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    max-width: 700px;
+    margin-top: 2rem;
+
+    &-content{
+        @include flex(flex-start, center);
+        flex-direction: column;
+        margin-left: auto;
+        margin-right: auto;
+
+        &-header{
+            font-size: 1.5rem;
+        }
+
+        &-options{
+            @include flex(center, center);
+            margin-left: auto;
+            margin-right: auto;
+            &-list{
+                @include flex(flex-start, center);
+                flex-direction: column;
+                &-item{
+                    list-style-type: "-";
+                    font-size: 0.9rem;
+                }
+            }
+        }
+    }
+
+    &-amount{
+        @include flex(center, center);
+        &-txt{
+            font-size: 3rem;
+        }
+    }
+}

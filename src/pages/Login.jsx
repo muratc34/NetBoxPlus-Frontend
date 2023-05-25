@@ -4,9 +4,7 @@ import SigninForm from '../components/signin-signup-form/SigninForm';
 const Login = () => {
 
   return (
-    <div>
-     <SigninForm />
-   </div>
+    <SigninForm />
   )
 }
 

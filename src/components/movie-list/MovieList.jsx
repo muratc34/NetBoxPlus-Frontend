@@ -9,22 +9,25 @@ import './movie-list.scss';
 const MostViewed = () => {
 
     const movies = useContext(MovieContext)
+
+    const orderByClickCount = [...movies].sort((a,b)=> b.movieClickCount - a.movieClickCount).slice(0, 10);
     
   return (
     <div className="section mb-3">
         <div className="section-header mb-2">
           <h2>En Çok İzlenenler</h2>
-          <Link to="/movie">
+          <Link to="/browse">
             <OutlineButton className="small">Daha fazla</OutlineButton>
           </Link>
         </div>
         <div className='movie-list'>
           <Swiper
             grabCursor={true}
+            autoPlay={{delay: 3000}}
             slidesPerView={5}
           >
             {
-              movies?.map((item, i) => (
+              orderByClickCount?.map((item, i) => (
                 <SwiperSlide key={i}>
                   <Link to={`/movie/${item.id}`}>
                     <img src={config.baseURL + item.posterPath} alt="poster.png" />
@@ -47,7 +50,7 @@ return (
     <div className="section mb-3">
       <div className="section-header mb-2">
         <h2>En Son Eklenenler</h2>
-        <Link to="/movie">
+        <Link to="/browse">
           <OutlineButton className="small">Daha fazla</OutlineButton>
         </Link>
       </div>

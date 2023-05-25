@@ -7,10 +7,18 @@ import Catalog from '../pages/Catalog';
 import Detail from '../pages/Detail';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import Watch from '../pages/Watch';
+import Account from '../pages/Account';
+import PaymentDashboard from './PaymentDashboard';
 
-const PageRoutes = () => {
+const Dashboard = () => {
   return (
     <Routes>
+        <Route
+        path='/'
+        exact
+        element={<Home/>}
+        />
         <Route 
             path='browse/' 
             element={<Catalog />}
@@ -18,11 +26,6 @@ const PageRoutes = () => {
         <Route 
             path='movie/:id'
             element={<Detail />}
-        />
-        <Route
-        path='/'
-        exact
-        element={<Home/>}
         />
         <Route
             path='login'
@@ -34,8 +37,20 @@ const PageRoutes = () => {
             exact
             element={<Register/>}
         />
+        <Route 
+            path='watch/:id' 
+            element={<Watch/>}
+        />
+        <Route
+            path='account'
+            element={<Account/>}
+        />
+        <Route
+            path='payment/*'
+            element={<PaymentDashboard/>}
+        />
     </Routes>
   )
 }
 
-export default PageRoutes;
+export default Dashboard;

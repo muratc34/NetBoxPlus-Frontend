@@ -8,6 +8,7 @@ const Button = props => {
     <button 
         className={`btn ${props.className}`} 
         onClick={props.onClick ? (e)=> props.onClick(e): null}
+        form={props.form}
     >
         {props.children}
     </button>

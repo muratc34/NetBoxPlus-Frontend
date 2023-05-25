@@ -14,6 +14,14 @@ const HeroSlide = () => {
   SwiperCore.use([Autoplay]);
 
   const movies = useContext(MovieContext)
+  const test = []
+  
+  while(test.length < 5)
+  {
+    var x = movies[Math.floor(Math.random() * movies.length)]
+    if(test.indexOf(x) === -1) test.push(x)
+  }
+    
         
   return (
     <div className='hero-slide'>
@@ -22,10 +30,10 @@ const HeroSlide = () => {
           grabCursor={true}
           spaceBetween={0}
           slidesPerView={1}
-          autoplay={{delay: 5000}}
+          autoPlay={{delay: 5000}}
         >
           {
-            movies?.map((item, i) =>(
+            test?.map((item, i) =>(
               <SwiperSlide key={i}>
                 {({isActive}) =>(
                   <HeroSlideItem item={item} className={`${isActive ? 'active': ''}`}/>
@@ -49,6 +57,7 @@ const HeroSlideItem = props => {
     <div className={`hero-slide-item ${props.className}`}
          style={{backgroundImage: `url(${background})`}}
     >
+      <div className='hero-slide-item-wrapper'></div>
       <div className="hero-slide-item-content container-mt-5">
         <div className="hero-slide-item-content-info">
           <h2 className="title">{item.title}</h2>

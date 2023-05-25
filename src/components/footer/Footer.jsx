@@ -15,7 +15,7 @@ const Footer = () => {
                         <Link to="/"><img src={logo} alt="" /></Link>
                     </div>
                 </div>
-                <div >
+                <div>
                     <ul className="footer-content-menu">
                         <li><Link to="/">Bize ulaşın</Link></li>
                         <li><Link to="/">Hizmet Şartları</Link></li>
@@ -24,9 +24,26 @@ const Footer = () => {
                         <li><Link to="/">Gizlilik politikası</Link></li>
                     </ul>
                 </div>
+                <div className='copyright'>
+                    ©<span className='copyright-logo'><span className='copyright-logo-text'> Net</span>Box+ </span>2023. All rights reserved.
+                </div>
             </div>
         </div>
     );
+}
+
+export const PaymentFooter = () =>
+{
+    return(
+        <div className='payment-footer'>
+            <div className="payment-logo footer-logo">
+                <img src={logo} alt="" />
+            </div>
+            <div className='copyright'>
+                ©<span className='copyright-logo'><span className='copyright-logo-text'> Net</span>Box+ </span>2023. All rights reserved.
+            </div>
+        </div>
+    )
 }
 
 export default Footer;

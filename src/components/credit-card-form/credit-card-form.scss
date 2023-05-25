@@ -1,0 +1,158 @@
+@use '../../scss/' as *;
+
+.cc{
+    max-width: 700px;
+    border: 4px solid $main-color;
+    border-radius: 10px;
+    margin-top: 2rem;
+
+    &-plan{
+        margin-bottom: 1rem;
+    }
+
+    &-bottom{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+
+        &-left-form{
+            
+            .cc-form{
+                &-date-cvv{
+                    @include flex(center, space-around);
+
+                }
+            }
+        }
+    
+        &-card{
+            @include flex(center, center);
+            flex-direction: column;
+            margin-top: 0.8rem;
+        }
+    }
+
+    &-btn{
+        margin: 0.8rem 0rem 0.8rem 11rem;
+    }
+}
+
+.credit-card {
+    grid-area: 1 / 2 / 2 / 3;
+    position: relative;
+    width: 300px;
+    height: 180px;
+    transition: -webkit-transform 0.6s;
+    -webkit-transition: -webkit-transform 0.6s;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transition: transform 0.6s;
+    transition: transform 0.6s, -webkit-transform 0.6s;
+    cursor: pointer;
+    background: rgb(131,58,180);
+    background: linear-gradient(45deg, rgba(131,58,180,1) 0%, rgba(29,33,253,1) 0%, rgba(252,176,69,1) 100%);
+    border-radius: 10px;
+
+    &.flipped {
+        -webkit-transform: rotateY(180deg);
+        transform: rotateY(180deg);
+    }
+    
+    &-front, &-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        -webkit-font-smoothing: antialiased;
+        -webkit-backface-visibility: hidden;
+        color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    &-back{
+        -webkit-transform: rotateY(180deg);
+        transform: rotateY(180deg);
+
+        &-stripe {
+            width: 100%;
+            height: 40px;
+            background-color: #000000;
+            margin-top: 1rem;
+        }
+
+        &-cvv{
+            text-align: end;
+            font-size: 1.5rem;
+            color: black;
+            background: white;
+            padding: 0 1rem;
+            margin: 1rem 1.5rem;
+        }
+    }
+
+    &-front{
+
+        &-logo{
+            text-align: end;
+            font-size: 2rem;
+            padding-right: 1rem;
+        }
+        
+        &-number{
+            @include flex(flex-start, center);
+            flex-direction: column;
+            margin-left: 2rem;
+            &-label{
+                font-size: 0.6rem
+            }
+
+            &-text{
+                font-size: 1.5rem;
+                height: 30px;
+            }
+        }
+
+        &-info{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: 1fr;
+            margin-top: 1rem;
+
+            &-holder{
+                @include flex(flex-start, flex-start);
+                flex-direction: column;
+                grid-area: 1 / 1 / 2 / 3;
+                margin-left: 2rem;
+                height: 50px;
+
+                &-label{
+                    font-size: 0.6rem;
+                }
+
+                &-text{
+                    text-transform: uppercase;
+                    font-size: 0.7rem
+                }
+                
+            }
+
+            &-expiry-date{
+                @include flex(flex-start, flex-start);
+                grid-area: 1 / 3 / 2 / 4;
+                gap: 0.5rem;
+                .expiry-date{
+                    @include flex(center, center);
+                    flex-direction: column;
+
+                    &-label{
+                        font-size: 0.6rem;
+                    }
+                }
+
+            }
+        }
+    }
+
+    
+    
+}

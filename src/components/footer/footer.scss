@@ -9,13 +9,11 @@
 
         &-logo {
             @include flex(center, center);
-            margin-bottom: 2rem;
         }
 
         &-menu {
             @include flex(flex-end, space-between);
             flex-direction: row;
-            margin-top: 1rem;
 
             font-size: 1rem;
             font-weight: 600;
@@ -24,5 +22,27 @@
                 margin-top: 1rem;
             }
         }
+    }
+    .copyright{
+        @include flex(center,center);
+        margin-top: 2rem;
+        
+    }
+}
+
+.copyright-logo{
+    font-family: "logo-font";
+    
+    &-text{
+        color: $main-color;
+    }
+}
+.payment-footer
+{
+    @include flex(center, center);
+    flex-direction: column;
+    gap: 0.5rem;
+    .footer-logo{
+        width: 150px;
     }
 }

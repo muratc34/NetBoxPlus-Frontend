@@ -9,7 +9,7 @@ const MainWelcome = () => {
     const [email, setRegisterEmail] = useState()
 
     return (
-        <div className="container">
+        <div className="container background-img">
             <div className="section">
                 <div className='welcome'>
                     <p className='welcome-title'>Sınırsız film keyfi 
@@ -20,8 +20,6 @@ const MainWelcome = () => {
                         <input onChange={(e)=> setRegisterEmail(e.target.value)} className='email-input' type="email" name="remail"placeholder='E-Posta'/>
                         <Link to= "/register" state= {{from: {email} }}><Button>Devam Et</Button></Link> 
                     </form>
-                    <div>
-                    </div>
                 </div>
             </div>
         </div>

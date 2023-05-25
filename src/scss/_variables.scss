@@ -17,6 +17,14 @@ $tablet-width: 1024px;
 
 $font-family: "Montserrat", sans-serif;
 
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  xxl: 1320px
+);
+
 @font-face {
     font-family: "logo-font";
     src: url("../assets/fonts/AstroSpace-eZ2Bg.ttf");

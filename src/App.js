@@ -2,16 +2,14 @@ import 'swiper/swiper.min.css';
 import './App.scss';
 
 import { BrowserRouter } from 'react-router-dom';
-
-
-import PageRoutes from './config/PageRoutes';
+import Dashboard from './config/Dashboard';
 
 
 function App() {
   
   return (
     <BrowserRouter>
-        <PageRoutes/>
+        <Dashboard/>
     </BrowserRouter>
   );
 }
