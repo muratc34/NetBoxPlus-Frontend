@@ -11,7 +11,6 @@ const Movie = () => {
     const [movie, setMovie] = useState([]);
     const [response, setResponse] = useState([])
     const {id} = useParams();
-
     
     useEffect(() => {
       const getMovie = async () => {
@@ -19,7 +18,6 @@ const Movie = () => {
         .then(({response})=>{
           setResponse(response);
           setMovie(response.data);
-          console.log(response.data);
         });
       };
         getMovie()

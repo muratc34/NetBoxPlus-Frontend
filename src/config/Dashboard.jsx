@@ -10,45 +10,25 @@ import Register from '../pages/Register';
 import Watch from '../pages/Watch';
 import Account from '../pages/Account';
 import PaymentDashboard from './PaymentDashboard';
+import GuardedRoute, { GuardedRouteForMain } from './GuardedRoute';
+import Welcome from '../pages/Welcome';
 
 const Dashboard = () => {
   return (
     <Routes>
-        <Route
-        path='/'
-        exact
-        element={<Home/>}
-        />
-        <Route 
-            path='browse/' 
-            element={<Catalog />}
-        />
-        <Route 
-            path='movie/:id'
-            element={<Detail />}
-        />
-        <Route
-            path='login'
-            exact
-            element={<Login/>}
-        />
-        <Route
-            path='register'
-            exact
-            element={<Register/>}
-        />
-        <Route 
-            path='watch/:id' 
-            element={<Watch/>}
-        />
-        <Route
-            path='account'
-            element={<Account/>}
-        />
-        <Route
-            path='payment/*'
-            element={<PaymentDashboard/>}
-        />
+      <Route element={<GuardedRouteForMain />}>
+        <Route path='/' exact element={<Welcome/>}/>
+      </Route>
+      <Route path='login' exact element={<Login/>}/>
+      <Route path='register' exact element={<Register/>}/>
+      <Route element={<GuardedRoute/>}>
+        <Route path='browse/' element={<Home/>}/>
+        <Route path='browse/movies' element={<Catalog/>}/>
+        <Route path='movie/:id' element={<Detail />}/>
+        <Route path='watch/:id' element={<Watch/>}/>
+        <Route path='account' element={<Account/>}/>
+        <Route path='payment/*' element={<PaymentDashboard/>}/>
+      </Route>
     </Routes>
   )
 }

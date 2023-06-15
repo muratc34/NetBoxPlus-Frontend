@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import authApi from '../../api/modules/auth.api';
 import Button from '../button/Button';
 import logo from '../../assets/netboxplus-logo.png';
 
 import './signin-signup-form.scss';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 
 const SigninForm = () => {
   const [email, setEmail] = useState()
@@ -16,27 +15,25 @@ const SigninForm = () => {
 
   const navigate = useNavigate()
 
-  async function login(e){
+  const {login} = useContext(AuthContext)
+
+  async function handleLogin(e){
     e.preventDefault();
-    await authApi.login({
-      email: email,
-      password: password
-    }).then((response) =>{
-      if(response.success){
-        localStorage.setItem("token", response.data.token)
-        toast.success("Giriş işlemi başarılı!")
-        setTimeout(() => {
-          navigate("/")
-        }, 2000);
-      }
+    
+    const response = await login(email, password);
+    if(response.success){
+      toast.success("Giriş işlemi başarılı!")
+      setTimeout(() => {
+        navigate("/browse")
+      }, 2000);
+    }
+    else
+    {
+      if(email == null || password == null)
+        toast.error("Email veya Şifre alanı boş bırakılamaz!")
       else
-      {
-        if(email == null || password == null)
-          toast.error("Email veya Şifre alanı boş bırakılamaz!")
-        else
-          toast.error(response.message)
-      }
-    })
+        toast.error(response.message)
+    }
   }
 
   return (
@@ -63,7 +60,7 @@ const SigninForm = () => {
               <Link className='link' to="/register" state={{from: {email}}} > Kayıt Ol </Link></label>
           </div>
           <div className='sign-btn'>
-            <Button onClick={(e)=> login(e)}>Giriş Yap</Button>
+            <Button onClick={(e)=> handleLogin(e)}>Giriş Yap</Button>
             <ToastContainer 
               position="bottom-center"
               autoClose={1000}
@@ -88,33 +85,34 @@ export const SignupForm = () => {
   const location = useLocation()
   const { from } = location.state
   
-  const [email, setEmail] = useState()
+  const [email, setEmail] = useState(" ")
   const [firstName, setFirstName] = useState()
   const [lastName, setLastName] = useState()
   const [password, setPassword] = useState()
 
-  async function register(e){
+  const {register} = useContext(AuthContext)
+
+  async function handleRegister(e){
     e.preventDefault();
-    
-    await authApi.register({
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: password
-    }).then((response) => {
-      if(response.success){
-        localStorage.setItem("token", response.data.token)
-        toast.success("Kayıt işlemi başarılı!")
-        setTimeout(() => {
-          navigate("/")
-        }, 2000);
-      }
-      else
-      {
-        toast.error(response.message)
-      }
-    })
+    const response = await register(email, password, firstName, lastName)
+    if(response.success){
+      toast.success("Kayıt işlemi başarılı!")
+      setTimeout(() => {
+        navigate("/payment")
+      }, 2000);
+    }
+    else
+    {
+      toast.error(response.message)
+    }
   }
+
+  useEffect(() => {
+    if (from.email) {
+      setEmail(from.email)
+    }
+  }, [from.email])
+  
 
   return (
     <div className="sign-wrapper">
@@ -134,7 +132,7 @@ export const SignupForm = () => {
           </div>
           <div className='input-wrap'>
             <label className='form-input-text'>E-posta</label>
-            <input defaultValue={from.email} onChange={(e)=>setEmail(e.target.value)} className='form-input' type="email" required/>
+            <input value={email} onChange={(e)=>setEmail(e.target.value)} className='form-input' type="email" required/>
           </div>
           <div className='input-wrap'>
             <label className='form-input-text'>Şifre</label>
@@ -144,7 +142,7 @@ export const SignupForm = () => {
             <label className='form-input-text'>Zaten kayıtlı mısınız? <Link className='link' to="/login"> Giriş Yap</Link></label>
           </div>
           <div className='sign-btn'>
-            <Button onClick={(e)=> register(e)}>Kayıt ol</Button>
+            <Button onClick={(e)=> handleRegister(e)}>Kayıt ol</Button>
             <ToastContainer 
               position="bottom-center"
               autoClose={1000}

@@ -3,9 +3,9 @@ import './payment-complete.scss';
 import {BsDownload} from 'react-icons/bs'
 import { Link } from 'react-router-dom';
 import Button from '../button/Button';
+import invoicePDf from '../../assets/sample-invoice.pdf';
 
 const PaymentComplete = () => {
-    console.log(process.env.PUBLIC_URL )
   return (
     <div className='payment-complete'>
         <div className='payment-complete-header'>
@@ -13,7 +13,7 @@ const PaymentComplete = () => {
         </div>
         <div className='payment-complete-body'>
             <div className='payment-complete-body-top'>
-                <a href='../../../assets/sample-voice.pdf' download>
+                <a href={invoicePDf} download>
                     <BsDownload/>
                     <span className='payment-complete-body-top-text'>E-Fatura indir</span>
                 </a>

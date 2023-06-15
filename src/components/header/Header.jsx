@@ -7,15 +7,17 @@ import './header.scss';
 
 import logo from '../../assets/netboxplus-logo.svg';
 import Button from '../button/Button';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 
 const headerNav = [
   {
     display: 'Ana Sayfa',
-    path:'/'
+    path:'/browse'
   },
   {
     display: 'Filmler',
-    path:'/browse'
+    path:'/browse/movies'
   },
   {
     display: 'Hesap',
@@ -27,15 +29,16 @@ const Header = () => {
 
   const {pathname} = useLocation();
   const headerRef = useRef(null);
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+
+  const {logout} = useContext(AuthContext)
 
   const active =  headerNav.findIndex(e => e.path === pathname);
 
-  function logout()
+  function handleLogout()
   {
-    localStorage.removeItem("token"); 
+    logout();
     navigate("/");
-    window.location.reload(true);
   }
 
   useEffect(() => {
@@ -70,7 +73,7 @@ const Header = () => {
             ))
           }
           <li className='logout'>
-            <Button onClick={()=> logout()}>Çıkış</Button>
+            <Button onClick={()=> handleLogout()}>Çıkış</Button>
           </li>
         </ul>
       </div>

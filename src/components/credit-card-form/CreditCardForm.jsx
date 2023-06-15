@@ -4,8 +4,11 @@ import { PaymentPlan } from '../plan-card/PlanCard';
 import Input, { CCNumberInput, CVVInput, DateInput } from '../input-field/Input';
 import { useState } from 'react';
 import {RiVisaLine} from 'react-icons/ri';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../button/Button';
+import creditCardApi from '../../api/modules/payment.api';
+import jwtDecode from 'jwt-decode';
+import subscriptionApi from '../../api/modules/subscription.api';
 
 const CreditCardForm = () => {
   const [cardNumber, setCardNumber] = useState();
@@ -19,6 +22,52 @@ const CreditCardForm = () => {
   
   const location = useLocation();
   const data = location.state;
+
+  const navigate = useNavigate()
+
+  var token = localStorage.getItem("token");
+  var decoded = jwtDecode(token);
+
+  const cardBrands = [
+    { brand: 'Visa', pattern: /^4/ },
+    { brand: 'Mastercard', pattern: /^5[1-5]/ }
+  ];
+
+  async function completePayment(e){
+    e.preventDefault();
+    expireYearAndMonthDivider();
+
+    await creditCardApi.addCreditCard({
+      userId: decoded.Id,
+      cardBrand: findCardBrand(cardNumber),
+      cardName: cardOwner,
+      cardNumber: cardNumber,
+      expireYear: cardExpireYear,
+      expireMonth: cardExpireMonth,
+      cvv: cardCVV
+    }).then( 
+      await subscriptionApi.addSubs({
+        userId: decoded.Id,
+        planId: data.planId
+      }).then((response) => {
+        if(response.success)
+        {
+          setTimeout(() => {
+            navigate("/payment/complete")
+          }, 2000);
+        }
+      })
+    )
+  }
+
+  const findCardBrand = (cardNumber) => {
+    for (let i = 0; i < cardBrands.length; i++) {
+      if (cardNumber.match(cardBrands[i].pattern)) {
+        return cardBrands[i].brand;
+      }
+    }
+    return 'Unknown';
+  };
 
   const expireYearAndMonthDivider = () =>
   {
@@ -57,9 +106,7 @@ const CreditCardForm = () => {
         <div className='cc-bottom-card'>
           <CreditCard isCCVFocused={isCCVFocused} cardNumber={cardNumber} cardHolder={cardOwner} expireDate={cardExpireValid} cardCVV={cardCVV}/>
           <div className='cc-btn'>
-            <Link to="/payment/complete">
-              <Button>Onayla</Button>
-            </Link>
+            <Button onClick={(e)=>completePayment(e)}>Onayla</Button>
           </div>
         </div>
       </div>

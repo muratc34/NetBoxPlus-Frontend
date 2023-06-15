@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import HeroSlide from '../components/hero-slide/HeroSlide';
 import MostViewed, { RecentlyAdded } from '../components/movie-list/MovieList';
 import Footer from '../components/footer/Footer';
-import Header, { WelcomeHeader } from '../components/header/Header';
-import MainWelcome from '../components/main-welcome/MainWelcome';
+import Header from '../components/header/Header';
 import movieApi from '../api/modules/movie.api';
 import MovieContext from '../context/MovieContext';
 import Loader from '../components/loader/Loader';
@@ -32,29 +31,13 @@ const Home = () => {
         response ? 
         (
           <div>
-            {
-              localStorage.getItem("token") ? 
-              (
-                <div>
-                  <Header/>
-                  <MovieContext.Provider value={movies}>
-                    <HeroSlide/>
-                    <MostViewed/>
-                    <RecentlyAdded/>
-                  </MovieContext.Provider>
-                  
-                  <Footer/>
-                </div>
-              )
-              :
-              (
-                <div>
-                  <WelcomeHeader/>
-                  <MainWelcome/>
-                  <Footer/>
-                </div>
-              )
-            }
+            <Header/>
+            <MovieContext.Provider value={movies}>
+              <HeroSlide/>
+              <MostViewed/>
+              <RecentlyAdded/>
+            </MovieContext.Provider>
+            <Footer/>
           </div>
         )
         : 

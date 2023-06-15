@@ -76,7 +76,6 @@ export const CCNumberInput = ({placeHolder, setDataState, data}) => {
         const formattedInput = input.replace(/\D/g, '');
         let newCardNumber = '';
         
-        // Her dört hanede bir boşluk ekleyelim
         for (let i = 0; i < formattedInput.length; i++) {
             if (i > 0 && i % 4 === 0) {
             newCardNumber += ' ';
@@ -84,9 +83,8 @@ export const CCNumberInput = ({placeHolder, setDataState, data}) => {
             newCardNumber += formattedInput[i];
         }
         
-        // Kart numarasını güncelleyelim
         setDataState(newCardNumber);
-      };
+    };
 
     return(
         <div>

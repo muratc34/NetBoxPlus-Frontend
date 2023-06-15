@@ -3,8 +3,12 @@ import './plan-card.scss';
 import Button from '../button/Button';
 import {SlBasket} from 'react-icons/sl'
 import { Link} from 'react-router-dom';
+import { planApi } from '../../api/modules/subscription.api';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import Loader from '../loader/Loader';
 
-const PlanCard = ({planName, amount, profilPiece, quality}) => {
+const PlanCard = ({planId, planName, amount, profilCount, quality}) => {
 
   return (
     <div className='plan-card'>
@@ -15,12 +19,12 @@ const PlanCard = ({planName, amount, profilPiece, quality}) => {
         <div className='plan-card-options'>
             <ul className='plan-card-options-list'>
                 <li className='plan-card-options-list-item'>30 gün kullanım süresi</li>
-                <li className='plan-card-options-list-item'>{profilPiece} adet profil</li>
+                <li className='plan-card-options-list-item'>{profilCount} adet profil</li>
                 <li className='plan-card-options-list-item'>{quality} video kalitesi</li>
             </ul>
         </div>
         <div className='plan-card-btn'>
-            <Link className='plan-card-btn-link' to="1" state={{planName, amount, profilPiece, quality}}>
+            <Link className='plan-card-btn-link' to={planId} state={{planId, planName, amount, profilCount, quality}}>
                 <Button className="w100">
                     <SlBasket className='plan-card-btn-icon'/>
                 </Button>
@@ -30,7 +34,7 @@ const PlanCard = ({planName, amount, profilPiece, quality}) => {
   )
 }
 
-export const PaymentPlan = ({planName, amount, profilPiece, quality}) =>{
+export const PaymentPlan = ({planName, amount, profilCount, quality}) =>{
     return(
         <div>
             <div className='cc-pc container'>
@@ -41,7 +45,7 @@ export const PaymentPlan = ({planName, amount, profilPiece, quality}) =>{
                     <div className='cc-pc-content-options'>
                         <ul className='cc-pc-content-options-list'>
                             <li className='cc-pc-content-options-list-item'>30 gün kullanım süresi</li>
-                            <li className='cc-pc-content-options-list-item'>{profilPiece} adet profil</li>
+                            <li className='cc-pc-content-options-list-item'>{profilCount} adet profil</li>
                             <li className='cc-pc-content-options-list-item'>{quality} video kalitesi</li>
                         </ul>
                     </div>
@@ -55,12 +59,36 @@ export const PaymentPlan = ({planName, amount, profilPiece, quality}) =>{
 }
 
 export const Plan = () =>{
+    const [response, setResponse] = useState()
+    const [plans, setPlans] = useState()
+
+    const getPlans = async () =>{
+        await planApi.getPlans()
+            .then(({response})=>{
+                setResponse(response.success);
+                const sortingData = response.data.sort((a, b) => a.amount - b.amount);
+                setPlans(sortingData);
+            });
+    }
+
+    useEffect(() => {
+      getPlans()
+    },[])
+
     return(
-        <div className='container plan'>
-            <PlanCard planName={"Temel Paket"} amount={"39.99"} profilPiece={"1"} quality={"HD"} />
-            <PlanCard planName={"Gelişmiş Paket"} amount={"64.99"} profilPiece={"2"} quality={"FHD"} />
-            <PlanCard planName={"Lüks Paket"} amount={"99.99"} profilPiece={"3"} quality={"UHD"} />
+        response ? (
+            <div className='container plan'>
+            {
+                plans?.map((item, key) =>(
+                    <PlanCard key={key} planId={item.id} planName={item.planName} amount={item.amount} profilCount={item.profileCount} quality={item.quality} />
+                ))
+            }
+            
         </div>
+        ): 
+        (
+            <Loader/>
+        )
     )
 }
 

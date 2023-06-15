@@ -7,12 +7,15 @@ import jwtDecode from 'jwt-decode';
 import authApi from '../../api/modules/auth.api';
 import Loader from '../loader/Loader';
 import { ToastContainer, toast } from 'react-toastify';
+import creditCardApi from '../../api/modules/payment.api';
 
 const AccountSetting = () => {
   const [currentPassword, setCurrentPassword] = useState();
   const [newPassword, setNewPassword] = useState();
   const [user, setUser] = useState();
   const [response, setResponse] = useState(false);
+  const [CCResponse, setCCResponse] = useState(false);
+  const [CCInfo, setCCInfo] = useState();
  
   var token = localStorage.getItem("token");
   var decoded = jwtDecode(token);
@@ -25,9 +28,23 @@ const AccountSetting = () => {
     });
   };
 
+  const getCreditCard = async (id) => {
+    await creditCardApi.getCCById(id)
+      .then(({response})=>{
+        setCCInfo(response.data);
+        setCCResponse(response)
+      })
+  }
+
   useEffect(() => {
     getUser(decoded.Id)
   }, [decoded.Id]);
+
+  useEffect(()=>{
+    if (user) {
+      getCreditCard(user.paymentId)
+    }
+  },[user])
 
   async function changePassword(){
     await authApi.changePassword({
@@ -84,14 +101,23 @@ const AccountSetting = () => {
               theme="dark"/>
             </div>
           </div>
-          <div className='account-payment'>
-            <h2 className='account-title'>Ödeme</h2>
-            <hr className='account-line'/>
-            <div className='account-payment-group'>
-                <DisabledInput placeHolder="Admin" type={"text"} labelTxt={"Kart Sahibinin Adı"} />
-                <DisabledInput placeHolder="**** **** **** 0000" type={"text"} labelTxt={"Kart Numarası"}/>
-            </div>
-          </div>
+          {
+            CCResponse ? 
+            (
+              <div className='account-payment'>
+                <h2 className='account-title'>Ödeme</h2>
+                <hr className='account-line'/>
+                <div className='account-payment-group'>
+                    <DisabledInput placeHolder={CCInfo.cardName} type={"text"} labelTxt={"Kart Sahibinin Adı"} />
+                    <DisabledInput placeHolder={CCInfo.cardNumber} type={"text"} labelTxt={"Kart Numarası"}/>
+                </div>
+              </div>
+            )
+            :
+            (
+              <Loader/>
+            )
+          }
         </div>
     </div>
     ) :

@@ -6,22 +6,22 @@ const userEndpoint = "user";
 const changePasswordEndpoint = "changepassword";
 
 const authApi = {
-    login: async (data) => {
-      const response = await publicClient.post(loginEndpoint, data);
+  login: async (data) => {
+    const response = await publicClient.post(loginEndpoint, data);
+    return response;
+  },
+  register: async (data) => {
+      const response = await publicClient.post(registerEndpoint, data);
       return response;
-    },
-    register: async (data) => {
-        const response = await publicClient.post(registerEndpoint, data);
-        return response;
-    },
-    changePassword: async(data) => {
-      const response = await publicClient.post(changePasswordEndpoint, data);
+  },
+  changePassword: async(data) => {
+    const response = await publicClient.post(changePasswordEndpoint, data);
+    return response;
+  },
+  getUser: async(id) => {
+      const response = await publicClient.get(userEndpoint + '/' + id);
       return response;
-    },
-    getUser: async(id) => {
-        const response = await publicClient.get(userEndpoint + '/' + id);
-        return response;
-    }
-  };
+  }
+};
 
 export default authApi;
