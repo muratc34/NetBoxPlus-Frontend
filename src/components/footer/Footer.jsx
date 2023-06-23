@@ -10,13 +10,14 @@ const Footer = () => {
     return (
         <div className="footer">
             <div className="footer-content container">
+                <hr className='footer-line'/>
                 <div className="footer-content-logo">
                     <div className="logo">
                         <Link to="/"><img src={logo} alt="" /></Link>
                     </div>
                 </div>
-                <div>
-                    <ul className="footer-content-menu">
+                <div className='footer-content-menu'>
+                    <ul className="footer-content-menu-list">
                         <li><Link to="/">Bize ulaşın</Link></li>
                         <li><Link to="/">Hizmet Şartları</Link></li>
                         <li><Link to="/">Hakkımızda</Link></li>
@@ -25,7 +26,7 @@ const Footer = () => {
                     </ul>
                 </div>
                 <div className='copyright'>
-                    ©<span className='copyright-logo'><span className='copyright-logo-text'> Net</span>Box+ </span>2023. All rights reserved.
+                    ©<span className='copyright-logo'><span className='copyright-logo-text'> Net</span>Box+ </span>2023. Tüm hakları saklıdır.
                 </div>
             </div>
         </div>
@@ -40,7 +41,7 @@ export const PaymentFooter = () =>
                 <img src={logo} alt="" />
             </div>
             <div className='copyright'>
-                ©<span className='copyright-logo'><span className='copyright-logo-text'> Net</span>Box+ </span>2023. All rights reserved.
+                ©<span className='copyright-logo'><span className='copyright-logo-text'> Net</span>Box+ </span>2023. Tüm hakları saklıdır.
             </div>
         </div>
     )

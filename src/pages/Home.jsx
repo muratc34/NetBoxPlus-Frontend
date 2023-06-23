@@ -27,26 +27,20 @@ const Home = () => {
   
   return (
     <div>
+      <Header/>
       {
-        response ? 
-        (
-          <div>
-            <Header/>
-            <MovieContext.Provider value={movies}>
-              <HeroSlide/>
-              <MostViewed/>
-              <RecentlyAdded/>
-            </MovieContext.Provider>
-            <Footer/>
-          </div>
-        )
-        : 
-        (
-          <div>
-            <Loader/>
-          </div>
+        response ?(
+        <MovieContext.Provider value={movies}>
+          <HeroSlide/>
+          <MostViewed/>
+          <RecentlyAdded/>
+        </MovieContext.Provider>
+        ):(
+          <Loader/>
         )
       }
+      
+      <Footer/>
     </div>
     
   )

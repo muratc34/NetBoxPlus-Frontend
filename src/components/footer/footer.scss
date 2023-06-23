@@ -5,21 +5,19 @@
     padding: 3rem 2rem 3rem 2rem;
 
     &-content {
-        max-width: 1000px;
-
+        
         &-logo {
             @include flex(center, center);
+            margin-top: 3rem;
         }
 
         &-menu {
-            @include flex(flex-end, space-between);
-            flex-direction: row;
-
-            font-size: 1rem;
-            font-weight: 600;
-
-            & > * ~ * {
-                margin-top: 1rem;
+            margin: 1rem 0;
+            &-list{
+                @include flex(flex-end, space-around);
+                flex-direction: row;
+                font-size: 1rem;
+                font-weight: 600;
             }
         }
     }
@@ -45,4 +43,9 @@
     .footer-logo{
         width: 150px;
     }
+}
+
+.footer-line{
+    margin: 1rem 0;
+    border: 1px solid #454545;
 }

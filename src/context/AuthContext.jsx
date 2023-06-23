@@ -1,10 +1,11 @@
 import React, { createContext, useState } from "react";
 import authApi from "../api/modules/auth.api";
+import { useContext } from "react";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [isAuthed, setIsAuthed] = useState(null)
+const AuthProvider = ({ children }) => {
+  const [isAuthed, setIsAuthed] = useState(false)
 
   const login = async (email, password) => {
     
@@ -18,7 +19,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
       setIsAuthed(true)
     }
-
     return response;
   };
   
@@ -36,7 +36,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
       setIsAuthed(true);
     }
-
     return response
   }
 
@@ -51,3 +50,7 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+const useAuth = () => useContext(AuthContext);
+
+export { AuthProvider, useAuth };

@@ -1,17 +1,28 @@
 import React from 'react';
 import './input.scss'
 
-const Input = ({placeHolder, type, customCss, setDataState, data, maxLength,}) => {
+const Input = ({placeHolder, type, customCss, setDataState, data, maxLength, customLabelCss}) => {
 
   return (
     <div>
         <div className='input-box'>
             <input maxLength={maxLength} onChange={(e)=>setDataState(e.target.value)}  className={`input-field ${customCss}`} type={type}/>
-            <label className={`input-label ${data ? "top-label":""}`}>{placeHolder}</label>
+            <label className={`input-label ${data ? "top-label":""} ${customLabelCss}`}>{placeHolder}</label>
         </div>
     </div>
   )
 }
+
+export const SignUpEmailInput = ({placeHolder, type, customCss, setDataState, data}) => {
+    return (
+      <div>
+          <div className='input-box'>
+              <input value={data} onChange={(e)=>setDataState(e.target.value)}  className={`input-field ${customCss}`} type={type}/>
+              <label className={`input-label ${data ? "top-label":""}`}>{placeHolder}</label>
+          </div>
+      </div>
+    )
+  }
 
 export const DisabledInput = ({placeHolder, labelTxt, customCss}) => {
     return (
@@ -111,13 +122,14 @@ export const CVVInput = ({placeHolder, setDataState, data, customCss, focus, blu
     };
     
     return(
-    <div>
-        <div className='input-box'>
-            <input onFocus={focus} onBlur={blur} value={data} className={`input-field ${customCss}`} maxLength={3} onChange={handleCVVChange} type="text"/>
-            <label className={`input-label ${data ? "top-label":""}`}>{placeHolder}</label>
+        <div>
+            <div className='input-box'>
+                <input onFocus={focus} onBlur={blur} value={data} className={`input-field ${customCss}`} maxLength={3} onChange={handleCVVChange} type="text"/>
+                <label className={`input-label ${data ? "top-label":""}`}>{placeHolder}</label>
+            </div>
         </div>
-    </div>
-)
+    )
 }
+
 
 export default Input

@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+// import {  useAuth } from '../context/AuthContext';
 
 const GuardedRoute = () => {
-  const {isAuthed} = useContext(AuthContext);
+  // const {isAuthed} = useAuth();
 
-  return isAuthed ? (
+  return localStorage.getItem("token") ? (
     <Outlet/>
   ) : (
     <Navigate to="/login" replace />
@@ -13,14 +13,13 @@ const GuardedRoute = () => {
 };
 
 export const GuardedRouteForMain = () => {
-  const {isAuthed} = useContext(AuthContext);
+  // const {isAuthed} = useAuth();
 
-  return isAuthed ? (
+  return localStorage.getItem("token") ? (
     <Navigate to="/browse" replace />
   ) : (
     <Outlet/>
   );
 }
-
 
 export default GuardedRoute;

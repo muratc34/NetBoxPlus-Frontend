@@ -6,16 +6,15 @@ import logo from '../../assets/netboxplus-logo.png';
 
 import './signin-signup-form.scss';
 import 'react-toastify/dist/ReactToastify.css';
-import { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import Input, { SignUpEmailInput } from '../input-field/Input';
 
 const SigninForm = () => {
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
 
   const navigate = useNavigate()
-
-  const {login} = useContext(AuthContext)
+  const {login} = useAuth()
 
   async function handleLogin(e){
     e.preventDefault();
@@ -45,12 +44,10 @@ const SigninForm = () => {
         <h1 className='sign-form-title'>Giriş Yap</h1>
         <form className='sign-form'>
           <div className='input-wrap'>
-            <label className='form-input-text'>E-posta</label>
-            <input required onChange={(e)=>setEmail(e.target.value)} className='form-input' type="email" name='email'/>
+            <Input data={email} setDataState={setEmail} type="email" placeHolder={"E-posta"}></Input>
           </div>
           <div className='input-wrap'>
-            <label className='form-input-text'>Şifre</label>
-            <input required onChange={(e)=>setPassword(e.target.value)} className='form-input' type="password" name='password' />
+          <Input data={password} setDataState={setPassword} type="password" placeHolder={"Şifre"}></Input>
           </div>  
           <div className='input-wrap-link'>
             <label className='form-input-text'>
@@ -85,12 +82,12 @@ export const SignupForm = () => {
   const location = useLocation()
   const { from } = location.state
   
-  const [email, setEmail] = useState(" ")
-  const [firstName, setFirstName] = useState()
-  const [lastName, setLastName] = useState()
-  const [password, setPassword] = useState()
+  const [email, setEmail] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [password, setPassword] = useState("")
 
-  const {register} = useContext(AuthContext)
+  const {register} = useAuth()
 
   async function handleRegister(e){
     e.preventDefault();
@@ -123,20 +120,20 @@ export const SignupForm = () => {
         <h1 className='sign-form-title'>Kayıt ol</h1>
         <form className='sign-form'>
           <div className='input-wrap'>
-            <label className='form-input-text'>Ad</label>
-            <input onChange={(e)=>setFirstName(e.target.value)} className='form-input' type="text" required/>
+            <Input data={firstName} setDataState={setFirstName} type="text" placeHolder={"Ad"}></Input>
           </div>
           <div className='input-wrap'>
-            <label className='form-input-text'>Soyad</label>
-            <input onChange={(e)=>setLastName(e.target.value)} className='form-input' type="text" required/>
+            <Input data={lastName} setDataState={setLastName} type="text" placeHolder={"Soyad"}></Input>
           </div>
           <div className='input-wrap'>
-            <label className='form-input-text'>E-posta</label>
-            <input value={email} onChange={(e)=>setEmail(e.target.value)} className='form-input' type="email" required/>
+          <SignUpEmailInput data={email} setDataState={setEmail} type="email" placeHolder={"E-mail"}></SignUpEmailInput>
+            {/* <label className='form-input-text'>E-posta</label>
+            <input value={email} onChange={(e)=>setEmail(e.target.value)} className='form-input' type="email" required/> */}
           </div>
           <div className='input-wrap'>
-            <label className='form-input-text'>Şifre</label>
-            <input onChange={(e)=>setPassword(e.target.value)} className='form-input' type="password"/>
+            <Input data={password} setDataState={setPassword} type="password" placeHolder={"Şifre"}></Input>
+            {/* <label className='form-input-text'>Şifre</label>
+            <input onChange={(e)=>setPassword(e.target.value)} className='form-input' type="password"/> */}
           </div>  
           <div className='input-wrap-link'>
             <label className='form-input-text'>Zaten kayıtlı mısınız? <Link className='link' to="/login"> Giriş Yap</Link></label>

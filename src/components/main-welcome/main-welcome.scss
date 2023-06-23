@@ -1,13 +1,15 @@
 @use "../../scss/" as *;
 
+
 .welcome{
     @include flex(flex-start, center);
+    position: relative;
     flex-direction: column;
-    margin-top: 9rem;
-    min-height: 500px;
+    min-height: 100vh;
+    z-index: 1;
     
     .welcome-title{
-        font-size: 2rem;
+        font-size: 2.4rem;
         font-family: $font-family;
         font-weight: 700;
         margin-bottom: 1.75rem;
@@ -16,28 +18,28 @@
     .welcome-logo{
         margin: 0 1px 0 4px;
         margin-bottom: -18px;
-        width: 180px;
+        width: 200px;
     }
 
     .welcome-text{
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         font-family: $font-family;
         font-weight: 500;
         margin-bottom: 2rem;
     }
 
     .email-input{
-        font-size: 1rem;
-        border: 1px solid #31343e;
-        padding: 1rem 1.8rem;
-        width: 60%;
-        border-radius: $border-radius;
-        background-color: #31343e;
-        color: silver;
+        font-size: 1.6rem;
+        margin-right: 0;
+        padding: 1rem;
     }
 
-    .email-input:focus{
-        border: 1px solid #505052;
+    .email-input-label{
+        font-size: 1.2rem;
+    }
+
+    .welcome-register-btn{
+        font-size: 1.5rem;
     }
 
     .form{
@@ -47,3 +49,71 @@
     }
 }
 
+
+.questions{
+    @include flex(center, center);
+    flex-direction: column;
+    margin: 2rem 0;
+    &-title{
+        text-align: center;
+    }
+
+    &-field{
+        margin-top: 1rem;
+        width: 70%;
+        &-list{
+            
+            &-item{
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                user-select: none;
+
+                &-q{
+                    @include flex(center, space-around);
+                    padding: 1rem;
+                    cursor: pointer;
+                    height: 100%;
+                    background-color: #363636;
+                    margin-bottom: 0.2rem;
+
+                    .question-title{
+                        font-size: 1.5rem;
+                        width: 100%;
+                        font-weight: 500;
+                    }
+                }
+
+                &-q:hover{
+                    background-color: #454545;
+                }
+
+                &-a{
+                    position: relative;
+                    width: 100%;
+                    background-color: #363636;
+                    overflow: hidden;
+                    max-height: 0;
+                    transition: max-height 0.3s  0s;
+
+                    .question-text{
+                        font-size: 1.2rem;
+                        padding: 1rem;
+                    }
+                }
+                &-a.open{
+                    max-height: 100px;
+                }
+            }
+        }
+    }
+}
+
+.welcome-icons{
+    font-size: 3rem;
+}
+
+.welcome-line{
+    margin: 1rem 0;
+    border: 1px solid #454545;
+}

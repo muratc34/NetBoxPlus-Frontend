@@ -22,7 +22,7 @@
     --grid__column-gap: 1rem;
     --grid__row-gap: 1rem;
 
-    &-outer-grid{
+    &-outer{
         display: grid;
         margin: 0 calc(var(--grid__column-gap) * -1);
         
@@ -36,7 +36,7 @@
         grid-template-columns: minmax(0, 1fr) [grid-start] var(--grid__inner-grid) [grid-end] minmax(0, 1fr);
     }
 
-    &-inner-grid{
+    &-inner{
         display: grid;
         grid-column-start: grid-start;
         grid-column-end: grid-end;
@@ -44,4 +44,32 @@
         row-gap: var(--grid__row-gap);
         grid-template-columns: var(--grid__inner-grid);
     }
+}
+
+.movies-header{
+    display: inline-block;
+
+    &-title{
+        text-align: center;
+        &-text{
+            font-size: 3rem;
+        }
+    }
+
+    .genres{
+        margin: 2rem;
+        &-list{
+            @include flex(center, center);
+            flex-wrap: wrap;
+            &-item{
+                padding: 0.5rem;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.selected-btn{
+    color: $main-color;
+    background-color: $white;
 }

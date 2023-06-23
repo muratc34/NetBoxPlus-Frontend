@@ -6,6 +6,7 @@ import Button from '../button/Button';
 import './movie.scss';
 import Loader from '../loader/Loader';
 import NbpTrailerPlayer from '../video-player/NbpTrailerPlayer';
+import { SimilarityByGenre } from '../movie-list/MovieList';
 
 const Movie = () => {
     const [movie, setMovie] = useState([]);
@@ -22,7 +23,6 @@ const Movie = () => {
       };
         getMovie()
     },[id]);
-
     
   return (
     <div>
@@ -38,7 +38,7 @@ const Movie = () => {
                 <span>•</span>
                 <h3 className='movie-ryear'>{movie.releaseYear}</h3>
               </div>
-              <Link to={"/watch/" + movie.id}><Button className="movie-content-btn">Şimdi İzle</Button></Link>
+              <Link to={"/watch/" + movie.movieId}><Button className="movie-content-btn">Şimdi İzle</Button></Link>
               <div className='movie-genres'>
                 {movie.genres?.map((item, i) => (
                   <div key={i}>
@@ -60,6 +60,9 @@ const Movie = () => {
         )
         
       }
+      <div>
+        <SimilarityByGenre genreIds={movie.genres} movieId={movie.movieId}/>
+      </div>
     </div>
   )
 }
