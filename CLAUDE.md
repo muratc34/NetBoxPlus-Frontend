@@ -60,7 +60,8 @@ Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transp
 
 ## Komutlar
 
-Node 24 (`.node-version`) ve pnpm (`packageManager`'daki sürüm, corepack ile). Turborepo görevleri paketlere dağıtır.
+Node 26 LTS (`.node-version`) ve pnpm (`packageManager`'daki sürüm, corepack ile; Node 25'ten beri corepack Node'la gelmiyor:
+`npm install --global corepack` ve `corepack enable`). Turborepo görevleri paketlere dağıtır.
 
 ```powershell
 pnpm install
@@ -116,7 +117,7 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 ```
 
 - Build aşaması `node:<sürüm>-alpine`; paketler önce sadece lockfile'dan (`pnpm fetch`), sonra `--offline` kurulur.
-- **web:** distroless Node 24 `nonroot` (shell yok, digest'le sabit), Next standalone, port 3000, `/health/live`.
+- **web:** distroless Node 26 `nonroot` (shell yok, digest'le sabit), Next standalone, port 3000, `/health/live`.
 - **admin:** `nginx-unprivileged` (uid 101), port 8080, `/health/live`. Hash'li dosyalar 1 yıl `immutable`,
   `index.html` `no-cache`, bilinmeyen yol `index.html`'e (istemci router'ı). Güvenlik header'ları
   `apps/admin/nginx/security-headers.conf`'ta ve her `location`'a `include` edilir (`location` içindeki `add_header`
@@ -141,7 +142,8 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 - Sürümler **en güncel** ve tam sabit (`^`/`~` yok). Build araçlarında açıklar sık çıkıyor; güncel kalmak kural.
   En güncel sürüm bir uyumsuzluk yüzünden alınamıyorsa (ör. typescript-eslint henüz TypeScript 7'yi desteklemiyor,
   TypeScript 6.0'da) sebebi burada yazılır:
-  - `typescript` 6.0: typescript-eslint `<6.1` istiyor.
+  - `typescript` 6.0: typescript-eslint `<6.1` istiyor ve openapi-typescript TypeScript 5/6 API'siyle çalışıyor (7'de
+    JavaScript API'si yok). Dependabot TypeScript 7'yi önermez (`.github/dependabot.yml` `ignore`); ikisi de destekleyince kaldırılır.
   - `eslint-plugin-jsx-a11y` ESLint'i 9'a kadar beyan ediyor ama ESLint 10'da çalışıyor (kurallarının çalıştığı
     denendi).
   - `openapi-typescript` TypeScript 5 beyan ediyor ama 6'da aynı çıktıyı üretiyor (denendi).
