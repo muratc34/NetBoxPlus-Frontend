@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 The web and admin applications of NetBoxPlus, a subscription video streaming platform. They talk only to the
-gateway of [NetBoxPlus-Backend](https://github.com/muratc34/NetBoxPlus-Backend/tree/v2): five .NET 10 services
+gateway of [NetBoxPlus-Backend](https://github.com/muratc34/NetBoxPlus-Backend): five .NET 10 services
 behind a YARP gateway that keeps browser sessions in httpOnly cookies, so no access token ever reaches JavaScript.
 
 > Work in progress. The original graduation project (Create React App) is preserved under the
