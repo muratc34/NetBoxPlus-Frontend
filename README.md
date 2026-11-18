@@ -24,7 +24,7 @@ packages/config   Shared TypeScript and test setup.
 
 ## Getting started
 
-Requires Node.js 24 and pnpm (the version in `package.json`, for example through `corepack enable`).
+Requires Node.js 26 and pnpm (the version in `package.json`; for example `npm install --global corepack`, then `corepack enable`).
 
 ```bash
 pnpm install

@@ -10,6 +10,11 @@ updates:
     cooldown:
       default-days: 1
     open-pull-requests-limit: 10
+    ignore:
+      # typescript-eslint (<6.1) and openapi-typescript (TypeScript 5's API) do not run on TypeScript 7 yet.
+      # Remove once both support it.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       react-next:
         patterns: ['react', 'react-dom', '@types/react', '@types/react-dom', 'next', '@next/*']

@@ -1,12 +1,13 @@
 # The admin panel: static files behind nginx. Build from the repository root:
 #   docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 
-FROM node:24.22.3-alpine3.24 AS build
+FROM node:26.13.1-alpine3.24 AS build
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
     TURBO_TELEMETRY_DISABLED=1 \
     CI=true
 WORKDIR /repo
-RUN corepack enable
+# Node.js 25+ no longer ships corepack; it installs pnpm in the version packageManager names.
+RUN npm install --global corepack@0.36.0 && corepack enable
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm fetch --frozen-lockfile --store-dir /pnpm/store
