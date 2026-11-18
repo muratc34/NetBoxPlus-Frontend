@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Do not install a version published less than a day ago: a hijacked release is usually caught within hours.
+minimumReleaseAge: 1440
+
+peerDependencyRules:
+  allowedVersions:
+    # jsx-a11y 6.10 declares ESLint up to 9 but its rules run on ESLint 10 (checked when ESLint 10 was adopted).
+    eslint-plugin-jsx-a11y>eslint: '10'

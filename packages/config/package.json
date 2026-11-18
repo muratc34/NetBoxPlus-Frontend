@@ -1,0 +1,13 @@
+{
+  "name": "@netboxplus/config",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig/*": "./tsconfig/*",
+    "./vitest/setup": "./vitest/setup.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  }
+}
