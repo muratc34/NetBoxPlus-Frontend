@@ -1,7 +1,7 @@
 # The customer web app (Next.js standalone server). Build from the repository root:
 #   docker build --file apps/web/Dockerfile --tag netboxplus/web:local .
 
-FROM node:24.22.3-alpine3.24 AS build
+FROM node:26.13.1-alpine3.24 AS build
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
     NEXT_TELEMETRY_DISABLED=1 \
     TURBO_TELEMETRY_DISABLED=1 \
