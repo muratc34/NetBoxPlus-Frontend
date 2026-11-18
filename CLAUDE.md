@@ -1,7 +1,7 @@
-# CLAUDE.md — NetBoxPlus-Frontend (v2)
+# CLAUDE.md — NetBoxPlus-Frontend
 
 NetBoxPlus'ın frontend monorepo'su: müşteri sitesi (`apps/web`, Next.js) ve admin paneli (`apps/admin`, Vite + React).
-İkisi de sadece backend'in gateway'iyle konuşur. Backend ayrı repoda: `NetBoxPlus-Backend` (branch `v2`).
+İkisi de sadece backend'in gateway'iyle konuşur. Backend ayrı repoda: `NetBoxPlus-Backend` (branch `master`).
 Her geliştirmeden sonra bu dosya ve ilgili doküman güncellenir.
 
 - Kararlar ve gerekçeleri: backend reposundaki `docs/ARCHITECTURE.md` §13 (özellikle §13.2 İstemciler)
@@ -13,10 +13,10 @@ gerekçesiyle söyle, karar değişirse önce dokümanı güncelle.
 
 ## Branch'ler
 
-| Ref                   | Ne                                                                                                                    |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `master`              | Varsayılan branch, v2. Doğrudan commit yok: her iş kendi branch'inde (`phase8/<grup>-<konu>`) ve PR ile merge edilir. |
-| `v1-graduation` (tag) | Eski bitirme projesinin (CRA, JavaScript) son hali. Sadece referans.                                                  |
+| Ref                   | Ne                                                                                                                                                          |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `master`              | Varsayılan branch. Doğrudan commit yok: her iş kendi branch'inde (`phase8/<grup>-<konu>`) ve PR ile, CI yeşilken merge edilir; merge edilen branch silinir. |
+| `v1-graduation` (tag) | Eski bitirme projesinin (CRA, JavaScript) son hali. Sadece referans.                                                                                        |
 
 ## Yapı
 
@@ -130,7 +130,8 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   bileşenlere düz metin yazılmaz.
 - Kullanıcı tasarımı kod yazmadan önce netleştirmek istiyor. Büyük bir değişiklikten önce yaklaşımı anlat, onay al.
 - **Commit'lenen md dosyaları sadece `CLAUDE.md` ve `README.md`** (`.gitignore` diğer bütün md'leri dışarıda tutar).
-- **GitHub'da hiçbir şey silinmez** (repo, branch, tag, release). Force push yok.
+- **GitHub'da silinen tek şey merge edilmiş PR branch'leridir** (merge'den sonra, `gh pr merge --delete-branch`).
+  Repo, tag, release, paket ve merge edilmemiş branch silinmez; gerekiyorsa kullanıcıya bırakılır. Force push yok.
 - Repo public. Secret'lar repoya girmez; `.env*` ignore'da (`.env.example` hariç).
 - Lisans: MIT. Yeni paket eklemeden önce lisansını kontrol et.
 - **Kalite çıtası canlı ürün:** güvenlik, performans, erişilebilirlik, SEO. Proje yine canlıya alınmaz.
