@@ -9,3 +9,5 @@ peerDependencyRules:
   allowedVersions:
     # jsx-a11y 6.10 declares ESLint up to 9 but its rules run on ESLint 10 (checked when ESLint 10 was adopted).
     eslint-plugin-jsx-a11y>eslint: '10'
+    # openapi-typescript 7.13 declares TypeScript 5 but generates the same output on 6 (checked when it was added).
+    openapi-typescript>typescript: '6'

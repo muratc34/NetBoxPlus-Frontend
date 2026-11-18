@@ -1,0 +1,9 @@
+{
+  "extends": "@netboxplus/config/tsconfig/library.json",
+  "compilerOptions": {
+    // The scripts run directly on Node (type stripping): they import with `.ts` and use erasable syntax only.
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": ["src", "scripts", "vitest.config.ts"]
+}

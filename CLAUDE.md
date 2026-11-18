@@ -23,15 +23,40 @@ gerekçesiyle söyle, karar değişirse önce dokümanı güncelle.
 ```
 apps/web          Next.js (App Router): katalog sayfaları sunucuda, kişisel her şey tarayıcıdan gateway'e
 apps/admin        Vite + React SPA: girişin arkasında, statik dosya olarak sunulur
+packages/api      Backend'in OpenAPI dokümanlarından üretilen tipler ve gateway client'ları
 packages/ui       Tasarım token'ları (Tailwind v4 @theme) ve temel bileşenler
 packages/i18n     tr/en metinler; anahtarlar derleme zamanında kontrol edilir
 packages/config   Ortak tsconfig'ler ve Vitest kurulumu
 ```
 
-Sıradaki paketler (Faz 8 A2): `packages/api` (OpenAPI'den üretilen tipler + client) ve `packages/core` (iki uygulamanın
-ortak veri katmanı: gateway client'ları, oturum/CSRF, hata modeli, sorgu tanımları, oynatma oturumu, yükleme).
+Sıradaki paket: `packages/core` (iki uygulamanın ortak veri katmanı: oturum ve 401, sorgu tanımları, oynatma oturumu,
+yükleme); `packages/api`'nin üstünde, iş kuralı içermez.
 
 Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transpilePackages` / Vite).
+
+## API client — `packages/api`
+
+- **Kaynak:** `packages/api/openapi/*.json` backend'in `docs/openapi`'sinin bir commit'teki kopyası; commit
+  `openapi/source.json`'da. Elle düzenlenmez. Güncellemek: `pnpm api:sync <commit|branch>` (GitHub'dan; branch
+  commit'e çevrilir). Henüz push edilmemiş bir API değişikliğini denemek: `pnpm api:sync --from <backend checkout>`
+  (`docs/openapi`'de commit'lenmemiş değişiklik varsa `--allow-dirty` ister ve `<commit>+local` yazar; bu hâliyle
+  commit'lenmez, `--check` reddeder). `pnpm --filter @netboxplus/api sync --check`: kopya, kayıtlı commit'teki GitHub
+  hâliyle aynı mı (CI).
+- **Tipler** `pnpm generate` ile `src/generated/`'a (git'te yok); Turborepo `dev`, `build`, `lint`, `typecheck` ve
+  `test`'ten önce kendisi çalıştırır. Elle yazılmış API tipi yok: şemalar `CatalogSchemas['PublishedMovie']` gibi
+  `@netboxplus/api`'den.
+- **İki yarı:** her servisin dokümanı ikiye bölünür (`scripts/split.ts`). Public yarı gateway'de `/<servis>/...`,
+  admin yarı `/admin/<servis>/...` altında ve yolları `/admin`'siz (`/admin/users` → admin client'ta `/users`).
+  `createPublicClients` (web) admin yollarını tipinde bile görmez, `createAdminClients` (admin) servislerin admin
+  gruplarını ve `/admin/session`'ı verir. Gateway'in kendi dokümanı (`gateway.json`) oturum uçlarıdır, prefix'i yok.
+- **Auth'un tarayıcıya açık yolları** `src/services.ts`'te (`/profiles`, `/email-verification`, `/email-change`);
+  gateway'in proxy'lemediği token uçları (`/sign-in`, `/refresh`, `/me`...) hiç üretilmez. Gateway'e yeni bir Auth
+  route'u açılırsa bu liste de güncellenir.
+- **İstek:** `credentials: 'include'` varsayılan (cookie gateway'in host'unda); sunucu tarafı anonim çağrılar `omit`.
+  `csrfToken` verilirse GET/HEAD/OPTIONS dışındaki her isteğe `X-CSRF-Token` eklenir (istek anında okunur).
+- **Hatalar:** `unwrap(client.GET(...))` başarıda veriyi döner, hata durumunda `ApiError` atar: `status`, `code`
+  (ör. `User.EmailTaken`), alan başına `fieldErrors`/`fieldErrorCodes`. Kullanıcıya `code`'a göre çevrilmiş metin
+  gösterilir, backend'in `detail`'i geliştirici içindir. Ağ hatası olduğu gibi geçer.
 
 ## Komutlar
 
@@ -90,7 +115,9 @@ pnpm format:check
   TypeScript 6.0'da) sebebi burada yazılır:
   - `typescript` 6.0: typescript-eslint `<6.1` istiyor.
   - `eslint-plugin-jsx-a11y` ESLint'i 9'a kadar beyan ediyor ama ESLint 10'da çalışıyor (kurallarının çalıştığı
-    denendi); `pnpm-workspace.yaml`'daki `peerDependencyRules` bu tek istisnayı kabul eder.
+    denendi).
+  - `openapi-typescript` TypeScript 5 beyan ediyor ama 6'da aynı çıktıyı üretiyor (denendi).
+  - İkisi de `pnpm-workspace.yaml`'daki `peerDependencyRules`'ta, gerekçesiyle; başka istisna yok.
 - `minimumReleaseAge: 1440`: bir günden yeni sürüm kurulmaz (ele geçirilmiş bir sürüm çoğunlukla saatler içinde fark
   edilir). Acil bir güvenlik yaması için bekleme süresi kısaltılmaz, ilgili paket `minimumReleaseAgeExclude`'a eklenir.
 - Paket eklemek: `pnpm --filter <paket> add -E <ad>` (kök için `pnpm add -w -D -E <ad>`).

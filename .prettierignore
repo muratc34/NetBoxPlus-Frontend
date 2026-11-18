@@ -3,3 +3,5 @@ pnpm-lock.yaml
 dist/
 coverage/
 .turbo/
+packages/api/src/generated/
+packages/api/openapi/*.json

@@ -15,6 +15,7 @@ behind a YARP gateway that keeps browser sessions in httpOnly cookies, so no acc
 apps/web          Customer site: Next.js (App Router). Catalog pages render on the server for search engines
                   and fast first paint; profiles, My List, playback and account pages call the gateway from the browser.
 apps/admin        Admin panel: Vite + React single-page app, served as static files.
+packages/api      Types and clients generated from the backend's OpenAPI documents.
 packages/ui       Design tokens (Tailwind CSS v4) and shared components.
 packages/i18n     Turkish and English texts, checked at compile time.
 packages/config   Shared TypeScript and test setup.
@@ -45,6 +46,8 @@ the backend's gateway allows, so start the backend first (`./deploy/dev.ps1 up -
 
 - **Strict by default:** TypeScript strict mode, type-aware ESLint, and accessibility rules (jsx-a11y) as errors.
 - **Dependencies pinned to exact, current versions;** pnpm refuses releases younger than a day.
+- **Generated API client:** types come from the backend's OpenAPI documents at a pinned commit; the web app's
+  client cannot even name an admin path, and requests that change data carry the session's CSRF token.
 - **Security headers** on every web response; no framework banner.
 
 ## License

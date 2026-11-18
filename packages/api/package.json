@@ -1,0 +1,22 @@
+{
+  "name": "@netboxplus/api",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.ts",
+    "sync": "node scripts/sync.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  },
+  "devDependencies": {
+    "@netboxplus/config": "workspace:*",
+    "openapi-typescript": "7.13.0"
+  }
+}
