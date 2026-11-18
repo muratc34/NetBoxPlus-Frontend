@@ -1,0 +1,26 @@
+/*
+ * NetBoxPlus design tokens for Tailwind CSS v4. Import after "tailwindcss" in each app's stylesheet.
+ * Text and accent colors keep at least 4.5:1 contrast on the canvas and surfaces they are used on.
+ */
+@theme {
+  --color-canvas: #121212;
+  --color-surface: #1d1d1d;
+  --color-surface-raised: #262626;
+  --color-line: #333333;
+  --color-ink: #e8e8e8;
+  --color-ink-strong: #ffffff;
+  --color-ink-muted: #a8a8a8;
+  --color-brand: #3ba0e6;
+  --color-brand-strong: #1a6fae;
+  --color-brand-strong-hover: #1f7fc4;
+  --color-focus: #7cc4f5;
+
+  --font-sans: var(--font-inter), 'Inter Variable', Inter, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), Montserrat, system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+}

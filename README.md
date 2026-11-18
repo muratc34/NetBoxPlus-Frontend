@@ -1,70 +1,52 @@
-# Getting Started with Create React App
+# NetBoxPlus Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Available Scripts
+The web and admin applications of NetBoxPlus, a subscription video streaming platform. They talk only to the
+gateway of [NetBoxPlus-Backend](https://github.com/muratc34/NetBoxPlus-Backend/tree/v2): five .NET 10 services
+behind a YARP gateway that keeps browser sessions in httpOnly cookies, so no access token ever reaches JavaScript.
 
-In the project directory, you can run:
+> Work in progress. The original graduation project (Create React App) is preserved under the
+> [`v1-graduation`](../../tree/v1-graduation) tag.
 
-### `npm start`
+## Layout
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+apps/web          Customer site: Next.js (App Router). Catalog pages render on the server for search engines
+                  and fast first paint; profiles, My List, playback and account pages call the gateway from the browser.
+apps/admin        Admin panel: Vite + React single-page app, served as static files.
+packages/ui       Design tokens (Tailwind CSS v4) and shared components.
+packages/i18n     Turkish and English texts, checked at compile time.
+packages/config   Shared TypeScript and test setup.
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting started
 
-### `npm test`
+Requires Node.js 24 and pnpm (the version in `package.json`, for example through `corepack enable`).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+pnpm install
+pnpm dev
+```
 
-### `npm run build`
+The web app runs on http://localhost:5173 and the admin panel on http://localhost:5174. These ports are the ones
+the backend's gateway allows, so start the backend first (`./deploy/dev.ps1 up -App` in the backend repository).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Command             | What it does                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------- |
+| `pnpm dev`          | Both apps in development mode                                                                |
+| `pnpm build`        | Production builds (web: Next.js standalone output; admin: static files in `apps/admin/dist`) |
+| `pnpm lint`         | ESLint with type-aware and accessibility rules                                               |
+| `pnpm typecheck`    | TypeScript in strict mode                                                                    |
+| `pnpm test`         | Vitest and Testing Library                                                                   |
+| `pnpm format:check` | Prettier                                                                                     |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Engineering notes
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Strict by default:** TypeScript strict mode, type-aware ESLint, and accessibility rules (jsx-a11y) as errors.
+- **Dependencies pinned to exact, current versions;** pnpm refuses releases younger than a day.
+- **Security headers** on every web response; no framework banner.
 
-### `npm run eject`
+## License
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+[MIT](LICENSE)

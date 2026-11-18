@@ -1,0 +1,4 @@
+{
+  "extends": "@netboxplus/config/tsconfig/vite.json",
+  "include": ["src", "vite.config.ts", "../../packages/config/vitest/setup.ts"]
+}

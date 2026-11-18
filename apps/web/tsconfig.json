@@ -1,0 +1,13 @@
+{
+  "extends": "@netboxplus/config/tsconfig/nextjs.json",
+  "include": [
+    "next-env.d.ts",
+    "src",
+    "*.ts",
+    "*.mjs",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "../../packages/config/vitest/setup.ts"
+  ],
+  "exclude": ["node_modules"]
+}
