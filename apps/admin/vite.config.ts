@@ -9,7 +9,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: { port, strictPort: true },
   preview: { port, strictPort: true },
-  build: { sourcemap: true },
+  // No public source maps; an error tracker would get hidden ones.
+  build: { sourcemap: false },
   test: {
     environment: 'jsdom',
     setupFiles: ['@netboxplus/config/vitest/setup'],

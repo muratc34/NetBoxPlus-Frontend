@@ -1,5 +1,6 @@
 # NetBoxPlus Frontend
 
+[![CI](https://github.com/muratc34/NetBoxPlus-Frontend/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/muratc34/NetBoxPlus-Frontend/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 The web and admin applications of NetBoxPlus, a subscription video streaming platform. They talk only to the
@@ -49,6 +50,31 @@ the backend's gateway allows, so start the backend first (`./deploy/dev.ps1 up -
 - **Generated API client:** types come from the backend's OpenAPI documents at a pinned commit; the web app's
   client cannot even name an admin path, and requests that change data carry the session's CSRF token.
 - **Security headers** on every web response; no framework banner.
+
+## Containers
+
+Both apps build from the repository root:
+
+```bash
+docker build --file apps/web/Dockerfile --tag netboxplus/web:local .
+docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
+```
+
+- **web:** the Next.js standalone server on distroless Node.js, as a non-root user without a shell, on port 3000.
+- **admin:** static files on unprivileged nginx (port 8080), with long-lived caching for hashed assets and a fallback
+  to `index.html` for client-side routes.
+- Both answer `/health/live` and send the same security headers.
+
+## Continuous integration
+
+[CI](.github/workflows/ci.yml) runs on every push and pull request to `master`:
+
+1. A check that the copied OpenAPI documents match the backend at the recorded commit.
+2. Formatting, lint, typecheck, tests and builds.
+3. `pnpm audit`.
+4. A build of both images.
+
+Actions are pinned to commit SHAs; Dependabot proposes npm, action and image updates weekly.
 
 ## License
 

@@ -92,9 +92,36 @@ pnpm format:check
 
 - `pnpm dev`: web `http://localhost:5173`, admin `http://localhost:5174`. Portlar sabit: gateway'in CORS listesi
   (`Cors:PublicOrigins`/`AdminOrigins`), Billing'in Stripe dönüş adresleri ve e-posta linkleri bunlara göre.
-- Turborepo anonim telemetri toplar; kapatmak için `TURBO_TELEMETRY_DISABLED=1` (CI'da set edilir).
+- Turborepo ve Next.js anonim telemetri toplar; kapatmak için `TURBO_TELEMETRY_DISABLED=1` ve `NEXT_TELEMETRY_DISABLED=1`
+  (CI'da ve image'larda set edilir).
 - Testler Vitest + Testing Library; globals yok (`describe`/`it`/`expect` import edilir), DOM matcher'ları
   `@netboxplus/config/vitest/setup`'tan.
+
+## CI ve image'lar
+
+**CI** (`.github/workflows/ci.yml`, `master`'a push ve PR'larda): `pnpm install --frozen-lockfile` → OpenAPI kopyası
+backend'in kayıtlı commit'iyle aynı mı (`sync --check`) → format → lint → typecheck → test → build →
+`pnpm audit --audit-level moderate` (bilinen açık build'i kırar; çözüm güncelleme, istisna değil) → paralel olarak iki
+image'ın build'i (push yok). Action'lar commit SHA'sıyla sabit. Dependabot (npm, actions, Docker) haftalık PR'ları
+`master`'a açar, bir günlük beklemeyle (`cooldown`).
+
+**Image'lar** repo kökünden build edilir:
+
+```powershell
+docker build --file apps/web/Dockerfile --tag netboxplus/web:local .
+```
+
+```powershell
+docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
+```
+
+- Build aşaması `node:<sürüm>-alpine`; paketler önce sadece lockfile'dan (`pnpm fetch`), sonra `--offline` kurulur.
+- **web:** distroless Node 24 `nonroot` (shell yok, digest'le sabit), Next standalone, port 3000, `/health/live`.
+- **admin:** `nginx-unprivileged` (uid 101), port 8080, `/health/live`. Hash'li dosyalar 1 yıl `immutable`,
+  `index.html` `no-cache`, bilinmeyen yol `index.html`'e (istemci router'ı). Güvenlik header'ları
+  `apps/admin/nginx/security-headers.conf`'ta ve her `location`'a `include` edilir (`location` içindeki `add_header`
+  server'ınkileri siler). Source map yayınlanmaz.
+- Base image sürümleri tam etiketle (`latest` yok) veya digest'le; Dependabot günceller.
 
 ## Çalışma kuralları
 

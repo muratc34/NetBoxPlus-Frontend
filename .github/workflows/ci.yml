@@ -1,0 +1,90 @@
+# Checks, tests and builds the whole workspace on every push and pull request to master.
+# Actions are pinned to commit SHAs (the version is in the comment); Dependabot keeps them current.
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  verify:
+    name: Lint, test and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The pnpm version comes from packageManager in package.json.
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # The copied OpenAPI documents must be the backend's at the recorded commit, untouched.
+      - name: Check the OpenAPI documents against the backend
+        run: pnpm --filter @netboxplus/api sync --check
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      # Known vulnerabilities in any installed package fail the build; the fix is an update, not an exception.
+      - name: Audit dependencies
+        run: pnpm audit --audit-level moderate
+
+  # Builds both images without pushing them, so a Dockerfile that misses a file it needs fails here.
+  image:
+    name: Image (${{ matrix.name }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: web
+            dockerfile: apps/web/Dockerfile
+          - name: admin
+            dockerfile: apps/admin/Dockerfile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build
+        env:
+          DOCKERFILE: ${{ matrix.dockerfile }}
+          IMAGE: netboxplus/${{ matrix.name }}:ci
+        run: docker build --file "$DOCKERFILE" --tag "$IMAGE" .
