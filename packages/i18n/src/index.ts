@@ -13,6 +13,11 @@ export function isLocale(value: string): value is Locale {
   return (locales as readonly string[]).includes(value);
 }
 
+/** Whether a key built at run time, such as `error.${code}`, has a text. */
+export function hasMessage(key: string): key is MessageKey {
+  return Object.hasOwn(tr, key);
+}
+
 /** Returns a lookup for one locale; keys are checked at compile time, so a missing text cannot ship. */
 export function createTranslator(locale: Locale): (key: MessageKey) => string {
   const messages = catalogs[locale];

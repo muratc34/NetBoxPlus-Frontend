@@ -24,13 +24,13 @@ gerekçesiyle söyle, karar değişirse önce dokümanı güncelle.
 apps/web          Next.js (App Router): katalog sayfaları sunucuda, kişisel her şey tarayıcıdan gateway'e
 apps/admin        Vite + React SPA: girişin arkasında, statik dosya olarak sunulur
 packages/api      Backend'in OpenAPI dokümanlarından üretilen tipler ve gateway client'ları
+packages/core     İki uygulamanın ortak veri katmanı: gateway, oturum ve 401, sorgu/mutation hook'ları, hata metinleri
 packages/ui       Tasarım token'ları (Tailwind v4 @theme) ve temel bileşenler
 packages/i18n     tr/en metinler; anahtarlar derleme zamanında kontrol edilir
 packages/config   Ortak tsconfig'ler ve Vitest kurulumu
 ```
 
-Sıradaki paket: `packages/core` (iki uygulamanın ortak veri katmanı: oturum ve 401, sorgu tanımları, oynatma oturumu,
-yükleme); `packages/api`'nin üstünde, iş kuralı içermez.
+`packages/core` `packages/api`'nin üstünde, iş kuralı içermez; sırada oynatma oturumu ve yükleme var.
 
 Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transpilePackages` / Vite).
 
@@ -175,3 +175,20 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   `Permissions-Policy`; `X-Powered-By` kapalı). Content-Security-Policy veri yükleyen ilk sayfalarla gelir.
 - **Web build'i** `output: 'standalone'` (container image için).
 - **Oturum:** token tarayıcıya hiç inmez; gateway'in `__Host-` cookie'si ve `X-CSRF-Token` (ARCHITECTURE §13.3).
+  `packages/core`'da: `useSession()` `GET /session`'ı tutar (401 = `null`) ve CSRF token'ını gateway client'ına verir; giriş
+  ve kayıt da token'ı yeniler, çıkış önbelleği boşaltır. Değişiklik yapan bir sayfa önce oturumun bilinmesini bekler (açık
+  bir sekmede cookie gider, token'sız istek 403 `Csrf.Invalid` olur). Bir istek 401 `Session.Expired`/`Session.Required`
+  alırsa (`createAppQueryClient`'ın `onSessionEnded`'ı) web önbelleği temizleyip `/<dil>/sign-in?next=<bulunduğu yer>`'e
+  gider; `next` sadece site içi bir yolsa izlenir (`safeNextPath`). 4xx tekrar denenmez.
+- **Hata metinleri:** `problemMessageKey(error)` backend'in `code`'una yazılmış metni (`error.User.EmailTaken`) yoksa
+  hatanın türüne göre olanı verir; `fieldMessageKeys` alan başına (backend alanları kendi adıyla yazar: `NewPassword`;
+  formlar büyük/küçük harfe bakmadan eşler). Backend'in `detail`'i gösterilmez. Hesabın varlığı belli olmaz (giriş hatası
+  hep aynı, şifre sıfırlama hep "gönderdik").
+- **Dil ve adresler:** her sayfa `/<dil>/...` altında (`tr`, `en`). Dilsiz bir adres (e-postadaki `/verify-email?token=…`
+  linkleri dahil) `src/proxy.ts`'te query'siyle birlikte `nbp-lang` cookie'sine, yoksa `Accept-Language`'a göre, yoksa `tr`'ye
+  yönlendirilir. Metinler `useLocale().t` (istemci) ve `translatorFor(params)` (sunucu).
+- **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
+  denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
+  sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).
+- **Testler:** Vitest + Testing Library + MSW (`msw` 3: `server.listen({ onUnhandledFrame: 'error' })`); web'in yardımcısı
+  `apps/web/src/test/render.tsx` (sağlayıcılar, strict mode, `next/navigation` taklidi).
