@@ -91,7 +91,7 @@ describe('ProfilePicker', () => {
     await user.click(await screen.findByRole('button', { name: 'Profil ekle' }));
     const dialog = await screen.findByRole('dialog', { name: 'Profil ekle' });
     await user.type(within(dialog).getByLabelText('Profil adı'), 'Deniz');
-    await user.selectOptions(within(dialog).getByLabelText('Yaş sınırı'), 'Age7');
+    await user.selectOptions(within(dialog).getByLabelText('İzleyebileceği içerikler'), 'Age7');
     await user.click(within(dialog).getByRole('button', { name: 'Kaydet' }));
 
     expect(await within(dialog).findByText('Bu adda bir profil zaten var.')).toBeInTheDocument();
@@ -124,8 +124,11 @@ describe('ProfilePicker', () => {
     await user.click(await screen.findByRole('button', { name: 'Profilleri yönet' }));
     await user.click(screen.getByRole('button', { name: 'Ada, düzenle' }));
     const dialog = await screen.findByRole('dialog', { name: 'Profili düzenle' });
-    expect(within(dialog).getByLabelText('Yaş sınırı')).toHaveValue('Age7');
-    await user.selectOptions(within(dialog).getByLabelText('Yaş sınırı'), 'Age13');
+    expect(within(dialog).getByLabelText('İzleyebileceği içerikler')).toHaveValue('Age7');
+    // The limit includes everything below it: the options say so.
+    expect(within(dialog).getByRole('option', { name: '7+ ve altı' })).toHaveProperty('selected', true);
+    expect(within(dialog).getByRole('option', { name: 'Tümü (18+ dahil)' })).toBeInTheDocument();
+    await user.selectOptions(within(dialog).getByLabelText('İzleyebileceği içerikler'), 'Age13');
     await user.click(within(dialog).getByRole('button', { name: 'Kaydet' }));
 
     await waitFor(() => {
