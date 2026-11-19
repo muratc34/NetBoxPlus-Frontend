@@ -44,8 +44,8 @@ describe('SignInForm', () => {
     expect(navigation.replace).not.toHaveBeenCalled();
   });
 
-  it('goes back to the page that asked for signing in', async () => {
-    navigation.search = new URLSearchParams({ next: '/tr/profiles?from=menu' });
+  it('goes on to choosing a profile, then back to the page that asked for signing in', async () => {
+    navigation.search = new URLSearchParams({ next: '/tr/search?q=gece' });
     server.use(
       signedOut,
       http.post(`${gatewayUrl}/session/sign-in`, () => HttpResponse.json(session)),
@@ -55,7 +55,7 @@ describe('SignInForm', () => {
     await fill('viewer@example.test', 'the right password');
 
     await waitFor(() => {
-      expect(navigation.replace).toHaveBeenCalledWith('/tr/profiles?from=menu');
+      expect(navigation.replace).toHaveBeenCalledWith('/tr/profiles?next=%2Ftr%2Fsearch%3Fq%3Dgece');
     });
   });
 
@@ -73,7 +73,7 @@ describe('SignInForm', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
     await waitFor(() => {
-      expect(navigation.replace).toHaveBeenCalledWith('/en');
+      expect(navigation.replace).toHaveBeenCalledWith('/en/profiles');
     });
   });
 

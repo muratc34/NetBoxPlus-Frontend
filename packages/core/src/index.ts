@@ -17,3 +17,15 @@ export {
   type Credentials,
   type Session,
 } from './session';
+export {
+  ageRatings,
+  maxProfiles,
+  profileKeys,
+  useCreateProfile,
+  useProfiles,
+  useRemoveProfile,
+  useUpdateProfile,
+  type AgeRating,
+  type Profile,
+  type ProfileFields,
+} from './profiles';
