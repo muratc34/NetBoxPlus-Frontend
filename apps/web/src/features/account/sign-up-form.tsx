@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FormAlert, TextField } from '../../components/form';
 import { useLocale } from '../../i18n/translator';
-import { routes } from '../../routes';
+import { profilesPath, routes } from '../../routes';
 import { email, messageOf, password, showProblem } from './form-rules';
 
 const schema = z
@@ -34,7 +34,7 @@ export function SignUpForm() {
   const submit = form.handleSubmit(async (values) => {
     try {
       await register.mutateAsync({ email: values.email, password: values.password });
-      router.replace(routes.home(locale));
+      router.replace(profilesPath(locale));
     } catch (error) {
       showProblem(error, ['email', 'password'], form.setError);
     }

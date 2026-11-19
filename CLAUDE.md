@@ -42,7 +42,7 @@ Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transp
   (`docs/openapi`'de commit'lenmemiş değişiklik varsa `--allow-dirty` ister ve `<commit>+local` yazar; bu hâliyle
   commit'lenmez, `--check` reddeder). `pnpm --filter @netboxplus/api sync --check`: kopya, kayıtlı commit'teki GitHub
   hâliyle aynı mı (CI).
-- **Tipler** `pnpm generate` ile `src/generated/`'a (git'te yok); Turborepo `dev`, `build`, `lint`, `typecheck` ve
+- **Tipler** `pnpm generate` ile `src/generated/`'a (git'te yok; `immutable` değil: openapi-fetch'in `Readable<T>`'ı `readonly T[]`'i tanımıyor, yanıtlardaki dizileri metotsuz bir nesneye çeviriyordu); Turborepo `dev`, `build`, `lint`, `typecheck` ve
   `test`'ten önce kendisi çalıştırır. Elle yazılmış API tipi yok: şemalar `CatalogSchemas['PublishedMovie']` gibi
   `@netboxplus/api`'den.
 - **İki yarı:** her servisin dokümanı ikiye bölünür (`scripts/split.ts`). Public yarı gateway'de `/<servis>/...`,
@@ -187,6 +187,12 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 - **Dil ve adresler:** her sayfa `/<dil>/...` altında (`tr`, `en`). Dilsiz bir adres (e-postadaki `/verify-email?token=…`
   linkleri dahil) `src/proxy.ts`'te query'siyle birlikte `nbp-lang` cookie'sine, yoksa `Accept-Language`'a göre, yoksa `tr`'ye
   yönlendirilir. Metinler `useLocale().t` (istemci) ve `translatorFor(params)` (sunucu).
+- **Profiller** (`apps/web/src/profiles`): girişten ve kayıttan sonra "Kim izliyor?" (`/<dil>/profiles?next=`); seçim web'in
+  kendi host'unda `nbp-profile` cookie'si (`<id>.<maxAgeRating>`, bir yıl, `SameSite=Lax`; gizli değil, sınır değil: D'deki SSR
+  sayfaları çocuk profiline `maxAgeRating` filtresini bununla uygular). `useProfileSelection()` cookie'yi `useSyncExternalStore` ile
+  okur (sunucuda boş, hydration uyumlu). Profiller gelince silinmiş ya da yaşı değişmiş bir seçim düşer ve hesap sayfası değilse
+  "Kim izliyor?"a gidilir; çıkış seçimi siler. En fazla 5 profil (Auth), ad 32 karakter; silme önce onay ister (Radix Dialog),
+  son profilin silinemeyişini backend söyler.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).

@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FormAlert, TextField } from '../../components/form';
 import { useLocale } from '../../i18n/translator';
-import { routes } from '../../routes';
+import { profilesPath, routes } from '../../routes';
 import { email, messageOf, showProblem } from './form-rules';
 
 // Any non-empty password is sent: the backend says whether it is right, never which part was wrong.
@@ -20,7 +20,8 @@ type Values = z.infer<typeof schema>;
 export function SignInForm() {
   const { locale, t } = useLocale();
   const router = useRouter();
-  const next = safeNextPath(useSearchParams().get('next')) ?? routes.home(locale);
+  // After signing in comes "Who's watching?", then the page that asked for signing in.
+  const next = profilesPath(locale, safeNextPath(useSearchParams().get('next')));
   const session = useSession();
   const signIn = useSignIn();
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } });

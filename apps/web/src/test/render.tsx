@@ -7,6 +7,7 @@ import { setupServer } from 'msw/node';
 import { StrictMode, type ReactElement } from 'react';
 import { vi } from 'vitest';
 import { LocaleProvider } from '../i18n/translator';
+import { ProfileSelectionProvider } from '../profiles/profile-selection';
 
 export const gatewayUrl = 'http://gateway.test';
 
@@ -26,6 +27,7 @@ export const navigation = {
   replace: vi.fn<(href: string) => void>(),
   push: vi.fn<(href: string) => void>(),
   search: new URLSearchParams(),
+  pathname: '/tr',
 };
 
 vi.mock('next/navigation', () => ({
@@ -38,17 +40,24 @@ vi.mock('next/navigation', () => ({
     prefetch: vi.fn(),
   }),
   useSearchParams: () => navigation.search,
-  usePathname: () => '/tr',
+  usePathname: () => navigation.pathname,
 }));
 
 /** Renders inside the application's providers, in strict mode like development does. */
-export function renderPage(element: ReactElement, locale: Locale = 'tr') {
+/** `withProfiles` adds the chosen-profile state, which asks for the profiles once there is a session. */
+export function renderPage(
+  element: ReactElement,
+  locale: Locale = 'tr',
+  options: { withProfiles?: boolean } = {},
+) {
   const queryClient = createAppQueryClient({ onSessionEnded: vi.fn() });
   return render(
     <StrictMode>
       <LocaleProvider locale={locale}>
         <QueryClientProvider client={queryClient}>
-          <GatewayProvider gateway={createBrowserGateway(gatewayUrl)}>{element}</GatewayProvider>
+          <GatewayProvider gateway={createBrowserGateway(gatewayUrl)}>
+            {options.withProfiles ? <ProfileSelectionProvider>{element}</ProfileSelectionProvider> : element}
+          </GatewayProvider>
         </QueryClientProvider>
       </LocaleProvider>
     </StrictMode>,

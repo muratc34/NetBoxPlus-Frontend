@@ -6,6 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { LocaleProvider } from '../../i18n/translator';
+import { ProfileSelectionProvider } from '../../profiles/profile-selection';
 import { signInPath } from '../../routes';
 
 // Inlined at build time; the browser calls the gateway on its public address.
@@ -41,7 +42,9 @@ export function Providers({ locale, children }: Readonly<{ locale: Locale; child
   return (
     <LocaleProvider locale={locale}>
       <QueryClientProvider client={queryClient}>
-        <GatewayProvider gateway={gateway}>{children}</GatewayProvider>
+        <GatewayProvider gateway={gateway}>
+          <ProfileSelectionProvider>{children}</ProfileSelectionProvider>
+        </GatewayProvider>
       </QueryClientProvider>
     </LocaleProvider>
   );
