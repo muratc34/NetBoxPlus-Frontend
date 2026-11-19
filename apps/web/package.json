@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@netboxplus/api": "workspace:*",
     "@netboxplus/i18n": "workspace:*",
     "@netboxplus/ui": "workspace:*",
     "next": "16.4.6",
