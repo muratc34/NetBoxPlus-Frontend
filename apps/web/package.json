@@ -6,23 +6,30 @@
     "dev": "next dev --port 5173",
     "build": "next build",
     "start": "next start --port 5173",
-    "lint": "eslint .",
+    "lint": "next typegen && eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@hookform/resolvers": "7.0.7",
     "@netboxplus/api": "workspace:*",
+    "@netboxplus/core": "workspace:*",
     "@netboxplus/i18n": "workspace:*",
     "@netboxplus/ui": "workspace:*",
+    "@radix-ui/react-dialog": "1.3.1",
+    "@tanstack/react-query": "5.108.0",
     "next": "16.4.6",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "react-hook-form": "7.92.0",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@netboxplus/config": "workspace:*",
     "@tailwindcss/postcss": "4.3.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "msw": "3.0.7",
     "tailwindcss": "4.3.5"
   }
 }

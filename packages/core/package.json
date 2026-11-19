@@ -1,0 +1,29 @@
+{
+  "name": "@netboxplus/core",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@netboxplus/api": "workspace:*",
+    "@netboxplus/i18n": "workspace:*",
+    "@tanstack/react-query": "5.108.0"
+  },
+  "devDependencies": {
+    "@netboxplus/config": "workspace:*",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "msw": "3.0.7",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

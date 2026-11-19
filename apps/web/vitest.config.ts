@@ -5,6 +5,6 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    setupFiles: ['@netboxplus/config/vitest/setup'],
+    setupFiles: ['@netboxplus/config/vitest/setup', './src/test/setup.ts'],
   },
 });
