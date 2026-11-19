@@ -18,7 +18,7 @@ const config: NextConfig = {
   turbopack: { root: workspaceRoot },
   poweredByHeader: false,
   reactStrictMode: true,
-  transpilePackages: ['@netboxplus/ui', '@netboxplus/i18n'],
+  transpilePackages: ['@netboxplus/api', '@netboxplus/ui', '@netboxplus/i18n'],
   headers: () => Promise.resolve([{ source: '/:path*', headers: securityHeaders }]),
 };
 

@@ -54,6 +54,12 @@ Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transp
   route'u açılırsa bu liste de güncellenir.
 - **İstek:** `credentials: 'include'` varsayılan (cookie gateway'in host'unda); sunucu tarafı anonim çağrılar `omit`.
   `csrfToken` verilirse GET/HEAD/OPTIONS dışındaki her isteğe `X-CSRF-Token` eklenir (istek anında okunur).
+- **Sunucudan gateway'e** (`apps/web/src/server/gateway.ts`): sayfa render ederken `gatewayForVisitor()` (ziyaretçinin isteği) veya
+  `gatewayForServer()` (önceden render). İstekler `GATEWAY_INTERNAL_URL`'e, `X-NetBoxPlus-Server-Key` (`GATEWAY_SERVER_KEY`, backend'in
+  `deploy/.env`'indeki değer) ve ziyaretçinin IP'siyle (`X-Forwarded-For`) gider; gateway rate limit'i ziyaretçi başına ve web
+  sunucusunun toplamına sayar. IP sadece `TRUSTED_PROXY_HOPS` ≥ 1 ise, `x-forwarded-for`'un sağdan o sıradaki girdisinden alınır:
+  Next header'ı sadece yoksa yazar, önünde proxy yokken (varsayılan 0) tarayıcı onu uydurabilir. Ayarlar `apps/web/.env.example`'da;
+  `NEXT_PUBLIC_` öneki yok, tarayıcıya girmez. Anahtarsız istekte `X-Forwarded-For` gönderilmez.
 - **Hatalar:** `unwrap(client.GET(...))` başarıda veriyi döner, hata durumunda `ApiError` atar: `status`, `code`
   (ör. `User.EmailTaken`), alan başına `fieldErrors`/`fieldErrorCodes`. Kullanıcıya `code`'a göre çevrilmiş metin
   gösterilir, backend'in `detail`'i geliştirici içindir. Ağ hatası olduğu gibi geçer.
