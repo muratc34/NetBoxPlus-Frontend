@@ -1,10 +1,12 @@
-import { createTranslator, isLocale, locales } from '@netboxplus/i18n';
+import { createTranslator, isLocale } from '@netboxplus/i18n';
 import type { Metadata, Viewport } from 'next';
 import { Inter, Montserrat } from 'next/font/google';
 import { notFound } from 'next/navigation';
-import { SiteHeader } from '../../components/site-header';
+import { connection } from 'next/server';
+import { MobileTabBar, SiteHeader } from '../../components/site-header';
 import { VerificationBanner } from '../../components/verification-banner';
 import '../globals.css';
+import { siteUrl } from '../../server/site';
 import { Providers } from './providers';
 
 // latin-ext carries the Turkish letters (ç, ğ, ı, ö, ş, ü).
@@ -21,10 +23,6 @@ const descriptions = {
   en: 'Movies and series in Turkish and English, on any device.',
 } as const;
 
-export function generateStaticParams() {
-  return locales.map((lang) => ({ lang }));
-}
-
 export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Promise<Metadata> {
   const { lang } = await params;
   const locale = isLocale(lang) ? lang : 'tr';
@@ -32,7 +30,7 @@ export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Prom
     title: { default: createTranslator(locale)('brand.name'), template: '%s · NetBoxPlus' },
     description: descriptions[locale],
     applicationName: 'NetBoxPlus',
-    alternates: { languages: Object.fromEntries(locales.map((other) => [other, `/${other}`])) },
+    metadataBase: siteUrl(),
   };
 }
 
@@ -42,6 +40,8 @@ export const viewport: Viewport = {
 };
 
 export default async function LocaleLayout({ children, params }: LayoutProps<'/[lang]'>) {
+  // Every page per request: the Content-Security-Policy's nonce is new each time (see proxy.ts).
+  await connection();
   const { lang } = await params;
   if (!isLocale(lang)) {
     notFound();
@@ -53,7 +53,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
         <Providers locale={lang}>
           <SiteHeader />
           <VerificationBanner />
-          <div className="flex flex-1 flex-col">{children}</div>
+          <div className="flex flex-1 flex-col pb-14 md:pb-0">{children}</div>
+          <MobileTabBar />
         </Providers>
       </body>
     </html>

@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
+import { installObservers } from './observers';
 import { navigation, server } from './render';
 
 beforeAll(() => {
@@ -13,6 +14,7 @@ beforeEach(() => {
   // Node-environment tests (the proxy, the server-side client) have no document.
   if (typeof document !== 'undefined') {
     document.cookie = 'nbp-profile=; Path=/; Max-Age=0';
+    installObservers();
   }
 });
 

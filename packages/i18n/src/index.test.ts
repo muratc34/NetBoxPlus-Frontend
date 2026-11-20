@@ -13,8 +13,8 @@ describe('createTranslator', () => {
   });
 
   it('returns the text of the asked locale', () => {
-    expect(createTranslator('tr')('web.comingSoon.title')).toBe('Çok yakında');
-    expect(createTranslator('en')('web.comingSoon.title')).toBe('Coming soon');
+    expect(createTranslator('tr')('nav.signIn')).toBe('Giriş yap');
+    expect(createTranslator('en')('nav.signIn')).toBe('Sign in');
   });
 });
 

@@ -1,4 +1,5 @@
-import { ageRatings, type AgeRating, type Profile } from '@netboxplus/core';
+import type { Profile } from '@netboxplus/core';
+import { ageRatings, type AgeRating } from '@netboxplus/core/reads';
 
 /**
  * The profile being watched, kept in a cookie of the web application's own host: `<id>.<maxAgeRating>`.

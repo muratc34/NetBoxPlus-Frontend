@@ -1,8 +1,14 @@
+import type { TitleKind } from '@netboxplus/core';
 import { isLocale, type Locale } from '@netboxplus/i18n';
 
 /** The pages other pages link to, in one place. */
 export const routes = {
   home: (locale: Locale) => `/${locale}`,
+  movies: (locale: Locale) => `/${locale}/movies`,
+  series: (locale: Locale) => `/${locale}/series`,
+  /** A movie's or a series' own page. */
+  title: (locale: Locale, kind: TitleKind, id: string) =>
+    `/${locale}/${kind === 'Movie' ? 'movies' : 'series'}/${id}`,
   signIn: (locale: Locale) => `/${locale}/sign-in`,
   signUp: (locale: Locale) => `/${locale}/sign-up`,
   forgotPassword: (locale: Locale) => `/${locale}/forgot-password`,
