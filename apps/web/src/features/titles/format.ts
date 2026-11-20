@@ -21,6 +21,11 @@ export function formatSeasonCount(count: number, t: Translate): string {
  * otherwise "Turkish" says enough. Each language once, in the order given.
  */
 export function formatLanguages(codes: readonly string[], locale: Locale): string[] {
+  return [...new Set(languageNames(codes, locale).values())];
+}
+
+/** Each code's name, by the same rule as `formatLanguages`: for naming the tracks of a video one by one. */
+export function languageNames(codes: readonly string[], locale: Locale): ReadonlyMap<string, string> {
   const base = (code: string) => code.split('-')[0]?.toLowerCase() ?? code;
   const counts = new Map<string, number>();
   for (const code of new Set(codes)) {
@@ -29,11 +34,12 @@ export function formatLanguages(codes: readonly string[], locale: Locale): strin
 
   const languages = new Intl.DisplayNames([locale], { type: 'language' });
   const dialects = new Intl.DisplayNames([locale], { type: 'language', languageDisplay: 'dialect' });
-  const names = [...new Set(codes)].map((code) => {
-    const name = (counts.get(base(code)) ?? 0) > 1 ? dialects.of(code) : languages.of(base(code));
-    return name ?? code;
-  });
-  return [...new Set(names)].map((name) => name.charAt(0).toLocaleUpperCase(locale) + name.slice(1));
+  return new Map(
+    [...new Set(codes)].map((code) => {
+      const name = ((counts.get(base(code)) ?? 0) > 1 ? dialects.of(code) : languages.of(base(code))) ?? code;
+      return [code, name.charAt(0).toLocaleUpperCase(locale) + name.slice(1)];
+    }),
+  );
 }
 
 /** A description for meta tags: the text's first sentences, at most about 160 characters. */

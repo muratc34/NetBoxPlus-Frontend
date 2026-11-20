@@ -1,6 +1,6 @@
 import type { ProgressView, PublishedSeason } from '@netboxplus/core';
 import { describe, expect, it } from 'vitest';
-import { chooseEpisode, orderEpisodes } from './episodes';
+import { chooseEpisode, nextEpisode, orderEpisodes } from './episodes';
 
 function season(number: number, episodes: number[]): PublishedSeason {
   return {
@@ -37,6 +37,15 @@ describe('orderEpisodes', () => {
   it('orders seasons, then episodes, by number', () => {
     expect(episodes.map((episode) => episode.id)).toEqual(['s1e1', 's1e2', 's1e3', 's2e1', 's2e2']);
     expect(episodes[3]).toEqual({ id: 's2e1', seasonNumber: 2, number: 1, title: 'Episode 1' });
+  });
+});
+
+describe('nextEpisode', () => {
+  it('is the episode after, across seasons, and none after the last or for an unknown one', () => {
+    expect(nextEpisode(episodes, 's1e2')?.id).toBe('s1e3');
+    expect(nextEpisode(episodes, 's1e3')?.id).toBe('s2e1');
+    expect(nextEpisode(episodes, 's2e2')).toBeUndefined();
+    expect(nextEpisode(episodes, 'gone')).toBeUndefined();
   });
 });
 

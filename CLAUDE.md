@@ -256,8 +256,17 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   silmesin); konum video öğesinden değil son okunan değerden (öğe kapanışta yok). hls.js `startPosition`; medya hatası bir kez
   `recoverMediaError`, sonra pencere. Hata penceresi koda göre: üyelik → Planlar, yaş/profil → profil seçimi (`next` ile), ekran
   sınırı → Tekrar dene + Hesap, izlenemez → sadece Geri; kapatmak başlığa döner. Detayda "Oynat" / "Devam et · S1:B2" + "Baştan izle",
-  bölüm listesinde oynat bağlantısı, İzlemeye devam et kartı oynatıcıya gider (`CardProgress.href`). Testte hls.js taklit
-  (`FakeHls`), `play`/`pause` jsdom'da prototipten.
+  bölüm listesinde oynat bağlantısı, İzlemeye devam et kartı oynatıcıya gider (`CardProgress.href`).
+- **Oynatıcı ayarları** (E2b): tek menü (Radix Dropdown, radyo grupları) ses, altyazı ve kalite; seçeneği olmayan grup yok, hiç yoksa
+  düğme yok (Safari'nin kendi HLS'inde menü yok). Adlar grup içinde `languageNames` ile (bölge sadece grupta aynı dilden iki varsa).
+  Ses ve altyazı seçimi profile kaydedilir (`PUT /profiles/{id}/playback-preferences`, ikisi birlikte, açık kod); sonraki oturum onlarla
+  başlar (master'da `DEFAULT=YES`). Kalite kaydedilmez (`currentLevel`, -1 otomatik; "Otomatik (720p)"). Menü ve hata penceresi
+  oynatıcının içine açılır (tam ekranda görünsün). Kısayollar: Space/K, ←/→ 10 sn, ↑/↓ ses, M, F, C (altyazı aç/kapa, son seçilene);
+  slider okları, odaklı düğmenin Space/Enter'ı, bağlantılar, menü/pencere içi ve Ctrl/Alt/Meta'lı tuşlar oynatıcının değil. Oynarken
+  3 sn hareketsizlikte kontroller ve imleç gizlenir (`useIdle`; duraklatınca, menü açıkken, hata varken gizlenmez); gizliyken de
+  tıklanabilir, fare hareketi/tuş/odak geri getirir, dokunmada video tıklaması kontrolleri açar. Sonraki bölüm: son 10 sn'de kart
+  ("Şimdi oynat"/"Kapat"), bitince `router.replace` ile sonrakine (`from=start` düşer); kapatıldıysa başlığa dönülür.
+  Testte hls.js taklidi ve yardımcıları `src/test/player.tsx` (`FakeHls.parse` izleri/seviyeleri verir, `setUpPlayerTests`).
 - **Menü:** üstte Ana Sayfa, Diziler, Filmler, Listem ve arama ikonu; avatar menüsünde Profil değiştir, Hesap, Çıkış; mobil alt çubukta Ana Sayfa, Diziler, Filmler, Arama, Listem.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen

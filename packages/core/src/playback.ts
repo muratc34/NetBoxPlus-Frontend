@@ -47,6 +47,11 @@ export interface PlaybackRequests {
     positionSeconds: number,
     options?: { keepalive?: boolean },
   ) => Promise<void>;
+  /**
+   * Keeps the profile's audio and subtitle language (`null`: the original audio, no subtitles); its next
+   * sessions start with them where the video offers them.
+   */
+  readonly savePreferences: (profileId: string, preferences: PlaybackPreferences) => Promise<void>;
 }
 
 /** Whole seconds, as Streaming keeps them; never negative. */
@@ -78,6 +83,14 @@ export function playbackRequests(streaming: PublicClients['streaming'], baseUrl:
         streaming.DELETE('/playback-sessions/{id}', {
           params: { path: { id: sessionId }, query: { positionSeconds: seconds(positionSeconds) } },
           ...(options.keepalive ? { keepalive: true } : {}),
+        }),
+      );
+    },
+    savePreferences: async (profileId, preferences) => {
+      await unwrap(
+        streaming.PUT('/profiles/{profileId}/playback-preferences', {
+          params: { path: { profileId } },
+          body: preferences,
         }),
       );
     },

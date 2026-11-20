@@ -124,6 +124,21 @@ describe('WatchPage', () => {
     expect(shown.props.map((props) => props.contentId)).not.toContain(series.id);
   });
 
+  it('offers the next episode, from where the profile stopped in it, and none after the last', async () => {
+    signInAs();
+    const { unmount } = renderPage(<WatchPage title={show} episodeId="e12" fromStart />);
+
+    await screen.findByRole('button', { name: 'playing e12' });
+    expect(last()?.next?.label).toBe('S2:B1 · Yeni Atölye');
+    last()?.next?.onPlay();
+    expect(navigation.replace).toHaveBeenCalledWith(`/tr/watch/${series.id}?episode=e21`);
+    unmount();
+
+    renderPage(<WatchPage title={show} episodeId="e21" fromStart={false} />);
+    await screen.findByRole('button', { name: 'playing e21' });
+    expect(last()?.next).toBeUndefined();
+  });
+
   it('goes on where the series stopped when the address names no episode it has', async () => {
     signInAs();
     const asked = progress([
