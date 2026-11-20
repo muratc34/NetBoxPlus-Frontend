@@ -245,6 +245,15 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   başlangıç; PastDue/Incomplete uyarısı; bitmişse "Yeniden abone ol"), Stripe portalı düğmesi, faturalar tablosu (10'ar, "daha fazla",
   kart "Visa •••• 4242"). Billing'in dönüş adresi `/account/subscription` → `/<dil>/account` (query korunur); `?checkout=success`'te
   abonelik `Active` olana kadar 2 sn'de bir, en fazla 30 sn sorulur (webhook gecikmesi), sonra "birkaç dakika içinde" mesajı.
+- **Hesap ayarları** (F, `/<dil>/account`): sıra giriş bilgileri, üyelik, faturalar, profiller, hesabı sil. Giriş bilgileri: adres
+  (gateway oturumundaki access token'dan; e-posta değişikliği onaylansa da token yenilenene kadar, en fazla 15 dk, eskisi görünür),
+  doğrulama rozeti ve gerekirse yeniden gönder; "E-postayı değiştir" / "Şifreyi değiştir" formları sayfa içinde, biri açıkken öteki
+  kapalı, açılınca ilk alana odak. `showProblem`'in `byCode`'u alan bilgisi olmayan kodları alana koyar (`User.PasswordIncorrect`,
+  `User.EmailTaken`, `User.EmailUnchanged`). Şifre değişince bu oturum sürer, diğerleri kapanır. Silme: Radix Dialog, şifre, canlı
+  üyelikte "hemen ve iadesiz iptal" uyarısı; başarıda pencere "Hesabın silindi" der (`useDeleteAccount` sadece CSRF'i siler, oturumu
+  silmez: sayfa ziyaretçiyi önce girişe atardı); "Ana sayfaya dön" ya da pencereyi kapatmak oturumu `null` yapar, diğer sorguları
+  kaldırır (`clear()` değil: gözlemciler eski sorguda kalırdı), profil cookie'sini siler ve ana sayfaya gider; hesap sayfası bu sırada
+  (`onLeave`) girişe yönlendirmez.
 - **Oynatıcı** (`/<dil>/watch/[titleId]`, E2a, `noindex`; dizide `?episode=`, baştan `?from=start`): başlık SSR (adreste bölüm varsa
   önce dizi sorulur; bölümsüz dizi 404), oynatma istemcide, sayfanın üstünde `fixed` katman. Bölümsüz dizi profilin ilerlemesinden
   devam eder (`chooseEpisode`: son güncellenen; bittiyse sonraki, son bölüm bittiyse baştan). Oturum `usePlaybackSession`: başlatma

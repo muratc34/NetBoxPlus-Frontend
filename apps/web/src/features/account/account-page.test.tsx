@@ -63,6 +63,9 @@ function billing({
   const asked = { subscription: 0, invoices: [] as string[] };
   signInAs();
   server.use(
+    http.get(`${gatewayUrl}/auth/email-verification`, () =>
+      HttpResponse.json({ verified: true, verifiedAt: null }),
+    ),
     http.get(`${gatewayUrl}/billing/subscription`, () => {
       asked.subscription++;
       const value = current();
@@ -113,6 +116,36 @@ describe('AccountPage', () => {
 
     expect(await screen.findByText('Henüz bir üyeliğin yok.')).toBeInTheDocument();
     expect(navigation.replace).not.toHaveBeenCalled();
+  });
+
+  it('puts the sign-in details first, then the membership, the profiles and deleting', async () => {
+    billing({ current: () => null });
+    renderPage(<AccountPage />);
+
+    await screen.findByRole('region', { name: 'Giriş bilgileri' });
+    expect(
+      screen
+        .getAllByRole('region')
+        .map((region) => region.getAttribute('aria-labelledby') && region.querySelector('h2')?.textContent),
+    ).toEqual(['Giriş bilgileri', 'Üyelik', 'Faturalar', 'Profiller', 'Hesabı sil']);
+    expect(screen.getByRole('region', { name: 'Giriş bilgileri' })).toHaveTextContent(viewerSession.email);
+    expect(screen.getByRole('link', { name: 'Profilleri yönet' })).toHaveAttribute('href', '/tr/profiles');
+  });
+
+  it('goes home after deleting the account, not to signing in', async () => {
+    billing({ current: () => null });
+    server.use(http.post(`${gatewayUrl}/session/deletion`, () => new HttpResponse(null, { status: 204 })));
+    renderPage(<AccountPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Hesabı sil' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.type(within(dialog).getByLabelText('Mevcut şifre'), 'the password');
+    await user.click(within(dialog).getByRole('button', { name: 'Hesabı kalıcı olarak sil' }));
+    await user.click(await within(dialog).findByRole('button', { name: 'Ana sayfaya dön' }));
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(navigation.replace.mock.calls).toEqual([['/tr']]);
   });
 
   it('offers the plans to an account that never subscribed', async () => {
