@@ -39,7 +39,7 @@ describe('HomePage', () => {
       return titlePage([title(3)]);
     });
 
-    renderPage(await HomePage(params('tr')));
+    renderPage(await HomePage(params('tr')), 'tr', { withProfiles: true });
 
     // The billboard takes the first title that has a wide image.
     expect(screen.getByRole('heading', { level: 2, name: 'Kuzey Işığı' })).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('HomePage', () => {
     vi.mocked(viewerAgeLimit).mockResolvedValue('Age7');
     answer(() => titlePage([title(1)]));
 
-    renderPage(await HomePage(params('en')), 'en');
+    renderPage(await HomePage(params('en')), 'en', { withProfiles: true });
 
     const filters = vi.mocked(loadTitles).mock.calls.map(([filter]) => filter);
     expect(filters).not.toHaveLength(0);
@@ -74,7 +74,7 @@ describe('HomePage', () => {
     vi.mocked(loadGenres).mockResolvedValue([]);
     answer(() => titlePage([]));
 
-    renderPage(await HomePage(params('tr')));
+    renderPage(await HomePage(params('tr')), 'tr', { withProfiles: true });
 
     expect(screen.getByText('Burada henüz bir şey yok.')).toBeInTheDocument();
     expect(screen.queryByRole('region')).not.toBeInTheDocument();

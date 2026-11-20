@@ -31,9 +31,10 @@ class TestIntersectionObserver implements IntersectionObserver {
     return [];
   }
 
-  intersect() {
+  intersect(isIntersecting = true) {
     const entries = [...this.elements].map(
-      (target) => ({ target, isIntersecting: true, intersectionRatio: 1 }) as IntersectionObserverEntry,
+      (target) =>
+        ({ target, isIntersecting, intersectionRatio: isIntersecting ? 1 : 0 }) as IntersectionObserverEntry,
     );
     if (entries.length > 0) {
       this.callback(entries, this);
@@ -57,6 +58,13 @@ class TestResizeObserver implements ResizeObserver {
   }
 }
 
+/** Everything observed scrolls out of view. */
+export function leaveView() {
+  for (const observer of [...watching]) {
+    observer.intersect(false);
+  }
+}
+
 /** Everything observed scrolls into view: lazy rows load, a grid's end comes near. */
 export function bringIntoView() {
   for (const observer of [...watching]) {
@@ -68,4 +76,23 @@ export function installObservers() {
   watching.clear();
   globalThis.IntersectionObserver = TestIntersectionObserver;
   globalThis.ResizeObserver = TestResizeObserver;
+}
+
+let reducedMotion = false;
+
+/** What `prefers-reduced-motion: reduce` answers until the next test; motion is allowed by default. */
+export function preferReducedMotion(value: boolean) {
+  reducedMotion = value;
+}
+
+/** jsdom has no `matchMedia`: every query is false except reduced motion, which a test may ask for. */
+export function installMatchMedia() {
+  reducedMotion = false;
+  // The application reads `matches` and listens for `change`; the deprecated listener methods are left out.
+  window.matchMedia = (query: string) =>
+    Object.assign(new EventTarget(), {
+      matches: query.includes('prefers-reduced-motion: reduce') && reducedMotion,
+      media: query,
+      onchange: null,
+    }) as unknown as MediaQueryList;
 }

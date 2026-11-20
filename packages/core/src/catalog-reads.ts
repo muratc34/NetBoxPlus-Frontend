@@ -52,3 +52,37 @@ export function readGenres(catalog: PublicClients['catalog'], lang: Locale): Pro
 export function nextTitlePage(page: TitlePage): number | undefined {
   return page.pageNumber * page.pageSize < page.totalCount ? page.pageNumber + 1 : undefined;
 }
+
+export type PublishedMovie = CatalogSchemas['PublishedMovie'];
+export type PublishedSeries = CatalogSchemas['PublishedSeries'];
+export type PublishedSeason = CatalogSchemas['PublishedSeason'];
+export type PublishedEpisode = CatalogSchemas['PublishedEpisode'];
+export type PublicPerson = CatalogSchemas['PublicPerson'];
+export type Credit = CatalogSchemas['CreditResponse'];
+
+/** A published movie with its credits and the languages its video offers; Catalog answers 404 for anything else. */
+export function readMovie(
+  catalog: PublicClients['catalog'],
+  id: string,
+  lang: Locale,
+): Promise<PublishedMovie> {
+  return unwrap(catalog.GET('/movies/{id}', { params: { path: { id }, query: { lang } } }));
+}
+
+/** A published series with its published seasons and episodes. */
+export function readSeries(
+  catalog: PublicClients['catalog'],
+  id: string,
+  lang: Locale,
+): Promise<PublishedSeries> {
+  return unwrap(catalog.GET('/series/{id}', { params: { path: { id }, query: { lang } } }));
+}
+
+/** Someone credited on published content. */
+export function readPerson(
+  catalog: PublicClients['catalog'],
+  id: string,
+  lang: Locale,
+): Promise<PublicPerson> {
+  return unwrap(catalog.GET('/people/{id}', { params: { path: { id }, query: { lang } } }));
+}

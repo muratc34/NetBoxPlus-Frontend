@@ -63,3 +63,18 @@ export function renderPage(
     </StrictMode>,
   );
 }
+
+type AsyncComponent = (props: unknown) => Promise<ReactElement>;
+
+function isAsyncComponent(type: unknown): type is AsyncComponent {
+  return typeof type === 'function' && type.constructor.name === 'AsyncFunction';
+}
+
+/**
+ * A page as the server renders it: Testing Library cannot render an async server component, so the ones at
+ * the top (a route returning `<TitlePage />`) are awaited first.
+ */
+export async function serverRendered(node: ReactElement | Promise<ReactElement>): Promise<ReactElement> {
+  const element = await node;
+  return isAsyncComponent(element.type) ? serverRendered(element.type(element.props)) : element;
+}

@@ -1,0 +1,100 @@
+'use client';
+
+import type { CatalogAgeRating, Genre, TitleKind } from '@netboxplus/core';
+import { AgeBadge } from '../../components/catalog/title-facts';
+import { TrailerBackdrop } from '../../components/catalog/trailer-backdrop';
+import { useLocale } from '../../i18n/translator';
+import { formatLanguages, formatRuntime, formatSeasonCount } from './format';
+
+export interface HeroTitle {
+  readonly id: string;
+  readonly kind: TitleKind;
+  readonly title: string;
+  readonly originalTitle: string | null | undefined;
+  readonly synopsis: string;
+  readonly releaseYear: number;
+  readonly ageRating: CatalogAgeRating;
+  readonly genres: readonly Genre[];
+  readonly backdropUrl: string | null | undefined;
+  readonly posterUrl: string | null | undefined;
+  readonly audioLanguages: readonly string[];
+  readonly subtitleLanguages: readonly string[];
+  /** A movie's length in minutes; a series gives its number of seasons instead. */
+  readonly runtimeMinutes?: number;
+  readonly seasonCount?: number;
+}
+
+/**
+ * The top of a movie's or a series' page: its image (then its trailer) under the header, the name, "year ·
+ * rating · length", genres, the synopsis and the languages its video offers. Playing comes with the player.
+ */
+export function TitleHero({ title }: Readonly<{ title: HeroTitle }>) {
+  const { locale, t } = useLocale();
+  const length =
+    title.runtimeMinutes !== undefined
+      ? formatRuntime(title.runtimeMinutes, t)
+      : title.seasonCount !== undefined
+        ? formatSeasonCount(title.seasonCount, t)
+        : undefined;
+  const audio = formatLanguages(title.audioLanguages, locale);
+  const subtitles = formatLanguages(title.subtitleLanguages, locale);
+  const showOriginal = title.originalTitle && title.originalTitle !== title.title;
+
+  return (
+    <section aria-labelledby="title-name" className="relative -mt-16 min-h-[30rem] sm:min-h-[36rem]">
+      <TrailerBackdrop
+        titleId={title.id}
+        imageUrl={title.backdropUrl ?? title.posterUrl}
+        title={title.title}
+        priority
+      />
+      <div className="relative flex min-h-[30rem] max-w-3xl flex-col justify-end gap-4 px-4 pt-24 pb-10 sm:min-h-[36rem] sm:px-8">
+        <h1
+          id="title-name"
+          className="font-display text-4xl font-extrabold text-ink-strong drop-shadow-lg sm:text-6xl"
+        >
+          {title.title}
+        </h1>
+        {showOriginal && (
+          <p className="text-sm text-ink-muted">
+            {t('title.originalTitle')}: <span lang="">{title.originalTitle}</span>
+          </p>
+        )}
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink">
+          <span>{title.releaseYear}</span>
+          <span aria-hidden="true">·</span>
+          <AgeBadge rating={title.ageRating} />
+          {length && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{length}</span>
+            </>
+          )}
+          {title.genres.length > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{title.genres.map((genre) => genre.name).join(', ')}</span>
+            </>
+          )}
+        </p>
+        <p className="max-w-2xl text-base leading-relaxed text-ink">{title.synopsis}</p>
+        {(audio.length > 0 || subtitles.length > 0) && (
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+            {audio.length > 0 && (
+              <>
+                <dt className="text-ink-muted">{t('title.audio')}</dt>
+                <dd className="text-ink">{audio.join(', ')}</dd>
+              </>
+            )}
+            {subtitles.length > 0 && (
+              <>
+                <dt className="text-ink-muted">{t('title.subtitles')}</dt>
+                <dd className="text-ink">{subtitles.join(', ')}</dd>
+              </>
+            )}
+          </dl>
+        )}
+      </div>
+    </section>
+  );
+}

@@ -1,8 +1,15 @@
+import { isApiError } from '@netboxplus/api';
 import {
   nextTitlePage,
   readGenres,
+  readMovie,
+  readPerson,
+  readSeries,
   readTitles,
   type Genre,
+  type PublicPerson,
+  type PublishedMovie,
+  type PublishedSeries,
   type TitleFilter,
   type TitlePage,
   type TitleSummary,
@@ -33,6 +40,33 @@ export async function loadTitles(filter: TitleFilter, page = 1): Promise<TitlePa
 export async function loadGenres(lang: Locale): Promise<Genre[]> {
   const gateway = await gatewayForVisitor();
   return cached(['genres', lang], () => readGenres(gateway.catalog, lang));
+}
+
+/** A detail read that is `null` when Catalog has no such published item (404), so the page can 404 too. */
+async function orNotFound<T>(read: () => Promise<T>): Promise<T | null> {
+  try {
+    return await read();
+  } catch (error) {
+    if (isApiError(error) && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function loadMovie(id: string, lang: Locale): Promise<PublishedMovie | null> {
+  const gateway = await gatewayForVisitor();
+  return cached(['movie', id, lang], () => orNotFound(() => readMovie(gateway.catalog, id, lang)));
+}
+
+export async function loadSeries(id: string, lang: Locale): Promise<PublishedSeries | null> {
+  const gateway = await gatewayForVisitor();
+  return cached(['series', id, lang], () => orNotFound(() => readSeries(gateway.catalog, id, lang)));
+}
+
+export async function loadPerson(id: string, lang: Locale): Promise<PublicPerson | null> {
+  const gateway = await gatewayForVisitor();
+  return cached(['person', id, lang], () => orNotFound(() => readPerson(gateway.catalog, id, lang)));
 }
 
 /** At most this many titles go into the sitemap (one file holds 50,000 addresses; two languages each). */

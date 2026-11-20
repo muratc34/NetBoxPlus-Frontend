@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { comedy, drama, title, titlePage } from '../../test/catalog';
 import { bringIntoView } from '../../test/observers';
-import { gatewayUrl, problem, renderPage, server } from '../../test/render';
+import { gatewayUrl, problem, renderPage, server, signedOut } from '../../test/render';
 import { Billboard } from './billboard';
 import { BrowseFilters } from './browse-filters';
 import { LazyTitleRow } from './lazy-title-row';
@@ -169,7 +169,10 @@ describe('TitleGrid', () => {
 
 describe('Billboard', () => {
   it('names the title and leads to its page, its image loading first', () => {
-    const { container } = renderPage(<Billboard title={title(7, { title: 'Kuzey Işığı' })} />);
+    server.use(signedOut);
+    const { container } = renderPage(<Billboard title={title(7, { title: 'Kuzey Işığı' })} />, 'tr', {
+      withProfiles: true,
+    });
 
     expect(screen.getByRole('heading', { level: 2, name: 'Kuzey Işığı' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Daha fazla bilgi' })).toHaveAttribute(

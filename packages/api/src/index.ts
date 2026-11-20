@@ -18,6 +18,7 @@ export {
   type PublicClients,
 } from './client';
 export { ApiError, isApiError, readProblem, unwrap, type ClientResult, type Problem } from './errors';
+export { servicePrefix, type ServiceName } from './services';
 
 /** Request and response shapes, by service and route group: `CatalogSchemas['PublishedMovie']`. */
 export type SessionSchemas = GatewayPublic['schemas'];

@@ -8,7 +8,7 @@ const readProfiles = (auth: PublicClients['auth']) => auth.GET('/profiles');
 /** A profile of the signed-in account, typed from the generated client. */
 export type Profile = NonNullable<Awaited<ReturnType<typeof readProfiles>>['data']>[number];
 
-export { ageRatings, type AgeRating } from './age-ratings';
+export { ageRatings, isWithinAgeLimit, type AgeRating } from './age-ratings';
 
 /** An account has at most this many profiles (Auth's rule); the page stops offering more. */
 export const maxProfiles = 5;
