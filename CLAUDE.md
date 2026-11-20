@@ -277,6 +277,18 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   ("Şimdi oynat"/"Kapat"), bitince `router.replace` ile sonrakine (`from=start` düşer); kapatıldıysa başlığa dönülür.
   Testte hls.js taklidi ve yardımcıları `src/test/player.tsx` (`FakeHls.parse` izleri/seviyeleri verir, `setUpPlayerTests`).
 - **Menü:** üstte Ana Sayfa, Diziler, Filmler, Listem ve arama ikonu; avatar menüsünde Profil değiştir, Hesap, Çıkış; mobil alt çubukta Ana Sayfa, Diziler, Filmler, Arama, Listem.
+- **Admin paneli** (`apps/admin`, G1): Vite SPA, react-router (`createBrowserRouter`, sayfalar `src/routes.tsx`'te `RouteObject[]`),
+  TanStack Query, react-hook-form + zod, Radix Dialog. Gateway'in admin oturumu (`/admin/session/...`, kendi cookie'si):
+  `useAdminSession()` (401 = `null`, CSRF token'ını client'a verir); `src/data/gateway.tsx` client'ları ve dosya yüklemeyi
+  (`upload`, testte taklit) sağlar. Oturumsuz her sayfa `/sign-in?next=<yer>`'e gider; çıkış düz `/sign-in`'e. Menü ve sayfalar
+  permission'a göre (`can(session, 'catalog:genres:write')`, `src/paths.ts`'teki `sections`): görünmeyen bölümün adresi "yetkin yok"
+  der, okuma izniyle form salt okunur (`fieldset disabled`), ana sayfa izinli ilk bölüme gider. Dil `tr`/`en` düğmeleri, seçim
+  `localStorage`'da (`nbp-admin-lang`; erişilemezse sadece o sekme). Ortak form bileşenleri (`TextField`, `TextAreaField`,
+  `SelectField`, `FormAlert`) `packages/ui`'da. Türler tek listede, ekleme/düzenleme pencerede (Türkçe ad zorunlu, boş çeviri
+  gönderilmez); kişiler `?search=` (300 ms) ve `?page=` ile adreste, 20'şer. Kişi sayfasında kaydedilmemiş değişiklik varken başka
+  sayfaya geçmek sorar (`useBlocker`). Görsel yükleme: tür ve boyut (JPEG/PNG/WebP, Catalog'un `maxBytes`'ı) önce tarayıcıda,
+  sonra `POST /images/uploads` → imzalı adrese XHR `PUT` (`x-ms-blob-type: BlockBlob`, ilerleme yüzdesi) → `PUT .../photo`
+  (`uploadId`); piksel ve oran Catalog'da. Silmeler onay penceresinde, ret (ör. `Genre.InUse`) pencerede gösterilir.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).
@@ -285,3 +297,5 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   `ResizeObserver` yerine `src/test/observers.ts` (hiçbir şey görünmez, `bringIntoView()`/`leaveView()`), `matchMedia` yerine
   `preferReducedMotion()`. Async sunucu bileşeni döndüren route'lar `serverRendered(Route(params))` ile render edilir. `renderPage`
   profil seçimini varsayılan olarak sarar ve her test oturumsuz başlar (`setup.ts`); `signInAs()` oturum + profil kurar.
+  Admin'in yardımcısı `apps/admin/src/test/render.tsx`: `renderApp(path)` bütün paneli memory router'la (adres `locationOf(router)`),
+  her test oturumsuz başlar, `signInWith(permissions)` oturum kurar.

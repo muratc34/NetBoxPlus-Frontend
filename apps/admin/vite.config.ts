@@ -13,6 +13,6 @@ export default defineConfig({
   build: { sourcemap: false },
   test: {
     environment: 'jsdom',
-    setupFiles: ['@netboxplus/config/vitest/setup'],
+    setupFiles: ['@netboxplus/config/vitest/setup', './src/test/setup.ts'],
   },
 });
