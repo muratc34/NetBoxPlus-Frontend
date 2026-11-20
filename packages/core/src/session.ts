@@ -133,3 +133,48 @@ export function useConfirmEmailChange() {
   const { clients } = useGateway();
   return useConfirmToken((token) => unwrap(clients.auth.POST('/email-change/confirm', { body: { token } })));
 }
+
+export interface PasswordChange {
+  readonly currentPassword: string;
+  readonly newPassword: string;
+}
+
+/** Changes the password; this session goes on, the account's other sessions end. */
+export function useChangePassword() {
+  const { clients } = useGateway();
+  return useMutation({
+    mutationFn: (body: PasswordChange) => unwrap(clients.session.POST('/session/password', { body })),
+  });
+}
+
+export interface EmailChange {
+  readonly newEmail: string;
+  readonly password: string;
+}
+
+/**
+ * Sends a confirmation link to the new address; the address changes only when it is opened. Auth allows
+ * one request a minute (409 `EmailChange.RequestedRecently`).
+ */
+export function useRequestEmailChange() {
+  const { clients } = useGateway();
+  return useMutation({
+    mutationFn: (body: EmailChange) => unwrap(clients.session.POST('/session/email', { body })),
+  });
+}
+
+/**
+ * Deletes the account for good. The gateway ends the session and clears its cookie; here the CSRF token
+ * goes at once. The session and the rest of the cache are the page's to clear, once it has said the
+ * account is gone (clearing them now would send the visitor to sign in first).
+ */
+export function useDeleteAccount() {
+  const { clients, setCsrfToken } = useGateway();
+  return useMutation({
+    mutationFn: (password: string) =>
+      unwrap(clients.session.POST('/session/deletion', { body: { password } })),
+    onSuccess: () => {
+      setCsrfToken(undefined);
+    },
+  });
+}

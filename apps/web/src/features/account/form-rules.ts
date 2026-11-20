@@ -1,3 +1,4 @@
+import { isApiError } from '@netboxplus/api';
 import { fieldMessageKeys, problemMessageKey } from '@netboxplus/core';
 import { hasMessage, type MessageKey } from '@netboxplus/i18n';
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form';
@@ -28,13 +29,22 @@ export function messageOf(t: (key: MessageKey) => string, message: string | unde
 
 /**
  * Puts a failed request's messages on the form: per field where the backend named one the form has
- * (matched without case: `NewPassword` is `newPassword`), else as the form's own message.
+ * (matched without case: `NewPassword` is `newPassword`), else as the form's own message. `byCode` puts
+ * an error the backend names no field for on the field it is about (`User.PasswordIncorrect` on the
+ * password).
  */
 export function showProblem<Values extends FieldValues>(
   error: unknown,
   fields: readonly Path<Values>[],
   setError: UseFormSetError<Values>,
+  byCode: Readonly<Record<string, Path<Values>>> = {},
 ) {
+  const field = isApiError(error) && error.code !== undefined ? byCode[error.code] : undefined;
+  if (field) {
+    setError(field, { type: 'server', message: problemMessageKey(error) });
+    return;
+  }
+
   let placed = false;
   for (const [field, key] of Object.entries(fieldMessageKeys(error))) {
     const match = fields.find((name) => name.toLowerCase() === field);

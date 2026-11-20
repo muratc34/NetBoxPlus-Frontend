@@ -74,10 +74,13 @@ export { fieldMessageKeys, problemMessageKey } from './problems';
 export { createAppQueryClient, isSessionEnded } from './query-client';
 export {
   queryKeys,
+  useChangePassword,
   useConfirmEmail,
   useConfirmEmailChange,
+  useDeleteAccount,
   useEmailVerification,
   useRegister,
+  useRequestEmailChange,
   useRequestPasswordReset,
   useResendVerification,
   useResetPassword,
@@ -85,6 +88,8 @@ export {
   useSignIn,
   useSignOut,
   type Credentials,
+  type EmailChange,
+  type PasswordChange,
   type Session,
 } from './session';
 export {

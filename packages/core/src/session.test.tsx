@@ -6,7 +6,17 @@ import type { ReactNode } from 'react';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createBrowserGateway, GatewayProvider } from './gateway';
 import { createAppQueryClient } from './query-client';
-import { queryKeys, useConfirmEmail, useSession, useSignIn, useSignOut, type Session } from './session';
+import {
+  queryKeys,
+  useChangePassword,
+  useConfirmEmail,
+  useDeleteAccount,
+  useRequestEmailChange,
+  useSession,
+  useSignIn,
+  useSignOut,
+  type Session,
+} from './session';
 
 const gatewayUrl = 'http://gateway.test';
 const session: Session = {
@@ -36,7 +46,7 @@ function setup(onSessionEnded = vi.fn()) {
       <GatewayProvider gateway={gateway}>{children}</GatewayProvider>
     </QueryClientProvider>
   );
-  return { queryClient, wrapper, onSessionEnded };
+  return { queryClient, wrapper, onSessionEnded, gateway };
 }
 
 describe('useSession', () => {
@@ -138,5 +148,75 @@ describe('createAppQueryClient', () => {
     });
 
     expect(onSessionEnded).toHaveBeenCalledOnce();
+  });
+});
+
+describe('account changes', () => {
+  function recorded(path: string) {
+    const sent: { body: unknown; csrf: string | null }[] = [];
+    server.use(
+      http.post(`${gatewayUrl}${path}`, async ({ request }) => {
+        sent.push({ body: await request.json(), csrf: request.headers.get('X-CSRF-Token') });
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    return sent;
+  }
+
+  it('change the password with the current one', async () => {
+    const sent = recorded('/session/password');
+    const { wrapper, gateway } = setup();
+    gateway.setCsrfToken('csrf');
+
+    const { result } = renderHook(() => useChangePassword(), { wrapper });
+    await act(() => result.current.mutateAsync({ currentPassword: 'old', newPassword: 'a new password' }));
+
+    expect(sent).toEqual([{ body: { currentPassword: 'old', newPassword: 'a new password' }, csrf: 'csrf' }]);
+  });
+
+  it('ask for a new address with the password', async () => {
+    const sent = recorded('/session/email');
+    const { wrapper } = setup();
+
+    const { result } = renderHook(() => useRequestEmailChange(), { wrapper });
+    await act(() => result.current.mutateAsync({ newEmail: 'new@example.test', password: 'secret' }));
+
+    expect(sent.map((request) => request.body)).toEqual([
+      { newEmail: 'new@example.test', password: 'secret' },
+    ]);
+  });
+
+  it('delete the account, after which no token is sent; the session is left to the page', async () => {
+    const sent = recorded('/session/deletion');
+    const { wrapper, gateway, queryClient } = setup();
+    gateway.setCsrfToken('csrf');
+    queryClient.setQueryData(queryKeys.session, session);
+
+    const { result } = renderHook(() => useDeleteAccount(), { wrapper });
+    await act(() => result.current.mutateAsync('secret'));
+
+    expect(sent).toEqual([{ body: { password: 'secret' }, csrf: 'csrf' }]);
+    expect(queryClient.getQueryData(queryKeys.session)).toEqual(session);
+    await act(() => result.current.mutateAsync('again'));
+    expect(sent[1]?.csrf).toBeNull();
+  });
+
+  it('keep the session when Auth refuses the deletion', async () => {
+    server.use(
+      http.post(`${gatewayUrl}/session/deletion`, () =>
+        HttpResponse.json({ status: 400, code: 'User.PasswordIncorrect' }, { status: 400 }),
+      ),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(queryKeys.session, session);
+
+    const { result } = renderHook(() => useDeleteAccount(), { wrapper });
+    await act(async () => {
+      await expect(result.current.mutateAsync('wrong')).rejects.toMatchObject({
+        code: 'User.PasswordIncorrect',
+      });
+    });
+
+    expect(queryClient.getQueryData(queryKeys.session)).toEqual(session);
   });
 });
