@@ -59,6 +59,14 @@ export {
   type PublishedSeason,
   type PublishedSeries,
 } from './catalog-reads';
+export {
+  playbackRequests,
+  streamingUrl,
+  usePlaybackRequests,
+  type PlaybackPreferences,
+  type PlaybackRequests,
+  type PlaybackSession,
+} from './playback';
 export { trailerKeys, useTrailer, type Trailer, type TrailerRating } from './trailers';
 export { createBrowserGateway, GatewayProvider, useGateway, type BrowserGateway } from './gateway';
 export { safeNextPath } from './navigation';

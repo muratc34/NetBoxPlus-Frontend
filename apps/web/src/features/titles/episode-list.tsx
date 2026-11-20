@@ -1,20 +1,23 @@
 'use client';
 
 import type { PublishedSeason } from '@netboxplus/core';
+import Link from 'next/link';
 import { useId, useState } from 'react';
 import { useLocale } from '../../i18n/translator';
+import { routes } from '../../routes';
+import { PlayIcon } from '../watch/player-icons';
 import { formatRuntime } from './format';
 import { EpisodeProgress, useProgressById } from './title-progress';
 
 /**
  * A series' episodes, one season at a time: a season picker (a plain select, left out with one season)
- * and the chosen season's episodes in order, each with the watching profile's progress.
+ * and the chosen season's episodes in order, each with the watching profile's progress and a play link.
  */
 export function EpisodeList({
   seriesId,
   seasons,
 }: Readonly<{ seriesId: string; seasons: readonly PublishedSeason[] }>) {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const progress = useProgressById(seriesId);
   const pickerId = useId();
   const ordered = [...seasons].sort((a, b) => a.number - b.number);
@@ -69,6 +72,15 @@ export function EpisodeList({
               >
                 {episode.number}
               </span>
+              <Link
+                href={routes.watch(locale, seriesId, { episode: episode.id })}
+                aria-label={t('player.playEpisode')
+                  .replace('{number}', String(episode.number))
+                  .replace('{title}', episode.title)}
+                className="order-last ml-auto inline-flex size-11 shrink-0 items-center justify-center self-center rounded-full border border-line text-ink-strong hover:bg-white/10 focus-visible:outline-3 focus-visible:outline-focus"
+              >
+                <PlayIcon />
+              </Link>
               <div className="flex min-w-0 flex-col gap-1">
                 <h3 className="font-semibold text-ink-strong">
                   <span className="sr-only">{episode.number}. </span>

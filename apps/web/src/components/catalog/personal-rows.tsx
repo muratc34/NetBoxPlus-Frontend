@@ -11,6 +11,7 @@ import type { MessageKey } from '@netboxplus/i18n';
 import { formatRuntime } from '../../features/titles/format';
 import { useLocale } from '../../i18n/translator';
 import { useWatchingProfile } from '../../profiles/profile-selection';
+import { routes } from '../../routes';
 import type { CardProgress } from './title-card';
 import { TitleRow, TitleRowSkeleton } from './title-row';
 
@@ -57,7 +58,12 @@ function ContinueWatchingRow({ profileId }: Readonly<{ profileId: string }>) {
   const byId = new Map((titles.data ?? []).map((title) => [title.id, title]));
   const cards = (items.data ?? []).flatMap((item) => {
     const title = byId.get(item.titleId);
-    return title ? [{ title, progress: progressOf(item, t) }] : [];
+    const href = routes.watch(
+      locale,
+      item.titleId,
+      item.kind === 'Series' ? { episode: item.contentId } : {},
+    );
+    return title ? [{ title, progress: { ...progressOf(item, t), href } }] : [];
   });
   return cards.length > 0 ? (
     <TitleRow

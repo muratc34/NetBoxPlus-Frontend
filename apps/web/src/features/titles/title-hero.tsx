@@ -5,6 +5,8 @@ import { AgeBadge } from '../../components/catalog/title-facts';
 import { MyListButton } from '../../components/catalog/my-list-button';
 import { TrailerBackdrop } from '../../components/catalog/trailer-backdrop';
 import { MovieProgress } from './title-progress';
+import { PlayButtons } from './play-buttons';
+import type { PlayableEpisode } from '../watch/episodes';
 import { useLocale } from '../../i18n/translator';
 import { formatLanguages, formatRuntime, formatSeasonCount } from './format';
 
@@ -24,11 +26,13 @@ export interface HeroTitle {
   /** A movie's length in minutes; a series gives its number of seasons instead. */
   readonly runtimeMinutes?: number;
   readonly seasonCount?: number;
+  /** A series' episodes in watching order, for where its play button goes on. */
+  readonly episodes?: readonly PlayableEpisode[];
 }
 
 /**
  * The top of a movie's or a series' page: its image (then its trailer) under the header, the name, "year ·
- * rating · length", genres, the synopsis and the languages its video offers. Playing comes with the player.
+ * rating · length", genres, the synopsis, the languages its video offers, and playing.
  */
 export function TitleHero({ title }: Readonly<{ title: HeroTitle }>) {
   const { locale, t } = useLocale();
@@ -97,7 +101,10 @@ export function TitleHero({ title }: Readonly<{ title: HeroTitle }>) {
             )}
           </dl>
         )}
-        <MyListButton titleId={title.id} kind={title.kind} title={title.title} variant="hero" />
+        <div className="flex flex-wrap items-center gap-3">
+          <PlayButtons titleId={title.id} kind={title.kind} episodes={title.episodes ?? []} />
+          <MyListButton titleId={title.id} kind={title.kind} title={title.title} variant="hero" />
+        </div>
       </div>
     </section>
   );

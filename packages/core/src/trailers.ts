@@ -1,6 +1,7 @@
-import { isApiError, servicePrefix, unwrap, type StreamingSchemas } from '@netboxplus/api';
+import { isApiError, unwrap, type StreamingSchemas } from '@netboxplus/api';
 import { useQuery } from '@tanstack/react-query';
 import { useGateway } from './gateway';
+import { streamingUrl } from './playback';
 
 export type TrailerRating = StreamingSchemas['AgeRating'];
 
@@ -28,9 +29,8 @@ export function useTrailer(titleId: string, enabled: boolean) {
         const link = await unwrap(
           clients.streaming.GET('/titles/{titleId}/trailer', { params: { path: { titleId } } }),
         );
-        const root = `${baseUrl.replace(/\/+$/, '')}${servicePrefix('streaming')}/`;
         return {
-          playlistUrl: new URL(link.playlist, root).toString(),
+          playlistUrl: streamingUrl(baseUrl, link.playlist),
           durationSeconds: link.durationSeconds,
           ageRating: link.ageRating,
         };

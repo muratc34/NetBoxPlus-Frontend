@@ -14,6 +14,8 @@ export interface CardProgress {
   readonly fraction: number;
   /** Said under the title, such as "23 min left". */
   readonly label: string;
+  /** Where the card goes instead of the title's page: the player, at this movie or episode. */
+  readonly href?: string;
 }
 
 /**
@@ -50,7 +52,7 @@ export function TitleCard({
       )}
     >
       <Link
-        href={routes.title(locale, title.kind, title.id)}
+        href={progress?.href ?? routes.title(locale, title.kind, title.id)}
         className="flex flex-col rounded-md outline-none focus-visible:ring-3 focus-visible:ring-focus"
       >
         {/* First in the markup, so it is what a screen reader reads first; drawn under the image. */}
