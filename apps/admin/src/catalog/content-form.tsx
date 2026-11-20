@@ -13,6 +13,9 @@ import { searchDelayMs } from '../components/address-search';
 /** The roles a movie credits; `Creator` belongs to series and is offered there. */
 export const movieRoles: readonly CreditRole[] = ['Director', 'Writer', 'Actor'];
 
+/** A series also credits its creators, first. */
+export const seriesRoles: readonly CreditRole[] = ['Creator', 'Director', 'Writer', 'Actor'];
+
 const textSchema = {
   title: z.string().trim().max(200, 'error.Content.TitleTooLong'),
   synopsis: z.string().trim().max(2000, 'error.Content.SynopsisTooLong'),

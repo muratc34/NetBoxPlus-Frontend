@@ -302,6 +302,13 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   listesi; eksikte ya da kaydedilmemiş değişiklikte kapalı (kayıtlı hâli yayınlar). Yayından kaldır sorar; yayındaki film
   silinemez, afişi kaldırılamaz. Permission'lar `catalog:movies:read|write|publish|delete`, görseller ayrıca
   `catalog:images:upload`.
+- **Admin dizileri** (G3): liste filmlerle aynı (`TitleFilters`/`useTitleFilters`, `TitleList`; ek sütun sezon ve bölüm sayısı).
+  Dizi sayfası filmle aynı parçalar (`catalog/title-sections.tsx`: görseller, yayın, silme, çakışma uyarısı; veri `data/titles.ts`,
+  tür `movie`/`series`); rollerde Yaratıcı da var, süre yok. Sezon ve bölümler aynı sayfada (`seasons-editor.tsx`), ekleme ve
+  düzenleme pencerede (varsayılan numara bir sonraki; sezon adı isteğe bağlı, boş dil gönderilmez; bölüm metinleri filmdeki kuralla).
+  Sezon ve bölüm işlemleri dizinin `version`'ını taşır ve editörü bir artırır (`versioned`), pencereler ana formu kaydedilmemiş
+  saymaz. Bölüm yayını videosuz kapalı; yayındaki dizinin son yayındaki bölümü kaldırılamaz; yayındaki bölüm ve yayında bölümü olan
+  sezon silinemez (düğme kapalı, nedeni yazılı). Dizinin yayını en az bir yayındaki bölüm ister.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).

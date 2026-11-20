@@ -4,6 +4,8 @@ import { MoviePage } from './catalog/movie-page';
 import { MoviesPage } from './catalog/movies-page';
 import { PeoplePage } from './catalog/people-page';
 import { PersonPage } from './catalog/person-page';
+import { SeriesListPage } from './catalog/series-list-page';
+import { SeriesPage } from './catalog/series-page';
 import { Home, NotFound, RequirePermission, Shell } from './shell/shell';
 import { SignInPage } from './shell/sign-in-page';
 
@@ -35,6 +37,30 @@ export const routes: RouteObject[] = [
         element: (
           <RequirePermission permission="catalog:movies:read">
             <MoviePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'series',
+        element: (
+          <RequirePermission permission="catalog:series:read">
+            <SeriesListPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'series/new',
+        element: (
+          <RequirePermission permission="catalog:series:write">
+            <SeriesPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'series/:id',
+        element: (
+          <RequirePermission permission="catalog:series:read">
+            <SeriesPage />
           </RequirePermission>
         ),
       },
