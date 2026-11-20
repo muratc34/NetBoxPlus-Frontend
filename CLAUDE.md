@@ -245,6 +245,19 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   başlangıç; PastDue/Incomplete uyarısı; bitmişse "Yeniden abone ol"), Stripe portalı düğmesi, faturalar tablosu (10'ar, "daha fazla",
   kart "Visa •••• 4242"). Billing'in dönüş adresi `/account/subscription` → `/<dil>/account` (query korunur); `?checkout=success`'te
   abonelik `Active` olana kadar 2 sn'de bir, en fazla 30 sn sorulur (webhook gecikmesi), sonra "birkaç dakika içinde" mesajı.
+- **Oynatıcı** (`/<dil>/watch/[titleId]`, E2a, `noindex`; dizide `?episode=`, baştan `?from=start`): başlık SSR (adreste bölüm varsa
+  önce dizi sorulur; bölümsüz dizi 404), oynatma istemcide, sayfanın üstünde `fixed` katman. Bölümsüz dizi profilin ilerlemesinden
+  devam eder (`chooseEpisode`: son güncellenen; bittiyse sonraki, son bölüm bittiyse baştan). Oturum `usePlaybackSession`: başlatma
+  bir sonraki turda (strict mode'un geri alınan mount'u istek atmaz), `heartbeatSeconds`'ta bir konum, duraklatma/atlamada en fazla
+  5 sn'de bir ek heartbeat, kapanışta `DELETE ?positionSeconds=` ve ardından profilin kişisel sorguları yeniden sorulur; sekme
+  kapanırken `keepalive` (CSRF header'ıyla ön kontrollü, Chromium'da çalışıyor; düşerse Streaming 2 dk sonra kapatır), geçmişten
+  dönünce yeni oturum. Yeni oturum, hangi oynatıcının olursa olsun, öncekinin bitmesini bekler (modül düzeyinde `lastEnding`):
+  tek ekranlı plan aksi halde 409 verirdi. Oynatıcının hiç göstermediği oturum kendi `resumeFromSeconds`'ıyla biter (konumu
+  silmesin); konum video öğesinden değil son okunan değerden (öğe kapanışta yok). hls.js `startPosition`; medya hatası bir kez
+  `recoverMediaError`, sonra pencere. Hata penceresi koda göre: üyelik → Planlar, yaş/profil → profil seçimi (`next` ile), ekran
+  sınırı → Tekrar dene + Hesap, izlenemez → sadece Geri; kapatmak başlığa döner. Detayda "Oynat" / "Devam et · S1:B2" + "Baştan izle",
+  bölüm listesinde oynat bağlantısı, İzlemeye devam et kartı oynatıcıya gider (`CardProgress.href`). Testte hls.js taklit
+  (`FakeHls`), `play`/`pause` jsdom'da prototipten.
 - **Menü:** üstte Ana Sayfa, Diziler, Filmler, Listem ve arama ikonu; avatar menüsünde Profil değiştir, Hesap, Çıkış; mobil alt çubukta Ana Sayfa, Diziler, Filmler, Arama, Listem.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen

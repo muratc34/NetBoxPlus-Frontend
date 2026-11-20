@@ -1,6 +1,13 @@
 import type { TitleKind } from '@netboxplus/core';
 import { isLocale, type Locale } from '@netboxplus/i18n';
 
+export interface WatchOptions {
+  /** The episode of a series to play. */
+  readonly episode?: string;
+  /** From the beginning instead of where the profile stopped. */
+  readonly fromStart?: boolean;
+}
+
 /** The pages other pages link to, in one place. */
 export const routes = {
   home: (locale: Locale) => `/${locale}`,
@@ -19,6 +26,18 @@ export const routes = {
   profiles: (locale: Locale) => `/${locale}/profiles`,
   plans: (locale: Locale) => `/${locale}/plans`,
   account: (locale: Locale) => `/${locale}/account`,
+  /** The player: a movie, or a series' `episode` (the series goes on where it stopped without one). */
+  watch: (locale: Locale, titleId: string, options: WatchOptions = {}) => {
+    const query = new URLSearchParams();
+    if (options.episode) {
+      query.set('episode', options.episode);
+    }
+    if (options.fromStart) {
+      query.set('from', 'start');
+    }
+    const search = query.toString();
+    return `/${locale}/watch/${titleId}${search ? `?${search}` : ''}`;
+  },
 };
 
 function withNext(base: string, next: string | undefined): string {

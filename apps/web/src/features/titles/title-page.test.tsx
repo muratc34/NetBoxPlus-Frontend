@@ -39,6 +39,7 @@ describe('MoviePage', () => {
     expect(screen.getByText(movie.synopsis)).toBeInTheDocument();
     expect(screen.getByText('Türkçe, İngilizce')).toBeInTheDocument();
     expect(screen.getByText('Amerikan İngilizcesi, İngiliz İngilizcesi')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Oynat' })).toHaveAttribute('href', `/tr/watch/${movie.id}`);
   });
 
   it('lists the crew by role and the cast in order, each leading to their page', async () => {
@@ -103,6 +104,11 @@ describe('SeriesPage', () => {
     renderPage(await serverRendered(SeriesPage(params('tr', series.id))), 'tr', { withProfiles: true });
 
     expect(screen.getByText('2 sezon')).toBeInTheDocument();
+    // Its play button starts at the first episode of the first season.
+    expect(screen.getByRole('link', { name: 'Oynat' })).toHaveAttribute(
+      'href',
+      `/tr/watch/${series.id}?episode=e11`,
+    );
     const episodes = screen.getByRole('region', { name: 'Bölümler' });
     expect(
       within(episodes)

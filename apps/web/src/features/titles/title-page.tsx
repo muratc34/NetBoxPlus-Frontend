@@ -6,6 +6,7 @@ import { routes } from '../../routes';
 import { loadTitles, viewerAgeLimit } from '../../server/catalog';
 import { Credits } from './credits';
 import { EpisodeList } from './episode-list';
+import { orderEpisodes } from '../watch/episodes';
 import { metaDescription } from './format';
 import { TitleHero, type HeroTitle } from './title-hero';
 
@@ -88,7 +89,11 @@ function hero(details: TitleDetails): HeroTitle {
   };
   return details.kind === 'Movie'
     ? { ...common, runtimeMinutes: details.item.runtimeMinutes }
-    : { ...common, seasonCount: details.item.seasons.length };
+    : {
+        ...common,
+        seasonCount: details.item.seasons.length,
+        episodes: orderEpisodes(details.item.seasons),
+      };
 }
 
 /** A movie's or a series' page: the hero, a series' episodes, the cast and crew, and similar titles. */

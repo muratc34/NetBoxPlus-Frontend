@@ -104,12 +104,19 @@ describe('PersonalRows', () => {
       expect.stringMatching(/^Title 1Sıradaki bölüm2024/),
       expect.stringMatching(/^Title 220 dk kaldı2024/),
     ]);
+    // Going on opens the player at the movie or episode.
+    expect(
+      within(watching)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual([`/tr/watch/${one}?episode=e`, `/tr/watch/${two}`]);
     const list = screen.getByRole('region', { name: 'Listem' });
     expect(
       within(list)
         .getAllByRole('link')
         .map((link) => link.textContent),
     ).toEqual([expect.stringMatching(/^Title 22024/)]);
+    expect(within(list).getByRole('link')).toHaveAttribute('href', `/tr/movies/${two}`);
   });
 
   it('leaves out empty rows, and shows at most twenty of the list', async () => {
