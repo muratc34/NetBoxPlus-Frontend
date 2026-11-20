@@ -5,27 +5,24 @@ import Link from 'next/link';
 import { useLocale } from '../../i18n/translator';
 import { routes } from '../../routes';
 import { TitleFacts } from './title-facts';
-import { TitleImage } from './title-image';
+import { TrailerBackdrop } from './trailer-backdrop';
 
 /**
  * The home page's first screen: the most watched title's wide image under the transparent header, its
- * name and facts, and a way to its page. Its image is the page's largest paint, so it loads first.
+ * name and facts, and a way to its page. Its image is the page's largest paint, so it loads first; its
+ * trailer follows (see TrailerBackdrop).
  */
 export function Billboard({ title }: Readonly<{ title: TitleSummary }>) {
   const { locale, t } = useLocale();
 
   return (
     <section aria-labelledby="billboard-title" className="relative -mt-16 min-h-[24rem] sm:min-h-[32rem]">
-      <div className="absolute inset-0 overflow-hidden">
-        <TitleImage
-          url={title.backdropUrl ?? title.posterUrl}
-          title={title.title}
-          priority
-          className="h-full w-full"
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-canvas via-canvas/60 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-canvas to-transparent" />
-      </div>
+      <TrailerBackdrop
+        titleId={title.id}
+        imageUrl={title.backdropUrl ?? title.posterUrl}
+        title={title.title}
+        priority
+      />
       <div className="relative flex min-h-[24rem] max-w-2xl flex-col justify-end gap-4 px-4 pt-24 pb-12 sm:min-h-[32rem] sm:px-8">
         <h2
           id="billboard-title"

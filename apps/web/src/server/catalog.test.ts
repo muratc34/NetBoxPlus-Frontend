@@ -6,6 +6,8 @@ import { server } from '../test/render';
 import {
   catalogRevalidateSeconds,
   loadGenres,
+  loadMovie,
+  loadPerson,
   loadPublishedTitles,
   loadTitles,
   sitemapTitleLimit,
@@ -67,6 +69,33 @@ describe('loadTitles', () => {
     ]);
     expect(new URL(sent[0]?.url ?? '').search).toBe('?lang=en&genreId=g&maxAgeRating=Age7&page=3');
     expect(sent[0]?.headers.get('x-forwarded-for')).toBe('203.0.113.9');
+  });
+});
+
+describe('loadMovie and loadPerson', () => {
+  it('are the published item, cached by id and language', async () => {
+    server.use(
+      http.get(`${gateway}/catalog/movies/m1`, ({ request }) =>
+        HttpResponse.json({ id: 'm1', lang: new URL(request.url).searchParams.get('lang') }),
+      ),
+    );
+
+    expect(await loadMovie('m1', 'en')).toEqual({ id: 'm1', lang: 'en' });
+    expect(cacheCalls[0]?.key).toEqual(['catalog', JSON.stringify(['movie', 'm1', 'en'])]);
+  });
+
+  it('are null when Catalog has no such item, and fail when it cannot answer', async () => {
+    server.use(
+      http.get(`${gateway}/catalog/people/gone`, () =>
+        HttpResponse.json({ status: 404, code: 'Person.NotFound' }, { status: 404 }),
+      ),
+      http.get(`${gateway}/catalog/people/broken`, () =>
+        HttpResponse.json({ status: 503, code: 'Data.Unavailable' }, { status: 503 }),
+      ),
+    );
+
+    expect(await loadPerson('gone', 'tr')).toBeNull();
+    await expect(loadPerson('broken', 'tr')).rejects.toMatchObject({ status: 503 });
   });
 });
 

@@ -9,6 +9,7 @@ export const routes = {
   /** A movie's or a series' own page. */
   title: (locale: Locale, kind: TitleKind, id: string) =>
     `/${locale}/${kind === 'Movie' ? 'movies' : 'series'}/${id}`,
+  person: (locale: Locale, id: string) => `/${locale}/people/${id}`,
   signIn: (locale: Locale) => `/${locale}/sign-in`,
   signUp: (locale: Locale) => `/${locale}/sign-up`,
   forgotPassword: (locale: Locale) => `/${locale}/forgot-password`,

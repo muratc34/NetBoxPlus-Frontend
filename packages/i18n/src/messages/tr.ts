@@ -143,6 +143,23 @@ export const tr = {
   'page.notFound.title': 'Sayfa bulunamadı',
   'page.notFound.body': 'Aradığın sayfa yok ya da kaldırıldı.',
   'page.notFound.home': 'Ana sayfaya dön',
+  'title.originalTitle': 'Orijinal adı',
+  'title.runtime': '{hours} sa {minutes} dk',
+  'title.runtimeMinutes': '{minutes} dk',
+  'title.seasons.one': '1 sezon',
+  'title.seasons.many': '{count} sezon',
+  'title.audio': 'Ses',
+  'title.subtitles': 'Altyazı',
+  'title.episodes': 'Bölümler',
+  'title.season': 'Sezon',
+  'title.seasonNumber': '{number}. Sezon',
+  'title.similar': 'Benzer içerikler',
+  'credits.title': 'Oyuncular ve ekip',
+  'credits.cast': 'Oyuncular',
+  'credits.Director': 'Yönetmen',
+  'credits.Writer': 'Senarist',
+  'credits.Creator': 'Yaratıcı',
+  'person.titles': 'Yer aldığı yapımlar',
 } as const;
 
 export type MessageKey = keyof typeof tr;

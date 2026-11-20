@@ -12,7 +12,17 @@ export {
   type TitlePage,
   type TitleSort,
   type TitleSummary,
+  readMovie,
+  readPerson,
+  readSeries,
+  type Credit,
+  type PublicPerson,
+  type PublishedEpisode,
+  type PublishedMovie,
+  type PublishedSeason,
+  type PublishedSeries,
 } from './catalog-reads';
+export { trailerKeys, useTrailer, type Trailer, type TrailerRating } from './trailers';
 export { createBrowserGateway, GatewayProvider, useGateway, type BrowserGateway } from './gateway';
 export { safeNextPath } from './navigation';
 export { fieldMessageKeys, problemMessageKey } from './problems';
@@ -34,6 +44,7 @@ export {
 } from './session';
 export {
   ageRatings,
+  isWithinAgeLimit,
   maxProfiles,
   profileKeys,
   useCreateProfile,

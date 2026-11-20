@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
-import { installObservers } from './observers';
+import { installMatchMedia, installObservers } from './observers';
 import { navigation, server } from './render';
 
 beforeAll(() => {
@@ -15,6 +15,7 @@ beforeEach(() => {
   if (typeof document !== 'undefined') {
     document.cookie = 'nbp-profile=; Path=/; Max-Age=0';
     installObservers();
+    installMatchMedia();
   }
 });
 

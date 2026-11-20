@@ -6,6 +6,8 @@ import { createContext, use, type ReactNode } from 'react';
  * CSRF token, which the session hooks keep current and every changing request carries.
  */
 export interface BrowserGateway {
+  /** The gateway's public origin, for addresses a service answers relative to itself (a trailer's playlist). */
+  readonly baseUrl: string;
   readonly clients: PublicClients;
   readonly setCsrfToken: (token: string | undefined) => void;
 }
@@ -21,6 +23,7 @@ export function createBrowserGateway(
     ...(send ? { fetch: send } : {}),
   });
   return {
+    baseUrl,
     clients,
     setCsrfToken: (token) => {
       csrfToken = token;

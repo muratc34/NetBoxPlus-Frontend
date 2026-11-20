@@ -212,9 +212,20 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   Girişli ama profil seçmemiş ziyaretçi hesap sayfaları dışında "Kim izliyor?"a gider. Mobilde menü alt sekme çubuğunda.
   SEO: sayfa başına canonical + `hreflang` (`metadataBase` = `SITE_URL`), `robots.txt`, `sitemap.xml` (yayındaki başlıklar, en
   fazla 10.000). Bilinmeyen adres `[...unknown]` ile sitenin kendi 404'ü; render hatası `error.tsx`.
+- **Detay sayfaları** (D2): `/<dil>/movies/[id]`, `/<dil>/series/[id]`, `/<dil>/people/[id]` SSR; Catalog 404'ü ve uuid olmayan id
+  sayfa 404'ü (`loadMovie`/`loadSeries`/`loadPerson` 404'te `null`). Hero: "yıl · yaş · süre/sezon", türler, özet, ses ve altyazı
+  dilleri (`formatLanguages`: bölge sadece aynı dilin iki çeşidi varsa). Dizide sezon seçici (native select) ve bölümler; ekip
+  rolüne göre, oyuncular `order`'a göre, kişi sayfasına link; benzerler = ilk türün aynı türden popülerleri, kendisi hariç (en fazla
+  12). Meta: başlık, özetten açıklama, OG (`video.movie`/`video.tv_show`/`profile`, görsel), canonical + hreflang.
+- **Fragman** (`TrailerBackdrop`, billboard ve detay hero'su): 2 sn sonra Streaming'e sorulur (`useTrailer`; 404 = yok), playlist
+  Streaming'in gateway'deki köküne göre çözülür (yanıt göreli). hls.js dinamik import, Safari'de kendi HLS'i. **Hep sessiz, ses
+  düğmesi yok**: fragmanların altyazısı yok (Streaming sadece orijinal sesi verir), sesli hâli WCAG 1.2.2'ye takılırdı. "Hareketi
+  azalt"ta istenmez; yaşı seçili profilin sınırını aşan oynamaz (`isWithinAgeLimit`; profilsiz oynar). Ekran dışında ve gizli
+  sekmede durur; bitince, hata verince ya da autoplay reddedilince görsele döner.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).
 - **Testler:** Vitest + Testing Library + MSW (`msw` 3: `server.listen({ onUnhandledFrame: 'error' })`); web'in yardımcısı
   `apps/web/src/test/render.tsx` (sağlayıcılar, strict mode, `next/navigation` taklidi). jsdom'da olmayan `IntersectionObserver`/
-  `ResizeObserver` yerine `src/test/observers.ts` (hiçbir şey görünmez, `bringIntoView()` görünür yapar).
+  `ResizeObserver` yerine `src/test/observers.ts` (hiçbir şey görünmez, `bringIntoView()`/`leaveView()`), `matchMedia` yerine
+  `preferReducedMotion()`. Async sunucu bileşeni döndüren route'lar `serverRendered(Route(params))` ile render edilir.
