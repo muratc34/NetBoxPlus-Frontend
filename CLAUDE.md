@@ -289,6 +289,19 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   sayfaya geçmek sorar (`useBlocker`). Görsel yükleme: tür ve boyut (JPEG/PNG/WebP, Catalog'un `maxBytes`'ı) önce tarayıcıda,
   sonra `POST /images/uploads` → imzalı adrese XHR `PUT` (`x-ms-blob-type: BlockBlob`, ilerleme yüzdesi) → `PUT .../photo`
   (`uploadId`); piksel ve oran Catalog'da. Silmeler onay penceresinde, ret (ör. `Genre.InUse`) pencerede gösterilir.
+  Görsel yuvası ortak (`components/image-slot.tsx`), liste aramaları `useAddressSearch` (`?search=`, sayfa sıfırlanır, diğer
+  filtreler kalır).
+- **Admin filmleri** (G2): liste `?search=&status=&genreId=&page=`; film sayfası metinler (Türkçe zorunlu, İngilizce ya ikisi ya
+  hiç), bilgiler, türler, ekip (sıra listedeki yer; karakter sadece oyuncuda; kişi arama penceresinden, aynı kişi aynı rolde bir
+  kez; film rolleri Yönetmen/Senarist/Oyuncu, eski veride başka rol varsa seçilebilir kalır), afiş (2:3) ve arka plan (16:9),
+  yayın ve silme. Dizilerle ortak form parçaları `catalog/content-form.tsx` (`FormProvider` + `useFormContext`); form alan adları
+  backend'inkiyle aynı (`translations.tr.title`, `releaseYear`) ki doğrulama hataları alanlarına düşsün. **`Version`:** editör
+  yüklediği sürümle çalışır; kendi kaydı ve görsel değişiklikleri (sürümü gönderir) onu bir artırır; yayınla/kaldır sürüm almaz,
+  sonrasında film yeniden okunur ve yeni sürüm tam bir fazlaysa benimsenir (değilse arada başkası değiştirmiştir, kayıt çakışır).
+  `Content.VersionConflict` formu korur, "Güncel hâli yükle" editörü yeniden açar. Yayınla: tür + afiş + oynatılabilir video
+  listesi; eksikte ya da kaydedilmemiş değişiklikte kapalı (kayıtlı hâli yayınlar). Yayından kaldır sorar; yayındaki film
+  silinemez, afişi kaldırılamaz. Permission'lar `catalog:movies:read|write|publish|delete`, görseller ayrıca
+  `catalog:images:upload`.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).

@@ -1,21 +1,13 @@
 import { problemMessageKey } from '@netboxplus/core';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import { pageOf, useAddressSearch } from '../components/address-search';
 import { buttonClass } from '../components/buttons';
 import { Pagination } from '../components/pagination';
 import { peoplePageSize, usePeople } from '../data/catalog';
 import { can, useAdminSession } from '../data/session';
 import { useLocale } from '../i18n';
 import { paths } from '../paths';
-
-/** How long typing in the search box rests before the list follows. */
-export const searchDelayMs = 300;
-
-/** A whole page number from the address, 1 for anything else. */
-export function pageOf(value: string | null): number {
-  const page = Number(value);
-  return Number.isInteger(page) && page >= 1 ? page : 1;
-}
 
 /**
  * The people, a page at a time, searched by name; the search and the page live in the address, so the
@@ -26,27 +18,13 @@ export function PeoplePage() {
   const searchId = useId();
   const session = useAdminSession();
   const [params, setParams] = useSearchParams();
-  const search = params.get('search') ?? '';
+  const { text, setText, search } = useAddressSearch();
   const page = pageOf(params.get('page'));
-  const [text, setText] = useState(search);
   const people = usePeople(search, page);
 
   useEffect(() => {
     document.title = t('admin.people.title');
   }, [t]);
-
-  useEffect(() => {
-    const trimmed = text.trim();
-    if (trimmed === search) {
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      setParams(trimmed ? { search: trimmed } : {}, { replace: true });
-    }, searchDelayMs);
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [text, search, setParams]);
 
   return (
     <>

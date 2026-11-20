@@ -1,13 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { problemMessageKey } from '@netboxplus/core';
-import { classNames, FormAlert, TextAreaField, TextField } from '@netboxplus/ui';
-import { useEffect, useId, useRef, useState } from 'react';
+import { FormAlert, TextAreaField, TextField } from '@netboxplus/ui';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 import { z } from 'zod';
 import { buttonClass } from '../components/buttons';
 import { ConfirmDialog } from '../components/confirm-dialog';
 import { messageOf, showProblem } from '../components/form-errors';
+import { ImageSlot } from '../components/image-slot';
 import { UnsavedChanges } from '../components/unsaved-changes';
 import {
   useAttachPhoto,
@@ -17,7 +18,6 @@ import {
   useSavePerson,
   type PersonResponse,
 } from '../data/catalog';
-import { ImageRejected, imageTypes } from '../data/images';
 import { can, useAdminSession } from '../data/session';
 import { useLocale } from '../i18n';
 import { paths } from '../paths';
@@ -188,96 +188,26 @@ function PersonForm({ person }: Readonly<{ person: PersonResponse | undefined }>
 function PersonPhoto({ person }: Readonly<{ person: PersonResponse }>) {
   const { t } = useLocale();
   const session = useAdminSession();
-  const writable = can(session.data, 'catalog:people:write') && can(session.data, 'catalog:images:upload');
-  const fileId = useId();
-  const input = useRef<HTMLInputElement>(null);
   const attach = useAttachPhoto(person.id);
   const remove = useRemovePhoto(person.id);
-  const [progress, setProgress] = useState<number | undefined>(undefined);
-  const failure = attach.error ?? remove.error;
-  const message =
-    failure instanceof ImageRejected
-      ? t(failure.reason === 'type' ? 'admin.image.type' : 'admin.image.size')
-      : failure
-        ? t(problemMessageKey(failure))
-        : undefined;
-
   return (
-    <section
-      aria-labelledby="person-photo"
-      className="flex max-w-2xl flex-col gap-4 rounded-lg bg-surface p-6"
-    >
-      <h2 id="person-photo" className="font-display text-xl font-bold text-ink-strong">
-        {t('admin.people.photo')}
-      </h2>
-      {person.photoUrl ? (
-        <img src={person.photoUrl} alt={person.name} className="size-40 rounded-lg object-cover" />
-      ) : (
-        <p className="text-ink-muted">{t('admin.people.noPhoto')}</p>
-      )}
-      {message && <FormAlert tone="error">{message}</FormAlert>}
-      {attach.isPending && progress !== undefined && (
-        <p role="status" className="text-sm text-ink-muted">
-          {t('admin.people.uploading').replace('{percent}', String(Math.round(progress * 100)))}
-        </p>
-      )}
-      {writable && (
-        <div className="flex flex-wrap items-center gap-3">
-          <input
-            ref={input}
-            id={fileId}
-            type="file"
-            accept={imageTypes.join(',')}
-            aria-describedby={`${fileId}-hint`}
-            className="peer sr-only"
-            disabled={attach.isPending}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) {
-                remove.reset();
-                setProgress(0);
-                attach.mutate(
-                  { file, onProgress: setProgress },
-                  {
-                    onSettled: () => {
-                      setProgress(undefined);
-                      if (input.current) {
-                        input.current.value = '';
-                      }
-                    },
-                  },
-                );
-              }
-            }}
-          />
-          {/* The input is hidden for its label, which looks like a button and shows the input's focus. */}
-          <label
-            htmlFor={fileId}
-            className={classNames(
-              buttonClass('secondary'),
-              'cursor-pointer peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
-            )}
-          >
-            {person.photoUrl ? t('admin.people.replacePhoto') : t('admin.people.uploadPhoto')}
-          </label>
-          {person.photoUrl && (
-            <button
-              type="button"
-              className={buttonClass('ghost')}
-              disabled={remove.isPending}
-              onClick={() => {
-                attach.reset();
-                remove.mutate();
-              }}
-            >
-              {t('admin.people.removePhoto')}
-            </button>
-          )}
-          <p id={`${fileId}-hint`} className="w-full text-sm text-ink-muted">
-            {t('admin.people.photoHint')}
-          </p>
-        </div>
-      )}
-    </section>
+    <ImageSlot
+      headingLevel={2}
+      className="max-w-2xl rounded-lg bg-surface p-6"
+      labels={{
+        heading: t('admin.people.photo'),
+        none: t('admin.people.noPhoto'),
+        upload: t('admin.people.uploadPhoto'),
+        replace: t('admin.people.replacePhoto'),
+        remove: t('admin.people.removePhoto'),
+        hint: t('admin.people.photoHint'),
+      }}
+      imageUrl={person.photoUrl}
+      alt={person.name}
+      imageClassName="size-40"
+      writable={can(session.data, 'catalog:people:write') && can(session.data, 'catalog:images:upload')}
+      onUpload={(file, onProgress) => attach.mutateAsync({ file, onProgress })}
+      onRemove={() => remove.mutateAsync()}
+    />
   );
 }
