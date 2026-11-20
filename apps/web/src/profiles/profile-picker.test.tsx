@@ -173,6 +173,36 @@ describe('ProfilePicker', () => {
     expect(document.cookie).not.toContain('nbp-profile=');
   });
 
+  it('sends a signed-in visitor who has not chosen a profile to choose one before browsing', async () => {
+    navigation.pathname = '/tr/movies';
+    signedInWith([deniz, ada]);
+    renderPage(<p>movies</p>, 'tr', { withProfiles: true });
+
+    await waitFor(() => {
+      expect(navigation.replace).toHaveBeenCalledWith('/tr/profiles?next=%2Ftr%2Fmovies');
+    });
+  });
+
+  it('lets a visitor without a choice stay on the account pages', async () => {
+    navigation.pathname = '/tr/profiles';
+    signedInWith([deniz, ada]);
+    renderPage(<p>profiles</p>, 'tr', { withProfiles: true });
+
+    expect(await screen.findByText('profiles')).toBeInTheDocument();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(navigation.replace).not.toHaveBeenCalled();
+  });
+
+  it('lets a visitor who is not signed in browse without a profile', async () => {
+    navigation.pathname = '/tr/movies';
+    server.use(signedOut);
+    renderPage(<p>movies</p>, 'tr', { withProfiles: true });
+
+    expect(await screen.findByText('movies')).toBeInTheDocument();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(navigation.replace).not.toHaveBeenCalled();
+  });
+
   it('keeps a choice that still fits', async () => {
     document.cookie = `nbp-profile=${ada.id}.Age7; Path=/`;
     signedInWith([deniz, ada]);

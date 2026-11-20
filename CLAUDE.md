@@ -30,7 +30,9 @@ packages/i18n     tr/en metinler; anahtarlar derleme zamanında kontrol edilir
 packages/config   Ortak tsconfig'ler ve Vitest kurulumu
 ```
 
-`packages/core` `packages/api`'nin üstünde, iş kuralı içermez; sırada oynatma oturumu ve yükleme var.
+`packages/core` `packages/api`'nin üstünde, iş kuralı içermez; sırada oynatma oturumu ve yükleme var. React'siz kısmı (katalog
+okumaları `readTitles`/`readGenres`, `ageRatings`) ayrıca `@netboxplus/core/reads`'ten: sunucu bileşenleri ve route handler'lar
+sadece onu import eder, ana giriş React context'i (`gateway.tsx`) getirir ve sunucu render'ını kırar.
 
 Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transpilePackages` / Vite).
 
@@ -44,7 +46,8 @@ Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transp
   hâliyle aynı mı (CI).
 - **Tipler** `pnpm generate` ile `src/generated/`'a (git'te yok; `immutable` değil: openapi-fetch'in `Readable<T>`'ı `readonly T[]`'i tanımıyor, yanıtlardaki dizileri metotsuz bir nesneye çeviriyordu); Turborepo `dev`, `build`, `lint`, `typecheck` ve
   `test`'ten önce kendisi çalıştırır. Elle yazılmış API tipi yok: şemalar `CatalogSchemas['PublishedMovie']` gibi
-  `@netboxplus/api`'den.
+  `@netboxplus/api`'den. ASP.NET Core sayıları `integer | string` (rakam deseniyle) belgeler, string'den okumaya da izin verdiği
+  için; hep sayı yazar. Üretici bunları `number` yapar (`scripts/numbers.ts`).
 - **İki yarı:** her servisin dokümanı ikiye bölünür (`scripts/split.ts`). Public yarı gateway'de `/<servis>/...`,
   admin yarı `/admin/<servis>/...` altında ve yolları `/admin`'siz (`/admin/users` → admin client'ta `/users`).
   `createPublicClients` (web) admin yollarını tipinde bile görmez, `createAdminClients` (admin) servislerin admin
@@ -60,6 +63,10 @@ Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transp
   sunucusunun toplamına sayar. IP sadece `TRUSTED_PROXY_HOPS` ≥ 1 ise, `x-forwarded-for`'un sağdan o sıradaki girdisinden alınır:
   Next header'ı sadece yoksa yazar, önünde proxy yokken (varsayılan 0) tarayıcı onu uydurabilir. Ayarlar `apps/web/.env.example`'da;
   `NEXT_PUBLIC_` öneki yok, tarayıcıya girmez. Anahtarsız istekte `X-Forwarded-For` gönderilmez.
+- **Sunucu tarafı önbellek** (`apps/web/src/server/catalog.ts`): katalog okumaları `unstable_cache` ile 60 sn, anahtar sadece
+  yol + filtre + sayfa. Next'in fetch önbelleği header'ları da anahtara katıyor; her istekte farklı `X-Forwarded-For` ziyaretçi
+  başına ayrı kopya demekti. Önbellekte olmayan istek yine ziyaretçinin limitine sayılır. Sitemap'in listesi `gatewayForServer()` ile
+  saatte bir.
 - **Hatalar:** `unwrap(client.GET(...))` başarıda veriyi döner, hata durumunda `ApiError` atar: `status`, `code`
   (ör. `User.EmailTaken`), alan başına `fieldErrors`/`fieldErrorCodes`. Kullanıcıya `code`'a göre çevrilmiş metin
   gösterilir, backend'in `detail`'i geliştirici içindir. Ağ hatası olduğu gibi geçer.
@@ -172,7 +179,10 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 - **Fontlar:** web `next/font/google` (build'de indirilip kendi sunucusundan servis edilir), admin `@fontsource`;
   ikisinde de sadece `latin` + `latin-ext` (Türkçe harfler).
 - **Web güvenlik header'ları** `apps/web/next.config.ts`'te (`nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY`,
-  `Permissions-Policy`; `X-Powered-By` kapalı). Content-Security-Policy veri yükleyen ilk sayfalarla gelir.
+  `Permissions-Policy`; `X-Powered-By` kapalı). **Content-Security-Policy** `src/proxy.ts`'te sayfa başına yeni nonce'la
+  (`src/content-security-policy.ts`): script'ler nonce + `'strict-dynamic'` (geliştirmede `'unsafe-eval'`), veri sadece site,
+  gateway (`NEXT_PUBLIC_GATEWAY_URL`) ve storage (`STORAGE_ORIGINS`, boşlukla ayrılmış; lokalde `http://127.0.0.1:10000`).
+  Nonce yüzünden her sayfa istek başına render edilir (layout `connection()`); statik sayfa nonce'suz kalıp script'leri bloklanırdı.
 - **Web build'i** `output: 'standalone'` (container image için).
 - **Oturum:** token tarayıcıya hiç inmez; gateway'in `__Host-` cookie'si ve `X-CSRF-Token` (ARCHITECTURE §13.3).
   `packages/core`'da: `useSession()` `GET /session`'ı tutar (401 = `null`) ve CSRF token'ını gateway client'ına verir; giriş
@@ -193,8 +203,18 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   okur (sunucuda boş, hydration uyumlu). Profiller gelince silinmiş ya da yaşı değişmiş bir seçim düşer ve hesap sayfası değilse
   "Kim izliyor?"a gidilir; çıkış seçimi siler. En fazla 5 profil (Auth), ad 32 karakter; silme önce onay ister (Radix Dialog),
   son profilin silinemeyişini backend söyler.
+- **Katalog sayfaları** (D): ana sayfa (billboard = popülerin görselli ilki, Top 10, Yeni, türe göre; ilk iki tür satırı SSR,
+  kalanlar ekrana yaklaşınca `useTitleRow`), `/<dil>/movies` ve `/<dil>/series` (`?genre=<uuid>&sort=Newest&page=N`; tanınmayan
+  değer filtresiz ilk sayfaya düşer; ızgara sonu yaklaşınca sonraki sayfayı yükler, "Daha fazla göster" JS'siz de `?page=`'e gider).
+  Liste filtreleri sunucuda `nbp-profile` cookie'sindeki yaşla (`viewerAgeLimit()`). Görseller `next/image` `unoptimized` (Catalog
+  tek boy saklıyor; compose'da Next sunucusu storage'ın tarayıcı adresine ulaşamaz). Kart önizlemesi CSS: fareli cihazda 500 ms
+  sonra ya da klavye odağında büyür ("hareketi azalt"ta büyümez); ekran okuyucu önce başlığı okur (DOM'da önde, `order` ile altta).
+  Girişli ama profil seçmemiş ziyaretçi hesap sayfaları dışında "Kim izliyor?"a gider. Mobilde menü alt sekme çubuğunda.
+  SEO: sayfa başına canonical + `hreflang` (`metadataBase` = `SITE_URL`), `robots.txt`, `sitemap.xml` (yayındaki başlıklar, en
+  fazla 10.000). Bilinmeyen adres `[...unknown]` ile sitenin kendi 404'ü; render hatası `error.tsx`.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).
 - **Testler:** Vitest + Testing Library + MSW (`msw` 3: `server.listen({ onUnhandledFrame: 'error' })`); web'in yardımcısı
-  `apps/web/src/test/render.tsx` (sağlayıcılar, strict mode, `next/navigation` taklidi).
+  `apps/web/src/test/render.tsx` (sağlayıcılar, strict mode, `next/navigation` taklidi). jsdom'da olmayan `IntersectionObserver`/
+  `ResizeObserver` yerine `src/test/observers.ts` (hiçbir şey görünmez, `bringIntoView()` görünür yapar).

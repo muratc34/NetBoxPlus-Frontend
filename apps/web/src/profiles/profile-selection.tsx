@@ -41,6 +41,9 @@ function write(profile: SelectedProfile | undefined) {
 const browserCookies = () => document.cookie;
 // The server renders without a choice, so the first render in the browser matches what it sent.
 const serverCookies = () => '';
+// Until hydration the cookie reads as empty: no decision is taken on that.
+const isBrowser = () => true;
+const isServer = () => false;
 
 const selection = {
   select: (profile: SelectedProfile) => {
@@ -52,8 +55,9 @@ const selection = {
 };
 
 /**
- * The chosen profile, from its cookie. Once the account's profiles are known, a choice that no longer
- * fits (the profile was removed, or its age limit changed) is dropped, and the visitor chooses again.
+ * The chosen profile, from its cookie. Once the account's profiles are known, a signed-in visitor without
+ * a choice, or with one that no longer fits (the profile was removed, or its age limit changed, which is
+ * dropped), chooses on "Who's watching?" before browsing on.
  */
 export function ProfileSelectionProvider({ children }: Readonly<{ children: ReactNode }>) {
   const { locale } = useLocale();
@@ -64,15 +68,23 @@ export function ProfileSelectionProvider({ children }: Readonly<{ children: Reac
   const cookies = useSyncExternalStore(subscribe, browserCookies, serverCookies);
   const selected = useMemo(() => readSelectedProfileCookie(cookies), [cookies]);
 
+  const hydrated = useSyncExternalStore(subscribe, isBrowser, isServer);
+
   useEffect(() => {
-    if (!selected || !profiles.data || isStillValid(selected, profiles.data)) {
+    if (!hydrated || !profiles.data) {
       return;
     }
-    selection.clear();
+    if (selected && isStillValid(selected, profiles.data)) {
+      return;
+    }
+    if (selected) {
+      selection.clear();
+    }
+    // Browsing is for a profile: its age limit filters the lists, its list and progress fill the rows.
     if (!isAccountPage(pathname)) {
       router.replace(profilesPath(locale, pathname));
     }
-  }, [selected, profiles.data, pathname, router, locale]);
+  }, [hydrated, selected, profiles.data, pathname, router, locale]);
 
   const value = useMemo(() => ({ selected, ...selection }), [selected]);
   return <ProfileSelectionContext value={value}>{children}</ProfileSelectionContext>;

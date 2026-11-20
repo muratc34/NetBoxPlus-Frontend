@@ -1,5 +1,6 @@
-import { unwrap, type AuthSchemas, type PublicClients } from '@netboxplus/api';
+import { unwrap, type PublicClients } from '@netboxplus/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { AgeRating } from './age-ratings';
 import { useGateway } from './gateway';
 
 const readProfiles = (auth: PublicClients['auth']) => auth.GET('/profiles');
@@ -7,10 +8,7 @@ const readProfiles = (auth: PublicClients['auth']) => auth.GET('/profiles');
 /** A profile of the signed-in account, typed from the generated client. */
 export type Profile = NonNullable<Awaited<ReturnType<typeof readProfiles>>['data']>[number];
 
-export type AgeRating = AuthSchemas['AgeRating'];
-
-/** Youngest first: the order a profile's age limit is chosen from. */
-export const ageRatings: readonly AgeRating[] = ['All', 'Age7', 'Age13', 'Age16', 'Age18'];
+export { ageRatings, type AgeRating } from './age-ratings';
 
 /** An account has at most this many profiles (Auth's rule); the page stops offering more. */
 export const maxProfiles = 5;

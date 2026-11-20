@@ -20,7 +20,7 @@ export function VerificationBanner() {
 
   return (
     <aside
-      className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 bg-surface-raised px-4 py-3 text-center text-sm"
+      className="relative z-20 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 bg-surface-raised px-4 py-3 text-center text-sm"
       aria-live="polite"
     >
       <p>{t('auth.banner.unverified')}</p>

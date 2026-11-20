@@ -4,7 +4,7 @@ import type { NextConfig } from 'next';
 // The monorepo root: standalone output and Turbopack must see the workspace packages.
 const workspaceRoot = path.resolve(process.cwd(), '../..');
 
-// A Content-Security-Policy comes with the first pages that load data (it needs the gateway and storage origins).
+// The Content-Security-Policy is set per page by src/proxy.ts: it carries a new nonce each time.
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
