@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FormAlert, TextField } from '../../components/form';
 import { useLocale } from '../../i18n/translator';
-import { profilesPath, routes } from '../../routes';
+import { profilesPath, routes, signUpPath } from '../../routes';
 import { email, messageOf, showProblem } from './form-rules';
 
 // Any non-empty password is sent: the backend says whether it is right, never which part was wrong.
@@ -21,7 +21,8 @@ export function SignInForm() {
   const { locale, t } = useLocale();
   const router = useRouter();
   // After signing in comes "Who's watching?", then the page that asked for signing in.
-  const next = profilesPath(locale, safeNextPath(useSearchParams().get('next')));
+  const wanted = safeNextPath(useSearchParams().get('next'));
+  const next = profilesPath(locale, wanted);
   const session = useSession();
   const signIn = useSignIn();
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } });
@@ -69,7 +70,7 @@ export function SignInForm() {
         </Link>
         <p>
           {t('auth.signIn.noAccount')}{' '}
-          <Link href={routes.signUp(locale)} className="font-semibold text-ink-strong hover:underline">
+          <Link href={signUpPath(locale, wanted)} className="font-semibold text-ink-strong hover:underline">
             {t('auth.signIn.toSignUp')}
           </Link>
         </p>

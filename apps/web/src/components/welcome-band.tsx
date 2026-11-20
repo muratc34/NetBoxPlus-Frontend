@@ -23,7 +23,7 @@ export function WelcomeBand() {
         <p className="mt-1 text-ink-muted">{t('welcome.body')}</p>
       </div>
       <Link
-        href={routes.signUp(locale)}
+        href={routes.plans(locale)}
         className="inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-brand-strong px-5 font-semibold text-white hover:bg-brand-strong-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
         {t('welcome.cta')}

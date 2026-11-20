@@ -1,15 +1,15 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRegister } from '@netboxplus/core';
+import { safeNextPath, useRegister } from '@netboxplus/core';
 import { Button } from '@netboxplus/ui';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FormAlert, TextField } from '../../components/form';
 import { useLocale } from '../../i18n/translator';
-import { profilesPath, routes } from '../../routes';
+import { profilesPath, signInPath } from '../../routes';
 import { email, messageOf, password, showProblem } from './form-rules';
 
 const schema = z
@@ -20,10 +20,14 @@ const schema = z
   });
 type Values = z.infer<typeof schema>;
 
-/** Registration signs the account in too; the confirmation link arrives by e-mail meanwhile. */
+/**
+ * Registration signs the account in too; the confirmation link arrives by e-mail meanwhile. A safe `next`
+ * (the plans page sends one) is where the visitor goes once a profile is chosen.
+ */
 export function SignUpForm() {
   const { locale, t } = useLocale();
   const router = useRouter();
+  const next = safeNextPath(useSearchParams().get('next'));
   const register = useRegister();
   const form = useForm<Values>({
     resolver: zodResolver(schema),
@@ -34,7 +38,7 @@ export function SignUpForm() {
   const submit = form.handleSubmit(async (values) => {
     try {
       await register.mutateAsync({ email: values.email, password: values.password });
-      router.replace(profilesPath(locale));
+      router.replace(profilesPath(locale, next));
     } catch (error) {
       showProblem(error, ['email', 'password'], form.setError);
     }
@@ -70,7 +74,7 @@ export function SignUpForm() {
       </Button>
       <p className="text-sm text-ink-muted">
         {t('auth.signUp.haveAccount')}{' '}
-        <Link href={routes.signIn(locale)} className="font-semibold text-ink-strong hover:underline">
+        <Link href={signInPath(locale, next)} className="font-semibold text-ink-strong hover:underline">
           {t('auth.signUp.toSignIn')}
         </Link>
       </p>

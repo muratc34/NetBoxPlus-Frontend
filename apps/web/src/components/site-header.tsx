@@ -177,6 +177,9 @@ function ProfileMenu({ email }: Readonly<{ email: string }>) {
           <DropdownMenu.Item asChild className={item}>
             <Link href={routes.profiles(locale)}>{t('profiles.switch')}</Link>
           </DropdownMenu.Item>
+          <DropdownMenu.Item asChild className={item}>
+            <Link href={routes.account(locale)}>{t('nav.account')}</Link>
+          </DropdownMenu.Item>
           <DropdownMenu.Separator className="my-1 h-px bg-line" />
           <DropdownMenu.Item
             className={item}
