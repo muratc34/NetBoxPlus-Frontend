@@ -10,6 +10,8 @@ export const paths = {
   series: '/series',
   newSeries: '/series/new',
   seriesItem: (id: string) => `/series/${id}`,
+  videos: '/videos',
+  video: (id: string) => `/videos/${id}`,
   genres: '/genres',
   people: '/people',
   newPerson: '/people/new',
@@ -27,6 +29,7 @@ export interface Section {
 export const sections: readonly Section[] = [
   { label: 'admin.nav.movies', path: paths.movies, permission: 'catalog:movies:read' },
   { label: 'admin.nav.series', path: paths.series, permission: 'catalog:series:read' },
+  { label: 'admin.nav.videos', path: paths.videos, permission: 'streaming:videos:read' },
   { label: 'admin.nav.genres', path: paths.genres, permission: 'catalog:genres:read' },
   { label: 'admin.nav.people', path: paths.people, permission: 'catalog:people:read' },
 ];

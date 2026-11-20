@@ -1,5 +1,6 @@
 import { createAdminClients, type AdminClients } from '@netboxplus/api';
 import { createContext, use, type ReactNode } from 'react';
+import { sendRequest, type BlockRequest } from './blocks';
 import { putBlob, type BlobUpload } from './images';
 
 /**
@@ -11,11 +12,17 @@ export interface AdminGateway {
   readonly setCsrfToken: (token: string | undefined) => void;
   /** Sends a file to a signed storage address (images, later videos). */
   readonly upload: BlobUpload;
+  /** Sends one request of a video's block upload. */
+  readonly sendBlock: BlockRequest;
 }
 
 export function createAdminGateway(
   baseUrl: string,
-  options: { send?: (request: Request) => Promise<Response>; upload?: BlobUpload } = {},
+  options: {
+    send?: (request: Request) => Promise<Response>;
+    upload?: BlobUpload;
+    sendBlock?: BlockRequest;
+  } = {},
 ): AdminGateway {
   let csrfToken: string | undefined;
   const clients = createAdminClients({
@@ -29,6 +36,7 @@ export function createAdminGateway(
       csrfToken = token;
     },
     upload: options.upload ?? putBlob,
+    sendBlock: options.sendBlock ?? sendRequest,
   };
 }
 

@@ -12,6 +12,7 @@ import { UnsavedChanges } from '../components/unsaved-changes';
 import { ageRatings, useMovie, useSaveMovie, type MovieDetails, type MovieRequest } from '../data/movies';
 import { can, useAdminSession } from '../data/session';
 import { useLocale } from '../i18n';
+import { ContentVideos } from '../videos/content-videos';
 import { paths } from '../paths';
 import {
   creditInputs,
@@ -226,6 +227,14 @@ function MovieEditor({
           onConflict={() => {
             setConflict(true);
           }}
+        />
+      )}
+      {movie && (
+        <ContentVideos
+          contentKind="Movie"
+          contentId={movie.id}
+          purposes={['Feature', 'Trailer']}
+          className="rounded-lg bg-surface p-6"
         />
       )}
       {movie && (

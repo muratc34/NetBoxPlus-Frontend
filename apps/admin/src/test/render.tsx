@@ -6,6 +6,7 @@ import { StrictMode } from 'react';
 import { createMemoryRouter } from 'react-router';
 import { App } from '../app';
 import { createAdminGateway } from '../data/gateway';
+import type { BlockRequest } from '../data/blocks';
 import type { BlobUpload } from '../data/images';
 import { sessionKey } from '../data/session';
 import { routes } from '../routes';
@@ -53,14 +54,17 @@ export const uploadNothing: BlobUpload = () => Promise.resolve();
  * The whole panel at `path`, in strict mode like development, with a memory router the test can read the
  * address from. `upload` stands in for the browser's storage upload.
  */
-export function renderApp(path: string, options: { upload?: BlobUpload } = {}) {
+export function renderApp(path: string, options: { upload?: BlobUpload; sendBlock?: BlockRequest } = {}) {
   const queryClient = createAppQueryClient({
     onSessionEnded: () => {
       queryClient.setQueryData(sessionKey, null);
     },
   });
   const router = createMemoryRouter(routes, { initialEntries: [path] });
-  const gateway = createAdminGateway(gatewayUrl, { upload: options.upload ?? uploadNothing });
+  const gateway = createAdminGateway(gatewayUrl, {
+    upload: options.upload ?? uploadNothing,
+    sendBlock: options.sendBlock ?? (() => Promise.resolve()),
+  });
   const view = render(
     <StrictMode>
       <App router={router} queryClient={queryClient} gateway={gateway} />
