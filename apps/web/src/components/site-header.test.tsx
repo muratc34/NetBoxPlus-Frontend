@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { gatewayUrl, navigation, renderPage, server, signedOut } from '../test/render';
-import { isCurrent, MobileTabBar, navItems, SiteHeader } from './site-header';
+import { isCurrent, MobileTabBar, navItems, SiteHeader, tabItems } from './site-header';
 
 const session = {
   userId: '0195f0e0-0000-7000-8000-000000000001',
@@ -29,7 +29,9 @@ describe('SiteHeader', () => {
       ['Ana Sayfa', '/tr'],
       ['Diziler', '/tr/series'],
       ['Filmler', '/tr/movies'],
+      ['Listem', '/tr/my-list'],
     ]);
+    expect(screen.getByRole('link', { name: 'Ara' })).toHaveAttribute('href', '/tr/search');
   });
 
   it('marks the section of the current page', async () => {
@@ -68,12 +70,19 @@ describe('SiteHeader', () => {
 });
 
 describe('MobileTabBar', () => {
-  it('has the same sections, the current one marked', () => {
+  it('has the sections and search, the current one marked', () => {
     navigation.pathname = '/tr/series/0195f0e0-0000-7000-8000-000000000001';
     renderPage(<MobileTabBar />);
 
     expect(screen.getByRole('link', { name: 'Diziler' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getAllByRole('link')).toHaveLength(navItems.length);
+    expect(screen.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+      '/tr',
+      '/tr/series',
+      '/tr/movies',
+      '/tr/search',
+      '/tr/my-list',
+    ]);
+    expect(tabItems).toHaveLength(5);
   });
 });
 

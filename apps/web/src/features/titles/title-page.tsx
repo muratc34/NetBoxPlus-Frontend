@@ -99,7 +99,7 @@ export async function TitlePage({ lang, details }: Readonly<{ lang: Locale; deta
   return (
     <main className="flex flex-col gap-10 pb-12">
       <TitleHero title={hero(details)} />
-      {details.kind === 'Series' && <EpisodeList seasons={details.item.seasons} />}
+      {details.kind === 'Series' && <EpisodeList seriesId={details.item.id} seasons={details.item.seasons} />}
       <Credits credits={details.item.credits} />
       {similar.length > 0 && <TitleRow heading={t('title.similar')} titles={similar} />}
     </main>

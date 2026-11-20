@@ -97,3 +97,13 @@ export function useProfileSelection(): ProfileSelection {
   }
   return value;
 }
+
+/**
+ * The profile whose own data (list, progress) the page shows: the chosen one while signed in. Signed out,
+ * or before a profile is chosen, there is none and personal parts stay hidden.
+ */
+export function useWatchingProfile(): string | undefined {
+  const session = useSession();
+  const { selected } = useProfileSelection();
+  return session.data && selected ? selected.id : undefined;
+}

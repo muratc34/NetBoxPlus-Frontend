@@ -1,9 +1,17 @@
 'use client';
 
-import { useTitlePages, type TitleFilter, type TitlePage } from '@netboxplus/core';
-import { useEffect, useRef } from 'react';
+import { useTitlePages, type TitleFilter, type TitlePage, type TitleSummary } from '@netboxplus/core';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { useLocale } from '../../i18n/translator';
 import { TitleCard } from './title-card';
+
+/** The pages a grid shows: what TanStack Query's infinite queries give. */
+export interface GridPages {
+  readonly pages: readonly { readonly items: readonly TitleSummary[]; readonly pageNumber: number }[];
+  readonly hasNextPage: boolean;
+  readonly isFetchingNextPage: boolean;
+  readonly fetchNextPage: () => Promise<unknown>;
+}
 
 /**
  * Titles in a grid that loads the next page as its end comes near. The "show more" link under it goes
@@ -21,12 +29,39 @@ export function TitleGrid({
   pathname: string;
   query: Readonly<Record<string, string>>;
 }>) {
-  const { t } = useLocale();
   const pages = useTitlePages(filter, firstPage);
+  return (
+    <PagedGrid
+      pages={{
+        pages: pages.data?.pages ?? [firstPage],
+        hasNextPage: pages.hasNextPage,
+        isFetchingNextPage: pages.isFetchingNextPage,
+        fetchNextPage: pages.fetchNextPage,
+      }}
+      pathname={pathname}
+      query={query}
+    />
+  );
+}
+
+/** The grid itself, for any paged list of titles (browsing, search). */
+export function PagedGrid({
+  pages,
+  pathname,
+  query,
+  empty,
+}: Readonly<{
+  pages: GridPages;
+  pathname: string;
+  query: Readonly<Record<string, string>>;
+  /** What to say when there is nothing; "Nothing here yet." by default. */
+  empty?: ReactNode;
+}>) {
+  const { t } = useLocale();
   const more = useRef<HTMLAnchorElement>(null);
-  const titles = pages.data?.pages.flatMap((page) => page.items) ?? firstPage.items;
+  const titles = pages.pages.flatMap((page) => page.items);
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = pages;
-  const lastPage = pages.data?.pages.at(-1)?.pageNumber ?? firstPage.pageNumber;
+  const lastPage = pages.pages.at(-1)?.pageNumber ?? 1;
 
   useEffect(() => {
     const element = more.current;
@@ -48,7 +83,7 @@ export function TitleGrid({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (titles.length === 0) {
-    return <p className="px-4 py-16 text-center text-ink-muted sm:px-8">{t('browse.empty')}</p>;
+    return <p className="px-4 py-16 text-center text-ink-muted sm:px-8">{empty ?? t('browse.empty')}</p>;
   }
 
   const nextHref = `${pathname}?${new URLSearchParams({ ...query, page: String(lastPage + 1) }).toString()}`;

@@ -2,7 +2,9 @@
 
 import type { CatalogAgeRating, Genre, TitleKind } from '@netboxplus/core';
 import { AgeBadge } from '../../components/catalog/title-facts';
+import { MyListButton } from '../../components/catalog/my-list-button';
 import { TrailerBackdrop } from '../../components/catalog/trailer-backdrop';
+import { MovieProgress } from './title-progress';
 import { useLocale } from '../../i18n/translator';
 import { formatLanguages, formatRuntime, formatSeasonCount } from './format';
 
@@ -77,6 +79,7 @@ export function TitleHero({ title }: Readonly<{ title: HeroTitle }>) {
             </>
           )}
         </p>
+        {title.kind === 'Movie' && <MovieProgress titleId={title.id} />}
         <p className="max-w-2xl text-base leading-relaxed text-ink">{title.synopsis}</p>
         {(audio.length > 0 || subtitles.length > 0) && (
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
@@ -94,6 +97,7 @@ export function TitleHero({ title }: Readonly<{ title: HeroTitle }>) {
             )}
           </dl>
         )}
+        <MyListButton titleId={title.id} kind={title.kind} title={title.title} variant="hero" />
       </div>
     </section>
   );

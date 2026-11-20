@@ -8,6 +8,7 @@ import {
   loadGenres,
   loadMovie,
   loadPerson,
+  loadSearch,
   loadPublishedTitles,
   loadTitles,
   sitemapTitleLimit,
@@ -96,6 +97,35 @@ describe('loadMovie and loadPerson', () => {
 
     expect(await loadPerson('gone', 'tr')).toBeNull();
     await expect(loadPerson('broken', 'tr')).rejects.toMatchObject({ status: 503 });
+  });
+});
+
+describe('loadSearch', () => {
+  it('is a page of results, cached by text, filter and page', async () => {
+    server.use(
+      http.get(`${gateway}/catalog/search`, () =>
+        HttpResponse.json({ items: [], pageNumber: 2, pageSize: 20, totalCount: 0 }),
+      ),
+    );
+
+    expect(await loadSearch({ q: 'kuzey', lang: 'tr' }, 2)).toMatchObject({ pageNumber: 2 });
+    expect(cacheCalls[0]?.key).toEqual([
+      'catalog',
+      JSON.stringify(['search', { q: 'kuzey', lang: 'tr' }, 2]),
+    ]);
+  });
+
+  it('is unavailable when search is down, and fails otherwise', async () => {
+    server.use(
+      http.get(`${gateway}/catalog/search`, ({ request }) =>
+        new URL(request.url).searchParams.get('q') === 'down'
+          ? HttpResponse.json({ status: 503, code: 'Search.Unavailable' }, { status: 503 })
+          : HttpResponse.json({ status: 400, code: 'Search.QueryInvalid' }, { status: 400 }),
+      ),
+    );
+
+    expect(await loadSearch({ q: 'down', lang: 'tr' })).toBe('unavailable');
+    await expect(loadSearch({ q: 'bad', lang: 'tr' })).rejects.toMatchObject({ status: 400 });
   });
 });
 

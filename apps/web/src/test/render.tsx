@@ -44,7 +44,10 @@ vi.mock('next/navigation', () => ({
 }));
 
 /** Renders inside the application's providers, in strict mode like development does. */
-/** `withProfiles` adds the chosen-profile state, which asks for the profiles once there is a session. */
+/**
+ * The chosen-profile state is there unless `withProfiles: false`; it asks for the session (signed out unless a
+ * test answers otherwise, see setup.ts) and then for the profiles.
+ */
 export function renderPage(
   element: ReactElement,
   locale: Locale = 'tr',
@@ -56,7 +59,11 @@ export function renderPage(
       <LocaleProvider locale={locale}>
         <QueryClientProvider client={queryClient}>
           <GatewayProvider gateway={createBrowserGateway(gatewayUrl)}>
-            {options.withProfiles ? <ProfileSelectionProvider>{element}</ProfileSelectionProvider> : element}
+            {options.withProfiles !== false ? (
+              <ProfileSelectionProvider>{element}</ProfileSelectionProvider>
+            ) : (
+              element
+            )}
           </GatewayProvider>
         </QueryClientProvider>
       </LocaleProvider>
@@ -77,4 +84,27 @@ function isAsyncComponent(type: unknown): type is AsyncComponent {
 export async function serverRendered(node: ReactElement | Promise<ReactElement>): Promise<ReactElement> {
   const element = await node;
   return isAsyncComponent(element.type) ? serverRendered(element.type(element.props)) : element;
+}
+
+export const viewerSession = {
+  userId: '0195f0e0-0000-7000-8000-000000000001',
+  email: 'viewer@example.test',
+  roles: [],
+  permissions: [],
+  csrfToken: 'csrf',
+};
+
+export const watchingProfile = {
+  id: '0195f0e0-0000-7000-8000-0000000000a1',
+  name: 'Deniz',
+  maxAgeRating: 'Age18' as const,
+};
+
+/** Signed in with `profile` chosen: the gateway answers the session and the profiles, the cookie holds the choice. */
+export function signInAs(profile: { id: string; name: string; maxAgeRating: string } = watchingProfile) {
+  document.cookie = `nbp-profile=${profile.id}.${profile.maxAgeRating}; Path=/`;
+  server.use(
+    http.get(`${gatewayUrl}/session`, () => HttpResponse.json(viewerSession)),
+    http.get(`${gatewayUrl}/auth/profiles`, () => HttpResponse.json([profile])),
+  );
 }

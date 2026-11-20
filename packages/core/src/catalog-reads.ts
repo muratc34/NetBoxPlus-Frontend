@@ -49,7 +49,9 @@ export function readGenres(catalog: PublicClients['catalog'], lang: Locale): Pro
 }
 
 /** The page after `page`, if the list has more. */
-export function nextTitlePage(page: TitlePage): number | undefined {
+export function nextTitlePage(
+  page: Pick<TitlePage, 'pageNumber' | 'pageSize' | 'totalCount'>,
+): number | undefined {
   return page.pageNumber * page.pageSize < page.totalCount ? page.pageNumber + 1 : undefined;
 }
 
@@ -85,4 +87,76 @@ export function readPerson(
   lang: Locale,
 ): Promise<PublicPerson> {
   return unwrap(catalog.GET('/people/{id}', { params: { path: { id }, query: { lang } } }));
+}
+
+/** At most this many titles are asked for by id at once (Catalog's page). */
+export const titlesByIdLimit = 100;
+
+/**
+ * Titles named by id, such as the ones on a profile's list, in the order of the ids. Unknown and
+ * unpublished ones are left out. More than one page of ids is asked in parallel requests.
+ */
+export async function readTitlesByIds(
+  catalog: PublicClients['catalog'],
+  ids: readonly string[],
+  lang: Locale,
+): Promise<TitleSummary[]> {
+  const unique = [...new Set(ids)];
+  const chunks: string[][] = [];
+  for (let start = 0; start < unique.length; start += titlesByIdLimit) {
+    chunks.push(unique.slice(start, start + titlesByIdLimit));
+  }
+  const pages = await Promise.all(
+    chunks.map((chunk) =>
+      unwrap(catalog.GET('/titles', { params: { query: { lang, ids: chunk, pageSize: titlesByIdLimit } } })),
+    ),
+  );
+  const found = new Map(pages.flatMap((page) => page.items).map((title) => [title.id, title]));
+  return unique.flatMap((id) => {
+    const title = found.get(id);
+    return title ? [title] : [];
+  });
+}
+
+export type SearchHit = CatalogSchemas['SearchHit'];
+export type SearchPage = CatalogSchemas['PageOfSearchHit'];
+
+/** What a search looks for: `q` is trimmed by Catalog, which refuses an empty one or one over 200 characters. */
+export interface SearchFilter {
+  readonly q: string;
+  readonly lang: Locale;
+  readonly maxAgeRating?: CatalogAgeRating;
+  readonly pageSize?: number;
+}
+
+/** The longest search Catalog accepts. */
+export const maxSearchLength = 200;
+
+export const searchKeys = {
+  results: (filter: SearchFilter) => ['catalog', 'search', filter] as const,
+  suggestions: (q: string, lang: Locale, maxAgeRating: CatalogAgeRating | undefined) =>
+    ['catalog', 'suggest', q, lang, maxAgeRating] as const,
+};
+
+/** One page of search results, best match first. Elasticsearch being down is a 503 `Search.Unavailable`. */
+export function readSearch(
+  catalog: PublicClients['catalog'],
+  filter: SearchFilter,
+  page = 1,
+): Promise<SearchPage> {
+  return unwrap(catalog.GET('/search', { params: { query: { ...filter, page } } }));
+}
+
+/** Up to ten titles for what has been typed so far. */
+export function readSuggestions(
+  catalog: PublicClients['catalog'],
+  q: string,
+  lang: Locale,
+  maxAgeRating?: CatalogAgeRating,
+): Promise<SearchHit[]> {
+  return unwrap(
+    catalog.GET('/search/suggest', {
+      params: { query: { q, lang, ...(maxAgeRating ? { maxAgeRating } : {}) } },
+    }),
+  );
 }

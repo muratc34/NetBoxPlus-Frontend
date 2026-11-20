@@ -222,10 +222,25 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   düğmesi yok**: fragmanların altyazısı yok (Streaming sadece orijinal sesi verir), sesli hâli WCAG 1.2.2'ye takılırdı. "Hareketi
   azalt"ta istenmez; yaşı seçili profilin sınırını aşan oynamaz (`isWithinAgeLimit`; profilsiz oynar). Ekran dışında ve gizli
   sekmede durur; bitince, hata verince ya da autoplay reddedilince görsele döner.
+- **Arama** (`/<dil>/search?q=`, D3, `noindex`): kutu yazdıkça 300 ms sonra `?q=`'yu `router.replace` ile günceller (geçmişe kayıt
+  eklemez), sonuçlar sayfa sayfa; `q` varsa ilk sayfa SSR (`loadSearch`, 503'te `unavailable`). Öneriler ARIA combobox (`/search/suggest`,
+  en fazla 10; oklar, Enter başlığa gider, Esc kapatır, seçenek `onMouseDown` + `preventDefault` ile odak kutuda kalır). Boşken tür
+  kısayolları. Backend araması tam kelime eşler, öneri önek. Kutu 200 karakterde durur.
+- **Tür sayfası** (`/<dil>/genres/[id]`): türün film ve dizileri tek ızgarada; tek tür okuma ucu yok, ad `/genres` listesinden (yayında
+  içeriği olmayan tür 404).
+- **Kişisel veri** (`useWatchingProfile()`: oturum + seçili profil): sorgular profil id'siyle anahtarlı (`personalKeys`), profilsizken
+  istek yok. İzlemeye devam et (en fazla 20) ve Listem satırları ana sayfada; Streaming sadece id verdiği için başlıklar
+  `useTitlesByIds` ile (`/titles?ids=`, 100'lük parçalar, Streaming'in sırası). Dizide hangi bölüm olduğu yazmaz (dizi başına detay
+  isteği gerekirdi); başlanmamış sıradaki bölüm "Sıradaki bölüm". Listem düğmesi (`MyListButton`) kartta bağlantının yanında (iç içe
+  etkileşimli öğe yok), sadece profil varken; detayda etiketli, oturumsuz ziyaretçiyi girişe gönderir. Değişiklik iyimser, hata
+  gelirse geri alınır ve hata kodundan metin gösterilir. `/<dil>/my-list` istemcide, `noindex`. Detayda filmde "x kaldı", dizide
+  bölüm başına ilerleme çubuğu.
+- **Menü:** üstte Ana Sayfa, Diziler, Filmler, Listem ve arama ikonu; mobil alt çubukta Ana Sayfa, Diziler, Filmler, Arama, Listem.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).
 - **Testler:** Vitest + Testing Library + MSW (`msw` 3: `server.listen({ onUnhandledFrame: 'error' })`); web'in yardımcısı
   `apps/web/src/test/render.tsx` (sağlayıcılar, strict mode, `next/navigation` taklidi). jsdom'da olmayan `IntersectionObserver`/
   `ResizeObserver` yerine `src/test/observers.ts` (hiçbir şey görünmez, `bringIntoView()`/`leaveView()`), `matchMedia` yerine
-  `preferReducedMotion()`. Async sunucu bileşeni döndüren route'lar `serverRendered(Route(params))` ile render edilir.
+  `preferReducedMotion()`. Async sunucu bileşeni döndüren route'lar `serverRendered(Route(params))` ile render edilir. `renderPage`
+  profil seçimini varsayılan olarak sarar ve her test oturumsuz başlar (`setup.ts`); `signInAs()` oturum + profil kurar.
