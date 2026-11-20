@@ -1,14 +1,21 @@
-import { createTranslator } from '@netboxplus/i18n';
-import { Logo } from '@netboxplus/ui';
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
+import { RouterProvider, type DataRouter } from 'react-router';
+import { AdminGatewayProvider, type AdminGateway } from './data/gateway';
+import { LocaleProvider } from './i18n';
 
-const t = createTranslator('tr');
-
-export function App() {
+/** The panel with what every page needs: its language, the query cache and the gateway. */
+export function App({
+  router,
+  queryClient,
+  gateway,
+}: Readonly<{ router: DataRouter; queryClient: QueryClient; gateway: AdminGateway }>) {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-canvas px-4 text-center font-sans text-ink">
-      <Logo className="text-3xl" />
-      <h1 className="font-display text-2xl font-bold text-ink-strong">{t('admin.title')}</h1>
-      <p className="text-ink-muted">{t('admin.comingSoon')}</p>
-    </main>
+    <LocaleProvider>
+      <QueryClientProvider client={queryClient}>
+        <AdminGatewayProvider gateway={gateway}>
+          <RouterProvider router={router} />
+        </AdminGatewayProvider>
+      </QueryClientProvider>
+    </LocaleProvider>
   );
 }
