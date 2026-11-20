@@ -11,7 +11,7 @@ beforeEach(() => {
 });
 
 describe('sitemap', () => {
-  it('lists the catalog pages and every published title in both languages, each naming its twin', async () => {
+  it('lists the catalog pages, the plans and every published title in both languages, each naming its twin', async () => {
     vi.mocked(loadPublishedTitles).mockResolvedValue([
       { id: 'm1', kind: 'Movie' },
       { id: 's1', kind: 'Series' },
@@ -26,12 +26,14 @@ describe('sitemap', () => {
       'https://app.netboxplus.test/en/movies',
       'https://app.netboxplus.test/tr/series',
       'https://app.netboxplus.test/en/series',
+      'https://app.netboxplus.test/tr/plans',
+      'https://app.netboxplus.test/en/plans',
       'https://app.netboxplus.test/tr/movies/m1',
       'https://app.netboxplus.test/en/movies/m1',
       'https://app.netboxplus.test/tr/series/s1',
       'https://app.netboxplus.test/en/series/s1',
     ]);
-    expect(entries[7]?.alternates?.languages).toEqual({
+    expect(entries[9]?.alternates?.languages).toEqual({
       tr: 'https://app.netboxplus.test/tr/movies/m1',
       en: 'https://app.netboxplus.test/en/movies/m1',
     });

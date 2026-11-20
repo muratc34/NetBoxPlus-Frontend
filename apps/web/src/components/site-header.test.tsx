@@ -59,6 +59,7 @@ describe('SiteHeader', () => {
       'href',
       '/tr/profiles',
     );
+    expect(screen.getByRole('menuitem', { name: 'Hesap' })).toHaveAttribute('href', '/tr/account');
 
     await user.click(screen.getByRole('menuitem', { name: 'Çıkış yap' }));
 

@@ -183,15 +183,18 @@ describe('ProfilePicker', () => {
     });
   });
 
-  it('lets a visitor without a choice stay on the account pages', async () => {
-    navigation.pathname = '/tr/profiles';
-    signedInWith([deniz, ada]);
-    renderPage(<p>profiles</p>, 'tr', { withProfiles: true });
+  it.each(['/tr/profiles', '/en/plans', '/tr/account'])(
+    'lets a visitor without a choice stay on the account pages: %s',
+    async (pathname) => {
+      navigation.pathname = pathname;
+      signedInWith([deniz, ada]);
+      renderPage(<p>account</p>, 'tr', { withProfiles: true });
 
-    expect(await screen.findByText('profiles')).toBeInTheDocument();
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(navigation.replace).not.toHaveBeenCalled();
-  });
+      expect(await screen.findByText('account')).toBeInTheDocument();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(navigation.replace).not.toHaveBeenCalled();
+    },
+  );
 
   it('lets a visitor who is not signed in browse without a profile', async () => {
     navigation.pathname = '/tr/movies';

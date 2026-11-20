@@ -59,6 +59,17 @@ describe('SignInForm', () => {
     });
   });
 
+  it('keeps the page that asked when the visitor signs up instead', () => {
+    navigation.search = new URLSearchParams({ next: '/tr/plans' });
+    server.use(signedOut);
+    renderPage(<SignInForm />);
+
+    expect(screen.getByRole('link', { name: 'Kayıt ol' })).toHaveAttribute(
+      'href',
+      '/tr/sign-up?next=%2Ftr%2Fplans',
+    );
+  });
+
   it('never follows a next address off the site', async () => {
     navigation.search = new URLSearchParams({ next: '//evil.example/steal' });
     server.use(

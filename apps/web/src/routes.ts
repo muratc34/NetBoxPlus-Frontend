@@ -17,6 +17,8 @@ export const routes = {
   signUp: (locale: Locale) => `/${locale}/sign-up`,
   forgotPassword: (locale: Locale) => `/${locale}/forgot-password`,
   profiles: (locale: Locale) => `/${locale}/profiles`,
+  plans: (locale: Locale) => `/${locale}/plans`,
+  account: (locale: Locale) => `/${locale}/account`,
 };
 
 function withNext(base: string, next: string | undefined): string {
@@ -26,6 +28,11 @@ function withNext(base: string, next: string | undefined): string {
 /** Sign-in, coming back to `next` afterwards; the sign-in page checks `next` again before following it. */
 export function signInPath(locale: Locale, next?: string): string {
   return withNext(routes.signIn(locale), next);
+}
+
+/** Sign-up, going on to `next` (after choosing a profile) once the account is made. */
+export function signUpPath(locale: Locale, next?: string): string {
+  return withNext(routes.signUp(locale), next);
 }
 
 /** "Who's watching?", going on to `next` once a profile is chosen. */
@@ -41,9 +48,11 @@ const accountPages = new Set([
   'verify-email',
   'change-email',
   'profiles',
+  'plans',
+  'account',
 ]);
 
-/** Pages that work without a chosen profile: signing in, the e-mail links and choosing one. */
+/** Pages that work without a chosen profile: signing in, the e-mail links, choosing one, plans and the account. */
 export function isAccountPage(pathname: string): boolean {
   const [first = '', second = ''] = pathname.split('/').filter((segment) => segment !== '');
   return isLocale(first) && accountPages.has(second);

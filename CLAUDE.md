@@ -235,7 +235,17 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   etkileşimli öğe yok), sadece profil varken; detayda etiketli, oturumsuz ziyaretçiyi girişe gönderir. Değişiklik iyimser, hata
   gelirse geri alınır ve hata kodundan metin gösterilir. `/<dil>/my-list` istemcide, `noindex`. Detayda filmde "x kaldı", dizide
   bölüm başına ilerleme çubuğu.
-- **Menü:** üstte Ana Sayfa, Diziler, Filmler, Listem ve arama ikonu; mobil alt çubukta Ana Sayfa, Diziler, Filmler, Arama, Listem.
+- **Planlar** (`/<dil>/plans`, E1): planlar SSR (`loadPlans`, 60 sn paylaşımlı önbellek; sitemap'te), fiyat kuruştan
+  `formatPrice` ile (para biriminin ondalığına göre), kalite SD 480p / HD 1080p, ekran sayısı. Düğme ziyaretçiye göre tarayıcıda:
+  oturumsuz → `/sign-up?next=/<dil>/plans` (kayıt ve giriş `next`'i birbirine ve profil seçimine taşır); e-posta doğrulanmamış →
+  düğmeler kapalı + uyarı (yeniden gönderme üstteki şeritte); canlı abonelik (`isLive`: `Canceled` dışı, Billing'in kuralı) →
+  planı işaretli, "Üyeliğini yönet" hesap sayfasına; aksi halde `POST /checkout-sessions` → Stripe'a gidilir (`leaveSiteFor`,
+  testte taklit). Ödeme isteklerinin her denemesi yeni `Idempotency-Key` taşır. Ret gelirse metin + abonelik/doğrulama yeniden sorulur.
+- **Hesap** (`/<dil>/account`, istemcide, `noindex`, profil gerekmez): üyelik (plan, durum, sonraki ödeme / sona erecek / sona erdi,
+  başlangıç; PastDue/Incomplete uyarısı; bitmişse "Yeniden abone ol"), Stripe portalı düğmesi, faturalar tablosu (10'ar, "daha fazla",
+  kart "Visa •••• 4242"). Billing'in dönüş adresi `/account/subscription` → `/<dil>/account` (query korunur); `?checkout=success`'te
+  abonelik `Active` olana kadar 2 sn'de bir, en fazla 30 sn sorulur (webhook gecikmesi), sonra "birkaç dakika içinde" mesajı.
+- **Menü:** üstte Ana Sayfa, Diziler, Filmler, Listem ve arama ikonu; avatar menüsünde Profil değiştir, Hesap, Çıkış; mobil alt çubukta Ana Sayfa, Diziler, Filmler, Arama, Listem.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).

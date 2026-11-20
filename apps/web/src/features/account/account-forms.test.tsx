@@ -40,6 +40,48 @@ describe('SignUpForm', () => {
     expect(await screen.findByText('Bu e-posta adresiyle zaten bir hesap var.')).toBeInTheDocument();
     expect(screen.getByLabelText('E-posta')).toHaveAttribute('aria-invalid', 'true');
   });
+
+  it('goes on to choosing a profile, then to the page that sent the visitor here, never off the site', async () => {
+    server.use(
+      signedOut,
+      http.post(`${gatewayUrl}/session/register`, () =>
+        HttpResponse.json({
+          userId: 'u',
+          email: 'new@example.test',
+          roles: [],
+          permissions: [],
+          csrfToken: 'c',
+        }),
+      ),
+    );
+    const register = async () => {
+      const user = userEvent.setup();
+      await user.type(screen.getByLabelText('E-posta'), 'new@example.test');
+      await user.type(screen.getByLabelText('Şifre'), 'a long enough password');
+      await user.type(screen.getByLabelText('Şifre (tekrar)'), 'a long enough password');
+      await user.click(screen.getByRole('button', { name: 'Kayıt ol' }));
+    };
+
+    navigation.search = new URLSearchParams({ next: '/tr/plans' });
+    const { unmount } = renderPage(<SignUpForm />);
+    expect(screen.getByRole('link', { name: 'Giriş yap' })).toHaveAttribute(
+      'href',
+      '/tr/sign-in?next=%2Ftr%2Fplans',
+    );
+    await register();
+    await waitFor(() => {
+      expect(navigation.replace).toHaveBeenCalledWith('/tr/profiles?next=%2Ftr%2Fplans');
+    });
+    unmount();
+
+    navigation.search = new URLSearchParams({ next: '//evil.example' });
+    renderPage(<SignUpForm />);
+    expect(screen.getByRole('link', { name: 'Giriş yap' })).toHaveAttribute('href', '/tr/sign-in');
+    await register();
+    await waitFor(() => {
+      expect(navigation.replace).toHaveBeenLastCalledWith('/tr/profiles');
+    });
+  });
 });
 
 describe('password rules', () => {
