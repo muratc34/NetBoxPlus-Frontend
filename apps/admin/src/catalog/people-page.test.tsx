@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { catalogUrl, locationOf, problem, renderApp, server, signInWith } from '../test/render';
-import { pageOf, searchDelayMs } from './people-page';
+import { pageOf, searchDelayMs } from '../components/address-search';
 
 function person(index: number, photo = false) {
   return {

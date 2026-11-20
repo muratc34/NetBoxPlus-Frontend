@@ -4,6 +4,9 @@ import type { MessageKey } from '@netboxplus/i18n';
 export const paths = {
   home: '/',
   signIn: '/sign-in',
+  movies: '/movies',
+  newMovie: '/movies/new',
+  movie: (id: string) => `/movies/${id}`,
   genres: '/genres',
   people: '/people',
   newPerson: '/people/new',
@@ -19,6 +22,7 @@ export interface Section {
 
 /** The menu, in order; each section needs its read permission. */
 export const sections: readonly Section[] = [
+  { label: 'admin.nav.movies', path: paths.movies, permission: 'catalog:movies:read' },
   { label: 'admin.nav.genres', path: paths.genres, permission: 'catalog:genres:read' },
   { label: 'admin.nav.people', path: paths.people, permission: 'catalog:people:read' },
 ];

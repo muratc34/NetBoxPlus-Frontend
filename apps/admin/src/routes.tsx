@@ -1,5 +1,7 @@
 import type { RouteObject } from 'react-router';
 import { GenresPage } from './catalog/genres-page';
+import { MoviePage } from './catalog/movie-page';
+import { MoviesPage } from './catalog/movies-page';
 import { PeoplePage } from './catalog/people-page';
 import { PersonPage } from './catalog/person-page';
 import { Home, NotFound, RequirePermission, Shell } from './shell/shell';
@@ -12,6 +14,30 @@ export const routes: RouteObject[] = [
     element: <Shell />,
     children: [
       { index: true, element: <Home /> },
+      {
+        path: 'movies',
+        element: (
+          <RequirePermission permission="catalog:movies:read">
+            <MoviesPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'movies/new',
+        element: (
+          <RequirePermission permission="catalog:movies:write">
+            <MoviePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'movies/:id',
+        element: (
+          <RequirePermission permission="catalog:movies:read">
+            <MoviePage />
+          </RequirePermission>
+        ),
+      },
       {
         path: 'genres',
         element: (
