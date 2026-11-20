@@ -129,6 +129,20 @@ describe('playback requests', () => {
     ]);
   });
 
+  it("keep the profile's languages", async () => {
+    const sent: unknown[] = [];
+    server.use(
+      http.put(`${gatewayUrl}/streaming/profiles/p1/playback-preferences`, async ({ request }) => {
+        sent.push(await request.json());
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+
+    await requests().savePreferences('p1', { audioLanguage: 'en-US', subtitleLanguage: null });
+
+    expect(sent).toEqual([{ audioLanguage: 'en-US', subtitleLanguage: null }]);
+  });
+
   it("are bound to the provider's gateway", () => {
     const gateway = createBrowserGateway(gatewayUrl);
     const wrapper = ({ children }: { children: ReactNode }) => (
@@ -140,6 +154,6 @@ describe('playback requests', () => {
     rerender();
 
     expect(result.current).toBe(first);
-    expect(Object.keys(first).sort()).toEqual(['end', 'heartbeat', 'start']);
+    expect(Object.keys(first).sort()).toEqual(['end', 'heartbeat', 'savePreferences', 'start']);
   });
 });

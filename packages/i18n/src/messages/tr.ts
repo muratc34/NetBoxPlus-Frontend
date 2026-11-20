@@ -274,6 +274,18 @@ export const tr = {
     'Planının izin verdiği sayıda ekranda zaten izleniyor. Birini kapatıp tekrar dene.',
   'error.Playback.SubscriptionRequired': 'İzlemek için aktif bir üyelik gerekiyor.',
   'error.Playback.SessionEnded': 'Oynatma sona erdi. Tekrar başlatabilirsin.',
+  'player.settings': 'Ses, altyazı ve kalite',
+  'player.audio': 'Ses',
+  'player.subtitles': 'Altyazı',
+  'player.subtitlesOff': 'Kapalı',
+  'player.quality': 'Kalite',
+  'player.qualityAuto': 'Otomatik',
+  'player.qualityAutoNow': 'Otomatik ({height}p)',
+  'player.next.label': 'Sıradaki bölüm',
+  'player.next.title': 'Sıradaki: {episode}',
+  'player.next.countdown': '{seconds} sn içinde başlıyor',
+  'player.next.play': 'Şimdi oynat',
+  'player.next.dismiss': 'Kapat',
 } as const;
 
 export type MessageKey = keyof typeof tr;

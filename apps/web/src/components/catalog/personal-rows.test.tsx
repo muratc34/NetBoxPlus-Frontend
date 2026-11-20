@@ -93,7 +93,10 @@ describe('PersonalRows', () => {
     );
 
     renderPage(<PersonalRows />);
-    await screen.findAllByRole('link', { name: /Title 2/ });
+    // Each row asks Catalog for its own titles: wait until both have them.
+    await waitFor(() => {
+      expect(screen.getAllByRole('link', { name: /Title 2/ })).toHaveLength(2);
+    });
 
     const watching = screen.getByRole('region', { name: 'İzlemeye devam et' });
     expect(

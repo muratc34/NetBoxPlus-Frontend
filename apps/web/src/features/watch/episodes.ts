@@ -50,3 +50,12 @@ export function chooseEpisode(
   const next = episodes[index + 1];
   return next ? { episode: next, started: false } : { episode: first, started: false };
 }
+
+/** The episode after `episodeId` in watching order, if there is one. */
+export function nextEpisode(
+  episodes: readonly PlayableEpisode[],
+  episodeId: string,
+): PlayableEpisode | undefined {
+  const index = episodes.findIndex((episode) => episode.id === episodeId);
+  return index < 0 ? undefined : episodes[index + 1];
+}

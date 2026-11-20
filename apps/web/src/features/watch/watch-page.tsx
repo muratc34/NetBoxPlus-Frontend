@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useLocale } from '../../i18n/translator';
 import { useWatchingProfile } from '../../profiles/profile-selection';
 import { routes, signInPath } from '../../routes';
-import { chooseEpisode, type PlayableEpisode } from './episodes';
+import { chooseEpisode, nextEpisode, type PlayableEpisode } from './episodes';
 import { Player } from './player';
 
 export interface WatchTitle {
@@ -27,7 +27,7 @@ export function episodeLabel(episode: PlayableEpisode, t: ReturnType<typeof useL
 
 /**
  * The player's page. A movie plays itself; a series plays the `episode` asked for, or goes on where the
- * profile stopped. Watching needs a session and a chosen profile: a visitor without a session signs in
+ * profile stopped; at the end of an episode the next one follows. Watching needs a session and a chosen profile: a visitor without a session signs in
  * first (choosing a profile is asked by the provider), both coming back here.
  */
 export function WatchPage({
@@ -57,6 +57,7 @@ export function WatchPage({
     ? (asked ?? (progress.data ? chooseEpisode(title.episodes, progress.data)?.episode : undefined))
     : undefined;
   const contentId = series ? episode?.id : title.id;
+  const following = episode ? nextEpisode(title.episodes, episode.id) : undefined;
 
   if (!profileId || !contentId) {
     return (
@@ -75,6 +76,17 @@ export function WatchPage({
       heading={title.title}
       {...(episode ? { subheading: episodeLabel(episode, t) } : {})}
       backHref={backHref}
+      {...(following
+        ? {
+            next: {
+              label: episodeLabel(following, t),
+              onPlay: () => {
+                // From where the profile stopped in it, so not `fromStart`.
+                router.replace(routes.watch(locale, title.id, { episode: following.id }));
+              },
+            },
+          }
+        : {})}
       onFinished={() => {
         router.push(backHref);
       }}
