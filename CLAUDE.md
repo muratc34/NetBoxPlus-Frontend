@@ -309,6 +309,15 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   Sezon ve bölüm işlemleri dizinin `version`'ını taşır ve editörü bir artırır (`versioned`), pencereler ana formu kaydedilmemiş
   saymaz. Bölüm yayını videosuz kapalı; yayındaki dizinin son yayındaki bölümü kaldırılamaz; yayındaki bölüm ve yayında bölümü olan
   sezon silinemez (düğme kapalı, nedeni yazılı). Dizinin yayını en az bir yayındaki bölüm ister.
+- **Admin videoları** (H1, `apps/admin/src/videos`): film (asıl video + fragman), dizi (fragman) ve bölüm (satırdaki "Videolar"
+  penceresi) sayfalarında `ContentVideos` (`streaming:videos:read`; yükleme `write`), en yenisi başta, video sayfasına bağlantı.
+  Yükleme `useUploadVideo`: tür `video/*` ve boş değil → `POST /videos` (içerik, amaç, orijinal ses dili) → bilet `maxBytes` → imzalı
+  adrese **parçalı** (`data/blocks.ts`: 8 MB Put Block, blok başına 3 deneme, sonra Put Block List; tek PUT 10 GB'ı taşımaz; storage
+  CORS'u `content-type`'a izin veriyor, `x-ms-blob-content-type` gönderilmez) → `.../uploaded` → video sayfası. Yükleme sürerken
+  ayrılmak sorar (`LeaveGuard`: uygulama içi + `beforeunload`; `holds` gezinme anında sorulur ki başarıdaki geçiş takılmasın).
+  Video sayfası `AwaitingUpload`/`Queued` iken 5 sn'de bir yenilenir (içerik listesi de), kaliteler, süre, boyut, hata nedeni,
+  film/dizi sayfasına bağlantı (bölümün dizisi videodan bilinmez). `/videos` listesi amaç ve durum filtresiyle (işletme görünümü).
+  Testte blok gönderimi `renderApp(path, { sendBlock })` ile taklit.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).

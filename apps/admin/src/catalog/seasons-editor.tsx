@@ -21,6 +21,7 @@ import {
 } from '../data/series';
 import { can, useAdminSession } from '../data/session';
 import { useLocale } from '../i18n';
+import { ContentVideos } from '../videos/content-videos';
 import { textsOf, TextsFields, translationsOf, translationsSchema, wholeNumber } from './content-form';
 import { versioned } from './title-sections';
 
@@ -122,6 +123,8 @@ function SeasonBlock({
   const session = useAdminSession();
   const writable = can(session.data, 'catalog:series:write');
   const publishable = can(session.data, 'catalog:series:publish');
+  const watchable = can(session.data, 'streaming:videos:read');
+  const [videosOf, setVideosOf] = useState<EpisodeResponse | null>(null);
   const remove = useRemoveSeason(series.id);
   const publish = usePublishEpisode(series.id);
   const [editing, setEditing] = useState<EpisodeResponse | 'new' | 'season' | null>(null);
@@ -203,7 +206,7 @@ function SeasonBlock({
                 <th scope="col" className="py-2 pr-4 font-normal">
                   {t('admin.episodes.video')}
                 </th>
-                {(writable || publishable) && (
+                {(writable || publishable || watchable) && (
                   <th scope="col" className="py-2 font-normal">
                     <span className="sr-only">{t('admin.actions')}</span>
                   </th>
@@ -225,6 +228,13 @@ function SeasonBlock({
                   onRemove={() => {
                     setRemovingEpisode(episode);
                   }}
+                  onVideos={
+                    watchable
+                      ? () => {
+                          setVideosOf(episode);
+                        }
+                      : undefined
+                  }
                   onPublish={(value) => {
                     publish.reset();
                     void versioned(
@@ -286,6 +296,21 @@ function SeasonBlock({
         }}
         onOpenChange={setDeleting}
       />
+      {videosOf && (
+        <FormDialog
+          title={t('admin.videos.dialog').replace('{name}', `${String(videosOf.number)}. ${videosOf.title}`)}
+          onClose={() => {
+            setVideosOf(null);
+          }}
+        >
+          <ContentVideos
+            contentKind="Episode"
+            contentId={videosOf.id}
+            purposes={['Feature']}
+            headingLevel={3}
+          />
+        </FormDialog>
+      )}
       {removingEpisode && (
         <EpisodeDeletion
           seriesId={series.id}
@@ -308,6 +333,7 @@ function EpisodeRow({
   busy,
   onEdit,
   onRemove,
+  onVideos,
   onPublish,
 }: Readonly<{
   episode: EpisodeResponse;
@@ -317,6 +343,7 @@ function EpisodeRow({
   busy: boolean;
   onEdit: () => void;
   onRemove: () => void;
+  onVideos: (() => void) | undefined;
   onPublish: (publish: boolean) => void;
 }>) {
   const { t } = useLocale();
@@ -340,9 +367,19 @@ function EpisodeRow({
         <StatusBadge status={episode.status} />
       </td>
       <td className="py-2 pr-4">{t(`admin.video.${episode.videoStatus}`)}</td>
-      {(writable || publishable) && (
+      {(writable || publishable || onVideos) && (
         <td className="py-2">
           <div className="flex flex-wrap justify-end gap-2">
+            {onVideos && (
+              <button
+                type="button"
+                className={buttonClass('ghost', 'sm')}
+                aria-label={t('admin.videos.dialog').replace('{name}', name)}
+                onClick={onVideos}
+              >
+                {t('admin.videos.section')}
+              </button>
+            )}
             {publishable && (
               <button
                 type="button"

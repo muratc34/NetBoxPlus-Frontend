@@ -7,6 +7,8 @@ import { PersonPage } from './catalog/person-page';
 import { SeriesListPage } from './catalog/series-list-page';
 import { SeriesPage } from './catalog/series-page';
 import { Home, NotFound, RequirePermission, Shell } from './shell/shell';
+import { VideoPage } from './videos/video-page';
+import { VideosPage } from './videos/videos-page';
 import { SignInPage } from './shell/sign-in-page';
 
 /** The panel's pages; each section asks for its permission (the menu shows only those the session has). */
@@ -61,6 +63,22 @@ export const routes: RouteObject[] = [
         element: (
           <RequirePermission permission="catalog:series:read">
             <SeriesPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'videos',
+        element: (
+          <RequirePermission permission="streaming:videos:read">
+            <VideosPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'videos/:id',
+        element: (
+          <RequirePermission permission="streaming:videos:read">
+            <VideoPage />
           </RequirePermission>
         ),
       },

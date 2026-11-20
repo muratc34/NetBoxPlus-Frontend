@@ -13,6 +13,7 @@ import { ageRatings } from '../data/movies';
 import { useSaveSeries, useSeries, type SeriesDetails, type SeriesRequest } from '../data/series';
 import { can, useAdminSession } from '../data/session';
 import { useLocale } from '../i18n';
+import { ContentVideos } from '../videos/content-videos';
 import { paths } from '../paths';
 import {
   creditInputs,
@@ -224,6 +225,14 @@ function SeriesEditor({
           version={version}
           onChanged={changed}
           onConflict={conflicted}
+        />
+      )}
+      {series && (
+        <ContentVideos
+          contentKind="Series"
+          contentId={series.id}
+          purposes={['Trailer']}
+          className="rounded-lg bg-surface p-6"
         />
       )}
       {series && (
