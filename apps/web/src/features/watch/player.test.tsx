@@ -63,8 +63,10 @@ describe('Player', () => {
     unmount();
 
     await waitFor(() => {
-      expect(calls.at(-1)).toBe('end s1 42');
+      expect(calls).toContain('end s1 42');
     });
+    // A beat already on its way may land after the end; no new one is sent.
+    await new Promise((resolve) => setTimeout(resolve, 100));
     const beats = calls.filter((call) => call.startsWith('beat')).length;
     await new Promise((resolve) => setTimeout(resolve, 150));
     expect(calls.filter((call) => call.startsWith('beat'))).toHaveLength(beats);

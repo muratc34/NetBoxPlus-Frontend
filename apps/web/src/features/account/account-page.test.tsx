@@ -63,6 +63,9 @@ function billing({
   const asked = { subscription: 0, invoices: [] as string[] };
   signInAs();
   server.use(
+    http.get(`${gatewayUrl}/auth/email-verification`, () =>
+      HttpResponse.json({ verified: true, verifiedAt: null }),
+    ),
     http.get(`${gatewayUrl}/billing/subscription`, () => {
       asked.subscription++;
       const value = current();
