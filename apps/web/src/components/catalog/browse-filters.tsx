@@ -16,7 +16,7 @@ const chipActive = 'border-ink-strong bg-ink-strong text-canvas';
 /**
  * Genre chips and the sort switch of the Movies and Series pages: plain links, so a filtered list has its
  * own address, works without JavaScript and comes back with the browser's back button. The chips scroll
- * sideways on a phone.
+ * sideways on a phone. Without genres (a genre's own page) only the sort switch is shown.
  */
 export function BrowseFilters({
   pathname,
@@ -39,27 +39,31 @@ export function BrowseFilters({
 
   return (
     <div className="flex flex-col gap-3 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-      <nav
-        aria-label={t('browse.genres')}
-        className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"
-      >
-        <ul className="flex gap-2 py-1">
-          {[{ id: undefined, name: t('browse.allGenres') }, ...genres].map((genre) => {
-            const active = genre.id === genreId;
-            return (
-              <li key={genre.id ?? 'all'}>
-                <Link
-                  href={href({ genre: genre.id, sort })}
-                  aria-current={active ? 'page' : undefined}
-                  className={classNames(chip, active ? chipActive : chipIdle)}
-                >
-                  {genre.name}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {genres.length > 0 ? (
+        <nav
+          aria-label={t('browse.genres')}
+          className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"
+        >
+          <ul className="flex gap-2 py-1">
+            {[{ id: undefined, name: t('browse.allGenres') }, ...genres].map((genre) => {
+              const active = genre.id === genreId;
+              return (
+                <li key={genre.id ?? 'all'}>
+                  <Link
+                    href={href({ genre: genre.id, sort })}
+                    aria-current={active ? 'page' : undefined}
+                    className={classNames(chip, active ? chipActive : chipIdle)}
+                  >
+                    {genre.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      ) : (
+        <span />
+      )}
       <nav aria-label={t('browse.sort')}>
         <ul className="flex gap-1 rounded-full bg-surface p-1">
           {titleSorts.map((option) => {

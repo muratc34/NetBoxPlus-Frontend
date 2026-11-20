@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Billboard } from '../../components/catalog/billboard';
 import { LazyTitleRow } from '../../components/catalog/lazy-title-row';
+import { PersonalRows } from '../../components/catalog/personal-rows';
 import { TitleRow } from '../../components/catalog/title-row';
 import { WelcomeBand } from '../../components/welcome-band';
 import { routes } from '../../routes';
@@ -49,6 +50,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       <h1 className="sr-only">{`${t('brand.name')}: ${t('nav.movies')}, ${t('nav.series')}`}</h1>
       {featured && <Billboard title={featured} />}
       <WelcomeBand />
+      <PersonalRows />
       {popular.items.length > 0 && <TitleRow heading={t('browse.top10')} titles={popular.items} ranked />}
       {newest.items.length > 0 && <TitleRow heading={t('browse.new')} titles={newest.items} />}
       {rendered.map((genre, index) => {

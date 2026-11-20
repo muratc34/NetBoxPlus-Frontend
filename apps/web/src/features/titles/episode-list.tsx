@@ -4,13 +4,18 @@ import type { PublishedSeason } from '@netboxplus/core';
 import { useId, useState } from 'react';
 import { useLocale } from '../../i18n/translator';
 import { formatRuntime } from './format';
+import { EpisodeProgress, useProgressById } from './title-progress';
 
 /**
  * A series' episodes, one season at a time: a season picker (a plain select, left out with one season)
- * and the chosen season's episodes in order.
+ * and the chosen season's episodes in order, each with the watching profile's progress.
  */
-export function EpisodeList({ seasons }: Readonly<{ seasons: readonly PublishedSeason[] }>) {
+export function EpisodeList({
+  seriesId,
+  seasons,
+}: Readonly<{ seriesId: string; seasons: readonly PublishedSeason[] }>) {
   const { t } = useLocale();
+  const progress = useProgressById(seriesId);
   const pickerId = useId();
   const ordered = [...seasons].sort((a, b) => a.number - b.number);
   const [chosenId, setChosenId] = useState(ordered[0]?.id);
@@ -70,6 +75,7 @@ export function EpisodeList({ seasons }: Readonly<{ seasons: readonly PublishedS
                   {episode.title}
                 </h3>
                 <p className="text-sm text-ink-muted">{formatRuntime(episode.runtimeMinutes, t)}</p>
+                <EpisodeProgress view={progress.get(episode.id)} />
                 <p className="text-sm text-ink">{episode.synopsis}</p>
               </div>
             </li>

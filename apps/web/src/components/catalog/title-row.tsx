@@ -4,7 +4,7 @@ import type { TitleSummary } from '@netboxplus/core';
 import { classNames } from '@netboxplus/ui';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocale } from '../../i18n/translator';
-import { TitleCard } from './title-card';
+import { TitleCard, type CardProgress } from './title-card';
 
 const cardWidth = 'w-[70vw] shrink-0 snap-start sm:w-[40vw] md:w-[28vw] lg:w-[22vw] xl:w-[18vw]';
 // A ranked card is the same size whatever its rank's width; the rank stands beside it.
@@ -15,9 +15,12 @@ export function TitleRow({
   heading,
   titles,
   ranked = false,
+  progress,
 }: Readonly<{
   heading: string;
   titles: readonly TitleSummary[];
+  /** Continue watching: each title's progress, in the same order. */
+  progress?: readonly CardProgress[];
   /** Top 10: a large rank beside each card, and the rank read out before the title. */
   ranked?: boolean;
 }>) {
@@ -42,7 +45,7 @@ export function TitleRow({
           </li>
         ) : (
           <li key={title.id} className={cardWidth}>
-            <TitleCard title={title} />
+            <TitleCard title={title} {...(progress?.[index] ? { progress: progress[index] } : {})} />
           </li>
         ),
       )}

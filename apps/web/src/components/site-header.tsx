@@ -23,6 +23,16 @@ export const navItems: readonly NavItem[] = [
   { key: 'nav.homePage', href: routes.home, exact: true },
   { key: 'nav.series', href: routes.series },
   { key: 'nav.movies', href: routes.movies },
+  { key: 'nav.myList', href: routes.myList },
+];
+
+/** The phone's tab bar: the same sections and search, which the header has as an icon. */
+export const tabItems: readonly NavItem[] = [
+  { key: 'nav.homePage', href: routes.home, exact: true },
+  { key: 'nav.series', href: routes.series },
+  { key: 'nav.movies', href: routes.movies },
+  { key: 'nav.search', href: routes.search },
+  { key: 'nav.myList', href: routes.myList },
 ];
 
 export function isCurrent(item: NavItem, locale: Locale, pathname: string): boolean {
@@ -86,6 +96,24 @@ export function SiteHeader() {
         </ul>
       </nav>
       <div className="ml-auto flex items-center gap-3">
+        <Link
+          href={routes.search(locale)}
+          aria-label={t('nav.search')}
+          aria-current={pathname === routes.search(locale) ? 'page' : undefined}
+          className={classNames('hidden rounded-md p-2 text-ink hover:bg-white/10 md:block', focusRing)}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="size-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-4-4" strokeLinecap="round" />
+          </svg>
+        </Link>
         {session.data === null && (
           <Link
             href={routes.signIn(locale)}
@@ -181,7 +209,7 @@ export function MobileTabBar() {
       className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-canvas/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
     >
       <ul className="flex">
-        {navItems.map((item) => {
+        {tabItems.map((item) => {
           const current = isCurrent(item, locale, pathname);
           return (
             <li key={item.key} className="flex-1">

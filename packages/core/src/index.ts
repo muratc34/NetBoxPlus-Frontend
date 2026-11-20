@@ -1,4 +1,17 @@
 export { useTitlePages, useTitleRow } from './catalog';
+export { useSearchPages, useSuggestions } from './search';
+export {
+  personalKeys,
+  useChangeMyList,
+  useContinueWatching,
+  useMyList,
+  useProgress,
+  useTitlesByIds,
+  type ContinueWatchingItem,
+  type MyListChange,
+  type MyListItem,
+  type ProgressView,
+} from './personal';
 export {
   catalogKeys,
   catalogStaleTime,
@@ -12,9 +25,18 @@ export {
   type TitlePage,
   type TitleSort,
   type TitleSummary,
+  maxSearchLength,
   readMovie,
   readPerson,
+  readSearch,
   readSeries,
+  readSuggestions,
+  readTitlesByIds,
+  searchKeys,
+  titlesByIdLimit,
+  type SearchFilter,
+  type SearchHit,
+  type SearchPage,
   type Credit,
   type PublicPerson,
   type PublishedEpisode,

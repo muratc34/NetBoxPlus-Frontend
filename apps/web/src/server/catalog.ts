@@ -4,12 +4,15 @@ import {
   readGenres,
   readMovie,
   readPerson,
+  readSearch,
   readSeries,
   readTitles,
   type Genre,
   type PublicPerson,
   type PublishedMovie,
   type PublishedSeries,
+  type SearchFilter,
+  type SearchPage,
   type TitleFilter,
   type TitlePage,
   type TitleSummary,
@@ -67,6 +70,22 @@ export async function loadSeries(id: string, lang: Locale): Promise<PublishedSer
 export async function loadPerson(id: string, lang: Locale): Promise<PublicPerson | null> {
   const gateway = await gatewayForVisitor();
   return cached(['person', id, lang], () => orNotFound(() => readPerson(gateway.catalog, id, lang)));
+}
+
+/**
+ * One page of search results, or `unavailable` when Catalog's search is down (503 `Search.Unavailable`): the
+ * page says so and everything else on it still works.
+ */
+export async function loadSearch(filter: SearchFilter, page = 1): Promise<SearchPage | 'unavailable'> {
+  const gateway = await gatewayForVisitor();
+  try {
+    return await cached(['search', filter, page], () => readSearch(gateway.catalog, filter, page));
+  } catch (error) {
+    if (isApiError(error) && error.status === 503) {
+      return 'unavailable';
+    }
+    throw error;
+  }
 }
 
 /** At most this many titles go into the sitemap (one file holds 50,000 addresses; two languages each). */
