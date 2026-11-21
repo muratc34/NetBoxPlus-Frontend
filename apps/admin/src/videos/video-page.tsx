@@ -5,7 +5,9 @@ import { buttonClass } from '../components/buttons';
 import { isPending, languageName, useVideo, type VideoDetails } from '../data/videos';
 import { useLocale } from '../i18n';
 import { paths } from '../paths';
+import { ContentName } from './content-name';
 import { useDateTime, useDuration, useSize, VideoStatusBadge } from './video-format';
+import { VideoTracks } from './video-tracks';
 
 /** Where the content of the video is edited; an episode's series is not known from the video. */
 function contentPath(video: VideoDetails): string | null {
@@ -82,7 +84,9 @@ export function VideoPage() {
       {unfinished && <p className="text-ink-muted">{t('admin.videos.reupload')}</p>}
       <section className="flex flex-col gap-4 rounded-lg bg-surface p-6">
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Fact label={t('admin.videos.content')}>{t(`admin.videos.kind.${details.contentKind}`)}</Fact>
+          <Fact label={t('admin.videos.content')}>
+            <ContentName kind={details.contentKind} id={details.contentId} />
+          </Fact>
           <Fact label={t('admin.videos.added')}>{dateTime(details.createdAt)}</Fact>
           <Fact label={t('admin.videos.duration')}>{duration(details.durationSeconds)}</Fact>
           <Fact label={t('admin.videos.size')}>{size(details.sizeBytes)}</Fact>
@@ -104,6 +108,7 @@ export function VideoPage() {
           </Link>
         )}
       </section>
+      <VideoTracks video={details} />
     </>
   );
 }

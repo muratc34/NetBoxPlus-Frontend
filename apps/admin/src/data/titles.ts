@@ -1,5 +1,5 @@
 import { unwrap } from '@netboxplus/api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAdminGateway } from './gateway';
 import { uploadImage } from './images';
 
@@ -116,4 +116,24 @@ export function useDeleteTitle(kind: TitleKind) {
       void queryClient.invalidateQueries({ queryKey: titleKeys.lists(kind) });
     },
   });
+}
+
+/**
+ * The title of a movie or series by its id, read from Catalog with its read permission; `undefined` for an
+ * episode (its series is not known from the id), without the permission or when it cannot be read.
+ */
+export function useContentName(kind: 'Movie' | 'Episode' | 'Series', id: string, allowed: boolean) {
+  const { clients } = useAdminGateway();
+  const titleKind: TitleKind | null = kind === 'Movie' ? 'movie' : kind === 'Series' ? 'series' : null;
+  const query = useQuery({
+    queryKey: titleKeys.title(titleKind ?? 'movie', id),
+    queryFn: async () => {
+      const request = { params: { path: { id } } };
+      return titleKind === 'movie'
+        ? unwrap(clients.catalog.GET('/movies/{id}', request))
+        : unwrap(clients.catalog.GET('/series/{id}', request));
+    },
+    enabled: titleKind !== null && allowed,
+  });
+  return query.data?.title;
 }

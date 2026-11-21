@@ -78,15 +78,19 @@ export function useContentVideos(contentId: string) {
   });
 }
 
-/** One video with its renditions and tracks, asked again while it is on its way. */
+/** One video with its renditions and tracks, asked again while it or a dubbed track is on its way. */
 export function useVideo(id: string | undefined) {
   const { clients } = useAdminGateway();
   return useQuery({
     queryKey: videoKeys.video(id ?? ''),
     queryFn: () => unwrap(clients.streaming.GET('/videos/{id}', { params: { path: { id: id ?? '' } } })),
     enabled: id !== undefined,
-    refetchInterval: (query) =>
-      query.state.data && isPending(query.state.data.status) ? videoPollMs : false,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      const working =
+        data && (isPending(data.status) || data.audioTracks.some((track) => track.status === 'Queued'));
+      return working ? videoPollMs : false;
+    },
   });
 }
 
@@ -147,5 +151,133 @@ export function useUploadVideo() {
         queryClient.invalidateQueries({ queryKey: videoKeys.forContent(upload.contentId) }),
         queryClient.invalidateQueries({ queryKey: [...videoKeys.all, 'list'] }),
       ]),
+  });
+}
+
+/** A subtitle file Streaming reads: WebVTT or SubRip, told by its name. */
+export const subtitleExtensions = ['.vtt', '.srt'] as const;
+
+export class TrackRejected extends Error {
+  constructor(readonly reason: 'type' | 'empty' | 'size') {
+    super(`The file was refused before uploading: ${reason}.`);
+  }
+}
+
+function useVideoChanged(videoId: string) {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: videoKeys.video(videoId) });
+}
+
+/**
+ * Uploads a dubbed audio track in a language and hands it to the transcoder: asks for an upload, puts the
+ * file there in blocks, confirms it. Streaming refuses a second track in a language, a trailer and an
+ * old-layout video.
+ */
+export function useUploadAudioTrack(videoId: string) {
+  const { clients, sendBlock } = useAdminGateway();
+  const changed = useVideoChanged(videoId);
+  return useMutation({
+    mutationFn: async ({
+      language,
+      file,
+      onProgress = () => undefined,
+    }: {
+      language: MediaLanguage;
+      file: File;
+      onProgress?: (fraction: number) => void;
+    }) => {
+      if (!file.type.startsWith('audio/') && !file.type.startsWith('video/')) {
+        throw new TrackRejected('type');
+      }
+      if (file.size === 0) {
+        throw new TrackRejected('empty');
+      }
+      const path = { id: videoId };
+      const ticket = await unwrap(
+        clients.streaming.POST('/videos/{id}/audio-tracks', { params: { path }, body: { language } }),
+      );
+      if (file.size > ticket.maxBytes) {
+        throw new TrackRejected('size');
+      }
+      await putInBlocks(ticket.uploadAddress, file, onProgress, sendBlock);
+      await unwrap(
+        clients.streaming.POST('/videos/{id}/audio-tracks/{trackId}/uploaded', {
+          params: { path: { ...path, trackId: ticket.trackId } },
+        }),
+      );
+    },
+    onSettled: changed,
+  });
+}
+
+/** Removes the dubbed track in a language; the original stays. */
+export function useRemoveAudioTrack(videoId: string) {
+  const { clients } = useAdminGateway();
+  const changed = useVideoChanged(videoId);
+  return useMutation({
+    mutationFn: (language: string) =>
+      unwrap(
+        clients.streaming.DELETE('/videos/{id}/audio-tracks/{language}', {
+          params: { path: { id: videoId, language } },
+        }),
+      ),
+    onSettled: changed,
+  });
+}
+
+/**
+ * Uploads a subtitle in a language for a ready video. Streaming reads it at once and turns SubRip into
+ * WebVTT; a file it cannot read is refused (`Video.SubtitleInvalid`) and can be sent again.
+ */
+export function useUploadSubtitle(videoId: string) {
+  const { clients, sendBlock } = useAdminGateway();
+  const changed = useVideoChanged(videoId);
+  return useMutation({
+    mutationFn: async ({
+      language,
+      file,
+      onProgress = () => undefined,
+    }: {
+      language: MediaLanguage;
+      file: File;
+      onProgress?: (fraction: number) => void;
+    }) => {
+      const name = file.name.toLowerCase();
+      if (!subtitleExtensions.some((extension) => name.endsWith(extension))) {
+        throw new TrackRejected('type');
+      }
+      if (file.size === 0) {
+        throw new TrackRejected('empty');
+      }
+      const path = { id: videoId };
+      const ticket = await unwrap(
+        clients.streaming.POST('/videos/{id}/subtitles', { params: { path }, body: { language } }),
+      );
+      if (file.size > ticket.maxBytes) {
+        throw new TrackRejected('size');
+      }
+      await putInBlocks(ticket.uploadAddress, file, onProgress, sendBlock);
+      await unwrap(
+        clients.streaming.POST('/videos/{id}/subtitles/{subtitleId}/uploaded', {
+          params: { path: { ...path, subtitleId: ticket.subtitleId } },
+        }),
+      );
+    },
+    onSettled: changed,
+  });
+}
+
+/** Removes the subtitle in a language. */
+export function useRemoveSubtitle(videoId: string) {
+  const { clients } = useAdminGateway();
+  const changed = useVideoChanged(videoId);
+  return useMutation({
+    mutationFn: (language: string) =>
+      unwrap(
+        clients.streaming.DELETE('/videos/{id}/subtitles/{language}', {
+          params: { path: { id: videoId, language } },
+        }),
+      ),
+    onSettled: changed,
   });
 }
