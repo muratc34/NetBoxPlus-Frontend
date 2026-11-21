@@ -21,6 +21,11 @@ export const paths = {
   roles: '/roles',
   newRole: '/roles/new',
   role: (id: string) => `/roles/${id}`,
+  plans: '/plans',
+  newPlan: '/plans/new',
+  plan: (id: string) => `/plans/${id}`,
+  subscriptions: '/subscriptions',
+  subscription: (id: string) => `/subscriptions/${id}`,
 };
 
 export interface Section {
@@ -39,4 +44,6 @@ export const sections: readonly Section[] = [
   { label: 'admin.nav.people', path: paths.people, permission: 'catalog:people:read' },
   { label: 'admin.nav.users', path: paths.users, permission: 'auth:users:read' },
   { label: 'admin.nav.roles', path: paths.roles, permission: 'auth:roles:read' },
+  { label: 'admin.nav.plans', path: paths.plans, permission: 'billing:plans:read' },
+  { label: 'admin.nav.subscriptions', path: paths.subscriptions, permission: 'billing:subscriptions:read' },
 ];

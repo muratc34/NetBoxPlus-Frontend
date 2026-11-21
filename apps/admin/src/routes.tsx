@@ -1,4 +1,8 @@
 import type { RouteObject } from 'react-router';
+import { PlanPage } from './billing/plan-page';
+import { PlansPage } from './billing/plans-page';
+import { SubscriptionPage } from './billing/subscription-page';
+import { SubscriptionsPage } from './billing/subscriptions-page';
 import { GenresPage } from './catalog/genres-page';
 import { MoviePage } from './catalog/movie-page';
 import { MoviesPage } from './catalog/movies-page';
@@ -155,6 +159,46 @@ export const routes: RouteObject[] = [
         element: (
           <RequirePermission permission="auth:roles:read">
             <RolePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'plans',
+        element: (
+          <RequirePermission permission="billing:plans:read">
+            <PlansPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'plans/new',
+        element: (
+          <RequirePermission permission="billing:plans:write">
+            <PlanPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'plans/:id',
+        element: (
+          <RequirePermission permission="billing:plans:read">
+            <PlanPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'subscriptions',
+        element: (
+          <RequirePermission permission="billing:subscriptions:read">
+            <SubscriptionsPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'subscriptions/:id',
+        element: (
+          <RequirePermission permission="billing:subscriptions:read">
+            <SubscriptionPage />
           </RequirePermission>
         ),
       },
