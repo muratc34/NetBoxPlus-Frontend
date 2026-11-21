@@ -16,6 +16,11 @@ export const paths = {
   people: '/people',
   newPerson: '/people/new',
   person: (id: string) => `/people/${id}`,
+  users: '/users',
+  user: (id: string) => `/users/${id}`,
+  roles: '/roles',
+  newRole: '/roles/new',
+  role: (id: string) => `/roles/${id}`,
 };
 
 export interface Section {
@@ -32,4 +37,6 @@ export const sections: readonly Section[] = [
   { label: 'admin.nav.videos', path: paths.videos, permission: 'streaming:videos:read' },
   { label: 'admin.nav.genres', path: paths.genres, permission: 'catalog:genres:read' },
   { label: 'admin.nav.people', path: paths.people, permission: 'catalog:people:read' },
+  { label: 'admin.nav.users', path: paths.users, permission: 'auth:users:read' },
+  { label: 'admin.nav.roles', path: paths.roles, permission: 'auth:roles:read' },
 ];
