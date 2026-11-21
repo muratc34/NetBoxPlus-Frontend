@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "e2e": "playwright test",
+    "e2e": "playwright test --project flows",
+    "lighthouse": "playwright test --project lighthouse",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@netboxplus/config": "workspace:*",
-    "@playwright/test": "1.65.1"
+    "@playwright/test": "1.65.1",
+    "lighthouse": "13.6.0"
   }
 }

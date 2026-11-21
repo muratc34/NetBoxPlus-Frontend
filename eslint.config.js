@@ -16,6 +16,8 @@ export default defineConfig(
     '**/.turbo/',
     '**/next-env.d.ts',
     'packages/api/src/generated/',
+    'apps/e2e/playwright-report/',
+    'apps/e2e/test-results/',
   ]),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,

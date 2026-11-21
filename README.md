@@ -35,15 +35,16 @@ pnpm dev
 The web app runs on http://localhost:5173 and the admin panel on http://localhost:5174. These ports are the ones
 the backend's gateway allows, so start the backend first (`./deploy/dev.ps1 up -App` in the backend repository).
 
-| Command             | What it does                                                                                 |
-| ------------------- | -------------------------------------------------------------------------------------------- |
-| `pnpm dev`          | Both apps in development mode                                                                |
-| `pnpm build`        | Production builds (web: Next.js standalone output; admin: static files in `apps/admin/dist`) |
-| `pnpm lint`         | ESLint with type-aware and accessibility rules                                               |
-| `pnpm typecheck`    | TypeScript in strict mode                                                                    |
-| `pnpm test`         | Vitest and Testing Library                                                                   |
-| `pnpm format:check` | Prettier                                                                                     |
-| `pnpm e2e`          | Playwright against the whole system (backend `up -App` and `seed`, Stripe CLI, Chrome)       |
+| Command               | What it does                                                                                 |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| `pnpm dev`            | Both apps in development mode                                                                |
+| `pnpm build`          | Production builds (web: Next.js standalone output; admin: static files in `apps/admin/dist`) |
+| `pnpm lint`           | ESLint with type-aware and accessibility rules                                               |
+| `pnpm typecheck`      | TypeScript in strict mode                                                                    |
+| `pnpm test`           | Vitest and Testing Library                                                                   |
+| `pnpm format:check`   | Prettier                                                                                     |
+| `pnpm e2e`            | Playwright against the whole system (backend `up -App` and `seed`, Stripe CLI, Chrome)       |
+| `pnpm e2e:lighthouse` | Lighthouse on the catalog pages, against the web app's production build                      |
 
 ## Engineering notes
 

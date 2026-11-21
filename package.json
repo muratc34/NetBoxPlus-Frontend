@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "e2e": "pnpm --filter @netboxplus/e2e e2e",
+    "e2e:lighthouse": "pnpm --filter @netboxplus/e2e lighthouse",
     "generate": "turbo run generate",
     "api:sync": "pnpm --filter @netboxplus/api sync"
   },
