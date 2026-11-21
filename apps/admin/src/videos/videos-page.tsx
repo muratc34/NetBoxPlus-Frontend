@@ -8,6 +8,7 @@ import { Pagination } from '../components/pagination';
 import { useVideos, videosPageSize, type VideoPurpose, type VideoStatus } from '../data/videos';
 import { useLocale } from '../i18n';
 import { paths } from '../paths';
+import { ContentName } from './content-name';
 import { useDateTime, useDuration, VideoStatusBadge } from './video-format';
 
 const purposes: readonly VideoPurpose[] = ['Feature', 'Trailer'];
@@ -110,7 +111,9 @@ export function VideosPage() {
                   <tr key={video.id} className="border-b border-line last:border-0">
                     <td className="px-4 py-3">{dateTime(video.createdAt)}</td>
                     <td className="px-4 py-3">{t(`admin.videos.purpose.${video.purpose}`)}</td>
-                    <td className="px-4 py-3">{t(`admin.videos.kind.${video.contentKind}`)}</td>
+                    <td className="px-4 py-3">
+                      <ContentName kind={video.contentKind} id={video.contentId} />
+                    </td>
                     <td className="px-4 py-3">
                       <VideoStatusBadge status={video.status} />
                     </td>

@@ -318,6 +318,14 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   Video sayfası `AwaitingUpload`/`Queued` iken 5 sn'de bir yenilenir (içerik listesi de), kaliteler, süre, boyut, hata nedeni,
   film/dizi sayfasına bağlantı (bölümün dizisi videodan bilinmez). `/videos` listesi amaç ve durum filtresiyle (işletme görünümü).
   Testte blok gönderimi `renderApp(path, { sendBlock })` ile taklit.
+- **Dublaj ve altyazı** (H2, `videos/video-tracks.tsx`): video sayfasında "Ses izleri" (orijinal başta, tür, durum, hata nedeni) ve
+  "Altyazılar" (dile göre); ekleme alınmamış bir dilde (`Intl.DisplayNames` adlarıyla; orijinal ses dili de alınmış sayılır), aynı
+  parçalı yükleme. Dublaj: `audio/*`/`video/*`, sadece `Ready` ve yeni düzen (`Muxed` → yeniden yükle notu), işlenirken sayfa
+  5 sn'de bir yenilenir. Altyazı: uzantıyla `.vtt`/`.srt`, Streaming hemen okur (`Video.SubtitleInvalid` formda; açılan bekleyen
+  kayıt listede kalır, aynı dile tekrar yüklenebilir). Kaldırma soruyla. Fragmanda ikisi de yok (not). Ayrılma koruması iki yükleme
+  için **tek** `LeaveGuard` (`VideoTracks`'te): router aynı anda tek blocker tutar, ikincisi birincisini sessizce etkisiz bırakır.
+  Video sayfası ve `/videos` listesi içeriğin adını gösterir (`ContentName`, `useContentName`: editörlerle aynı önbellek, Catalog
+  okuma izniyle; bölümde ve okunamazsa sadece tür).
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).
