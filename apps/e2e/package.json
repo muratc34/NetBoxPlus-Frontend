@@ -1,0 +1,14 @@
+{
+  "name": "@netboxplus/e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@netboxplus/config": "workspace:*",
+    "@playwright/test": "1.65.1"
+  }
+}

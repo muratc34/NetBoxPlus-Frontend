@@ -24,3 +24,7 @@ Thumbs.db
 
 # Generated from packages/api/openapi by `pnpm generate`
 packages/api/src/generated/
+
+# Playwright's run output (traces, screenshots, the HTML report)
+apps/e2e/test-results/
+apps/e2e/playwright-report/

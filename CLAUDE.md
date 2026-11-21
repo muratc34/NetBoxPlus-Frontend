@@ -23,6 +23,7 @@ gerekçesiyle söyle, karar değişirse önce dokümanı güncelle.
 ```
 apps/web          Next.js (App Router): katalog sayfaları sunucuda, kişisel her şey tarayıcıdan gateway'e
 apps/admin        Vite + React SPA: girişin arkasında, statik dosya olarak sunulur
+apps/e2e          Playwright: gerçek sisteme karşı uçtan uca akışlar (lokalde, CI'da değil)
 packages/api      Backend'in OpenAPI dokümanlarından üretilen tipler ve gateway client'ları
 packages/core     İki uygulamanın ortak veri katmanı: gateway, oturum ve 401, sorgu/mutation hook'ları, hata metinleri
 packages/ui       Tasarım token'ları (Tailwind v4 @theme) ve temel bileşenler
@@ -110,6 +111,15 @@ pnpm format:check
   (CI'da ve image'larda set edilir).
 - Testler Vitest + Testing Library; globals yok (`describe`/`it`/`expect` import edilir), DOM matcher'ları
   `@netboxplus/config/vitest/setup`'tan.
+- **Uçtan uca** (`apps/e2e`, Playwright): `pnpm e2e`. Backend'de `./deploy/dev.ps1 up -App` ve `seed` (Stripe test anahtarıyla),
+  makinede Stripe CLI ve Chrome ister. Playwright'ın kendi Chromium'u değil kurulu Chrome (`channel: 'chrome'`): oynatıcı H.264
+  ister. 5173'te bir web sunucusu yoksa production build'i kendisi başlatır (varsa onu kullanır). `deploy/.env`'i
+  (`NETBOXPLUS_ENV_FILE`, varsayılan yan yana duran backend reposu) `process.loadEnvFile` ile okur; değerler yazılmaz. Koşu boyunca
+  `stripe listen`'ı kendisi açar (anahtar ortamda, komut satırında değil). E-postalar Mailpit API'sinden. Stripe'ın ödeme sayfası
+  sürülmez: yönlendirme yakalanır, ödeme Stripe API'siyle test modunda yapılır (`pm_card_visa`, Billing'in checkout metadata'sıyla).
+  Müşteri akışı (`customer.spec.ts`): kayıt → doğrulama → Premium → 7+ profil 13+ başlığı açamaz → dublajlı film, ses/altyazı seçimi
+  profilin tercihi olur → izlemeye devam et → Listem → e-posta değiştirme (eski adres reddedilir) → hesap silme. Her koşu
+  `e2e-<koşu>@example.test` açar ve sonunda siler; yarıda kalan koşunun hesabı admin panelinden silinir.
 
 ## CI ve image'lar
 
