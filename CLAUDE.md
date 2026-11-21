@@ -120,6 +120,16 @@ pnpm format:check
   Müşteri akışı (`customer.spec.ts`): kayıt → doğrulama → Premium → 7+ profil 13+ başlığı açamaz → dublajlı film, ses/altyazı seçimi
   profilin tercihi olur → izlemeye devam et → Listem → e-posta değiştirme (eski adres reddedilir) → hesap silme. Her koşu
   `e2e-<koşu>@example.test` açar ve sonunda siler; yarıda kalan koşunun hesabı admin panelinden silinir.
+  Admin akışı (`admin.spec.ts`, admin 5174'te çalışıyor olmalı; `AUTH_ADMIN_EMAIL`/`PASSWORD` `deploy/.env`'den): film + tür, ffmpeg'le
+  koşuda üretilen afiş/arka plan, asıl video (Hazır'ı bekler) + en-US dublaj + tr-TR altyazı, fragman, yayın; web'de diller ve
+  fragman oynar (yayın Streaming'e event'le ulaştığı için sayfa fragman oynayana kadar yeniden açılır). Film `afterAll`'da gateway
+  üzerinden yayından kaldırılıp silinir (videoları Streaming'de kalır). `ssr.spec.ts`: JS kapalı ana sayfa, film, dizi, arama;
+  içerik, title, açıklama, canonical/hreflang, OG.
+- **Lighthouse** (`pnpm e2e:lighthouse`, Playwright'ın `lighthouse` projesi; `pnpm e2e` onu koşmaz): production build ister (dev
+  sunucusunda `hmr-client` görürse reddeder). Ölçüt Lighthouse'un **masaüstü** ön ayarı: performans, erişilebilirlik, SEO ≥ 90
+  (aramada SEO hariç: sayfa bilerek `noindex`). Mobil (yavaş 4G, 4x CPU) da ölçülür ve rapora yazılır, eşik yok: Catalog görsel başına
+  tek boyut tutuyor ve web onu olduğu gibi sunuyor (`unoptimized`), kısıtlanmış telefon çizdiğinden fazla bayt indiriyor. Raporlar
+  `test-results/` altında (HTML + JSON).
 
 ## CI ve image'lar
 

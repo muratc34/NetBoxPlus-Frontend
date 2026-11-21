@@ -26,6 +26,11 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
+  projects: [
+    { name: 'flows', testIgnore: /lighthouse/ },
+    // Measured on its own (pnpm e2e:lighthouse): it needs the production build and no other load.
+    { name: 'lighthouse', testMatch: /lighthouse/ },
+  ],
   webServer: {
     command: 'corepack pnpm --filter @netboxplus/web build && corepack pnpm --filter @netboxplus/web start',
     cwd: '../..',
