@@ -334,6 +334,12 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   sırası, kaynak, sonra gör → düzenle → yayınla → sil); sahip olunmayan permission seçilemez; sistem rolü ve tam tutulmayan rol salt
   okunur. Permission ve servis adları i18n'de (`admin.permission.<kod>`, `admin.service.<servis>`), yoksa ham kod; gönderim katalog
   sırasıyla.
+- **Planlar ve abonelikler** (I2, `apps/admin/src/billing`, `data/billing.ts`): `/plans` (satış filtresi adreste), plan editörü
+  (Türkçe zorunlu + İngilizce ad/açıklama, fiyat `199,99`/`199.99` → kuruş (`amountOf`), para birimi sabit `TRY`, kalite, ekran 1–10,
+  Stripe price id; fiyatın Stripe'takiyle aynı olması ipucu, Billing Stripe'a sormaz). Sürüm katalogdaki gibi: editör kendi kaydında ve
+  kendi satışa açma/kapamasında +1, `Plan.VersionConflict` → "Güncel hâli yükle". Yeni plan satışta değil; satıştan kaldırma soruyla.
+  `/subscriptions` (durum ve `userId` filtresi adreste) ve detay (kullanıcı ve plan bağlantısı izne göre, yenileme durumu, Stripe
+  aboneliği, faturalar); sadece okuma. Kullanıcı sayfasında son 5 abonelik paneli; istek kullanıcıyla **paralel** (`UserPage` başlatır).
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).

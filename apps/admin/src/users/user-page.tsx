@@ -2,6 +2,7 @@ import { problemMessageKey } from '@netboxplus/core';
 import { FormAlert, SelectField } from '@netboxplus/ui';
 import { useEffect, useId, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
+import { UserSubscriptions, useUserSubscriptions } from '../billing/user-subscriptions';
 import { buttonClass } from '../components/buttons';
 import { ConfirmDialog } from '../components/confirm-dialog';
 import { can, useAdminSession } from '../data/session';
@@ -26,7 +27,10 @@ import { UserStatus } from './user-status';
 export function UserPage() {
   const { t } = useLocale();
   const id = useParams().id ?? '';
+  const session = useAdminSession();
   const user = useUser(id);
+  // Asked beside the account, not after it: the panels read the same queries.
+  useUserSubscriptions(id, can(session.data, 'billing:subscriptions:read'));
 
   useEffect(() => {
     document.title = user.data?.email ?? t('admin.users.title');
@@ -82,6 +86,7 @@ function UserView({ user }: Readonly<{ user: UserDetails }>) {
       </section>
       {writable && !self && <AccessSection user={user} />}
       <RolesSection user={user} self={self} />
+      {can(session.data, 'billing:subscriptions:read') && <UserSubscriptions userId={user.id} />}
       {can(session.data, 'auth:users:delete') && !self && <DeleteSection user={user} />}
     </>
   );
