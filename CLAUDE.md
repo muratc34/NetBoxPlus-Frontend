@@ -340,6 +340,10 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   kendi satışa açma/kapamasında +1, `Plan.VersionConflict` → "Güncel hâli yükle". Yeni plan satışta değil; satıştan kaldırma soruyla.
   `/subscriptions` (durum ve `userId` filtresi adreste) ve detay (kullanıcı ve plan bağlantısı izne göre, yenileme durumu, Stripe
   aboneliği, faturalar); sadece okuma. Kullanıcı sayfasında son 5 abonelik paneli; istek kullanıcıyla **paralel** (`UserPage` başlatır).
+- **E-posta kuyruğu** (I3, `apps/admin/src/emails`, `data/emails.ts`): `/emails` (durum, tür, `userId` filtresi adreste; bekleyen e-posta
+  varken 5 sn'de bir yenilenir) ve detay (tür, deneme, sonraki deneme, son hata, içerik saklanıyor mu, kaynak; adres gösterilmez,
+  alıcı kopyasında). Tekrar gönder sadece `Failed` + içerik saklıyken ve `notification:emails:write` ile (`Email.NotFailed`/`ContentGone`
+  metinle). Kullanıcı sayfasında son 5 e-posta paneli, abonelikler gibi paralel istekle.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).

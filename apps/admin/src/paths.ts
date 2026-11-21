@@ -26,6 +26,8 @@ export const paths = {
   plan: (id: string) => `/plans/${id}`,
   subscriptions: '/subscriptions',
   subscription: (id: string) => `/subscriptions/${id}`,
+  emails: '/emails',
+  email: (id: string) => `/emails/${id}`,
 };
 
 export interface Section {
@@ -46,4 +48,5 @@ export const sections: readonly Section[] = [
   { label: 'admin.nav.roles', path: paths.roles, permission: 'auth:roles:read' },
   { label: 'admin.nav.plans', path: paths.plans, permission: 'billing:plans:read' },
   { label: 'admin.nav.subscriptions', path: paths.subscriptions, permission: 'billing:subscriptions:read' },
+  { label: 'admin.nav.emails', path: paths.emails, permission: 'notification:emails:read' },
 ];
