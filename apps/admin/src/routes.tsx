@@ -10,6 +10,10 @@ import { Home, NotFound, RequirePermission, Shell } from './shell/shell';
 import { VideoPage } from './videos/video-page';
 import { VideosPage } from './videos/videos-page';
 import { SignInPage } from './shell/sign-in-page';
+import { RolePage } from './users/role-page';
+import { RolesPage } from './users/roles-page';
+import { UserPage } from './users/user-page';
+import { UsersPage } from './users/users-page';
 
 /** The panel's pages; each section asks for its permission (the menu shows only those the session has). */
 export const routes: RouteObject[] = [
@@ -111,6 +115,46 @@ export const routes: RouteObject[] = [
         element: (
           <RequirePermission permission="catalog:people:read">
             <PersonPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'users',
+        element: (
+          <RequirePermission permission="auth:users:read">
+            <UsersPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'users/:id',
+        element: (
+          <RequirePermission permission="auth:users:read">
+            <UserPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'roles',
+        element: (
+          <RequirePermission permission="auth:roles:read">
+            <RolesPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'roles/new',
+        element: (
+          <RequirePermission permission="auth:roles:write">
+            <RolePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'roles/:id',
+        element: (
+          <RequirePermission permission="auth:roles:read">
+            <RolePage />
           </RequirePermission>
         ),
       },

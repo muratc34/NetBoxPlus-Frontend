@@ -326,6 +326,14 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   için **tek** `LeaveGuard` (`VideoTracks`'te): router aynı anda tek blocker tutar, ikincisi birincisini sessizce etkisiz bırakır.
   Video sayfası ve `/videos` listesi içeriğin adını gösterir (`ContentName`, `useContentName`: editörlerle aynı önbellek, Catalog
   okuma izniyle; bölümde ve okunamazsa sadece tür).
+- **Kullanıcılar ve roller** (I1, `apps/admin/src/users`, `data/users.ts`): `/users` (adrese bağlı e-posta araması, sayfa; durum
+  "Açık"/"Kapalı"/"Kilitli (… saatine kadar)"), `/users/:id` (bilgiler, kapat (soruyla)/aç, roller, silme (soruyla, anonimleştirme)).
+  Rol verip almak rolün **bütün** permission'larını ister (`holdsAll`): seçim kutusu sadece onları sunar, tam tutulmayan rolün
+  kaldır düğmesi yok, saklanan rol varsa not. Kendi hesabında (`session.userId`) kapatma, silme ve rol kaldırma yok (not); backend de
+  reddeder. `/roles` (sistem rolü başta) ve editör: ad + servise göre gruplanmış permission kutuları (`groupPermissions`: bilinen servis
+  sırası, kaynak, sonra gör → düzenle → yayınla → sil); sahip olunmayan permission seçilemez; sistem rolü ve tam tutulmayan rol salt
+  okunur. Permission ve servis adları i18n'de (`admin.permission.<kod>`, `admin.service.<servis>`), yoksa ham kod; gönderim katalog
+  sırasıyla.
 - **Formlar:** react-hook-form + zod; kurallar mesaj anahtarı taşır (`validation.*`), istemci sadece önceden söylenebileni
   denetler (şifre 12–128, Auth'un `PasswordPolicy`'si), asıl kural backend'de. E-postadaki tek kullanımlık token'ı gönderen
   sayfa onu bir kez gönderir (strict mode'un çift effect'i dahil).
