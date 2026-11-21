@@ -1,0 +1,4 @@
+{
+  "extends": "@netboxplus/config/tsconfig/base.json",
+  "include": ["playwright.config.ts", "support", "tests"]
+}

@@ -16,6 +16,7 @@ behind a YARP gateway that keeps browser sessions in httpOnly cookies, so no acc
 apps/web          Customer site: Next.js (App Router). Catalog pages render on the server for search engines
                   and fast first paint; profiles, My List, playback and account pages call the gateway from the browser.
 apps/admin        Admin panel: Vite + React single-page app, served as static files.
+apps/e2e          End-to-end flows with Playwright against the running system (local, not in CI).
 packages/api      Types and clients generated from the backend's OpenAPI documents.
 packages/ui       Design tokens (Tailwind CSS v4) and shared components.
 packages/i18n     Turkish and English texts, checked at compile time.
@@ -42,6 +43,7 @@ the backend's gateway allows, so start the backend first (`./deploy/dev.ps1 up -
 | `pnpm typecheck`    | TypeScript in strict mode                                                                    |
 | `pnpm test`         | Vitest and Testing Library                                                                   |
 | `pnpm format:check` | Prettier                                                                                     |
+| `pnpm e2e`          | Playwright against the whole system (backend `up -App` and `seed`, Stripe CLI, Chrome)       |
 
 ## Engineering notes
 
