@@ -3,6 +3,8 @@ import { PlanPage } from './billing/plan-page';
 import { PlansPage } from './billing/plans-page';
 import { SubscriptionPage } from './billing/subscription-page';
 import { SubscriptionsPage } from './billing/subscriptions-page';
+import { EmailPage } from './emails/email-page';
+import { EmailsPage } from './emails/emails-page';
 import { GenresPage } from './catalog/genres-page';
 import { MoviePage } from './catalog/movie-page';
 import { MoviesPage } from './catalog/movies-page';
@@ -199,6 +201,22 @@ export const routes: RouteObject[] = [
         element: (
           <RequirePermission permission="billing:subscriptions:read">
             <SubscriptionPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'emails',
+        element: (
+          <RequirePermission permission="notification:emails:read">
+            <EmailsPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'emails/:id',
+        element: (
+          <RequirePermission permission="notification:emails:read">
+            <EmailPage />
           </RequirePermission>
         ),
       },
