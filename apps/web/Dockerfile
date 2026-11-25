@@ -20,7 +20,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
 RUN pnpm turbo run build --filter=@netboxplus/web
 
 # Distroless: no shell or package manager, runs as an unprivileged user. Pinned by digest; Dependabot updates it.
-FROM gcr.io/distroless/nodejs26-debian13:nonroot@sha256:1d736cf8b5716c07a245301f92717143215d248fd55771ee1936ef4b3302e531
+FROM gcr.io/distroless/nodejs26-debian13:nonroot@sha256:ffa8a7545403036c94ec76674b5dbac2d425af2d679147cdf3e30180071487b7
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
