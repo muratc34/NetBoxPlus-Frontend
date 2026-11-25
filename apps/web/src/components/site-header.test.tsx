@@ -68,6 +68,22 @@ describe('SiteHeader', () => {
     });
     expect(document.cookie).not.toContain('nbp-profile=');
   });
+
+  it('marks the menu with the address as Auth has it, not as the session was issued', async () => {
+    server.use(
+      http.get(`${gatewayUrl}/session`, () => HttpResponse.json({ ...session, email: 'old@example.test' })),
+      http.get(`${gatewayUrl}/auth/profiles`, () => HttpResponse.json([ada])),
+      http.get(`${gatewayUrl}/auth/email-verification`, () =>
+        HttpResponse.json({ verified: true, verifiedAt: null, email: 'new@example.test' }),
+      ),
+    );
+    renderPage(<SiteHeader />, 'tr', { withProfiles: true });
+
+    const menu = await screen.findByRole('button', { name: 'Profil menüsü' });
+    await waitFor(() => {
+      expect(menu).toHaveTextContent('N');
+    });
+  });
 });
 
 describe('MobileTabBar', () => {

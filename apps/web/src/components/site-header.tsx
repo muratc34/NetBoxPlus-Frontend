@@ -1,6 +1,6 @@
 'use client';
 
-import { useProfiles, useSession, useSignOut } from '@netboxplus/core';
+import { useAccountEmail, useProfiles, useSession, useSignOut } from '@netboxplus/core';
 import type { Locale, MessageKey } from '@netboxplus/i18n';
 import { classNames, Logo } from '@netboxplus/ui';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -125,13 +125,14 @@ export function SiteHeader() {
             {t('nav.signIn')}
           </Link>
         )}
-        {session.data && <ProfileMenu email={session.data.email} />}
+        {session.data && <ProfileMenu fallback={session.data.email} />}
       </div>
     </header>
   );
 }
 
-function ProfileMenu({ email }: Readonly<{ email: string }>) {
+function ProfileMenu({ fallback }: Readonly<{ fallback: string }>) {
+  const email = useAccountEmail() ?? fallback;
   const { locale, t } = useLocale();
   const router = useRouter();
   const signOut = useSignOut();

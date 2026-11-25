@@ -78,6 +78,7 @@ export {
   useConfirmEmail,
   useConfirmEmailChange,
   useDeleteAccount,
+  useAccountEmail,
   useEmailVerification,
   useRegister,
   useRequestEmailChange,

@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  useAccountEmail,
   problemMessageKey,
   useChangePassword,
   useEmailVerification,
@@ -37,8 +38,9 @@ type Done = { readonly kind: 'email'; readonly email: string } | { readonly kind
  * forms to change the address or the password, one open at a time. A new address takes effect only once
  * the link sent to it is opened.
  */
-export function SignInDetails({ address }: Readonly<{ address: string }>) {
+export function SignInDetails({ fallback }: Readonly<{ fallback: string }>) {
   const { t } = useLocale();
+  const address = useAccountEmail() ?? fallback;
   const ids = { email: useId(), password: useId() };
   const verification = useEmailVerification(true);
   const resend = useResendVerification();

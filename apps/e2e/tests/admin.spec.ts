@@ -138,7 +138,11 @@ test('the published movie shows on the web app with its languages and plays its 
     // Streaming learns that the movie is out through an event; until then the page finds no trailer and
     // keeps its image, so it is opened again until the trailer plays.
     const trailerPlays = async () => {
-      await visitor.reload();
+      // Not waiting for the load event: a page that is still fetching would hold the next try.
+      await visitor.goto(`${urls.web}/tr/movies/${movieId}`, {
+        waitUntil: 'domcontentloaded',
+        timeout: 15_000,
+      });
       const trailer = visitor.locator('video');
       await trailer.waitFor({ timeout: 8000 }).catch(() => undefined);
       await visitor.waitForTimeout(2000);
