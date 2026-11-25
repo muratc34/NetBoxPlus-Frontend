@@ -105,6 +105,17 @@ export function useEmailVerification(enabled: boolean) {
   });
 }
 
+/**
+ * The signed-in account's address as it is now: Auth's, read with the verification status, and until that
+ * answers the session's. The session takes it from the access token, which keeps the address it was issued
+ * with until it is renewed (up to 15 minutes after a change).
+ */
+export function useAccountEmail(): string | undefined {
+  const session = useSession();
+  const verification = useEmailVerification(Boolean(session.data));
+  return verification.data?.email ?? session.data?.email;
+}
+
 /** Sends a new confirmation link; the backend allows one a minute. */
 export function useResendVerification() {
   const { clients } = useGateway();

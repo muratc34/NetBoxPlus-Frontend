@@ -8,7 +8,7 @@ import { SignInDetails } from './sign-in-details';
 function verified(value: boolean) {
   server.use(
     http.get(`${gatewayUrl}/auth/email-verification`, () =>
-      HttpResponse.json({ verified: value, verifiedAt: null }),
+      HttpResponse.json({ verified: value, verifiedAt: null, email: 'viewer@example.test' }),
     ),
   );
 }
@@ -26,7 +26,7 @@ function gatewayAt(path: string, answer?: () => Response) {
 }
 
 function details() {
-  return renderPage(<SignInDetails address="viewer@example.test" />, 'tr', { withProfiles: false });
+  return renderPage(<SignInDetails fallback="viewer@example.test" />, 'tr', { withProfiles: false });
 }
 
 describe('SignInDetails', () => {
@@ -37,6 +37,23 @@ describe('SignInDetails', () => {
     expect(screen.getByRole('region', { name: 'Giriş bilgileri' })).toHaveTextContent('viewer@example.test');
     expect(await screen.findByText('Doğrulandı')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Bağlantıyı yeniden gönder' })).not.toBeInTheDocument();
+  });
+
+  it('shows the address Auth has now, the session’s until it answers', async () => {
+    server.use(
+      http.get(`${gatewayUrl}/auth/email-verification`, async () => {
+        await delay(80);
+        return HttpResponse.json({ verified: true, verifiedAt: null, email: 'changed@example.test' });
+      }),
+    );
+    details();
+
+    const region = screen.getByRole('region', { name: 'Giriş bilgileri' });
+    expect(region).toHaveTextContent('viewer@example.test');
+    await waitFor(() => {
+      expect(region).toHaveTextContent('changed@example.test');
+    });
+    expect(region).not.toHaveTextContent('viewer@example.test');
   });
 
   it('offers nothing to resend while it does not know yet', async () => {

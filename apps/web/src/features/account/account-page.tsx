@@ -35,7 +35,7 @@ export function AccountPage() {
       <h1 className="font-display text-3xl font-bold text-ink-strong">{t('account.title')}</h1>
       {session.data ? (
         <>
-          <SignInDetails address={session.data.email} />
+          <SignInDetails fallback={session.data.email} />
           <Membership checkoutReturned={checkoutReturned} />
           <section
             aria-labelledby="profiles-heading"

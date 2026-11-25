@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from 'node:child_process';
+import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { stripeTestKey, urls } from './environment';
 
 const api = 'https://api.stripe.com/v1';
@@ -65,6 +65,26 @@ export async function payForPlan(
     'metadata[userId]': userId,
     'metadata[planId]': planId,
   });
+}
+
+/**
+ * Refuses the run when Billing would refuse the forwarded events: the signing secret the CLI forwards with
+ * must be deploy/.env's STRIPE_WEBHOOK_SECRET. Neither value is shown.
+ */
+export function checkWebhookSecret(): void {
+  const secret = execFileSync('stripe', ['listen', '--print-secret'], {
+    env: { ...process.env, STRIPE_API_KEY: stripeTestKey() },
+    encoding: 'utf8',
+  })
+    .trim()
+    .split(/\r?\n/)
+    .pop();
+  if (secret !== process.env.STRIPE_WEBHOOK_SECRET) {
+    throw new Error(
+      "STRIPE_WEBHOOK_SECRET in deploy/.env is not the Stripe CLI's signing secret, so Billing would refuse the events. " +
+        'Write the value of `stripe listen --api-key <STRIPE_SECRET_KEY> --print-secret` there and run ./deploy/dev.ps1 up -App.',
+    );
+  }
 }
 
 /**

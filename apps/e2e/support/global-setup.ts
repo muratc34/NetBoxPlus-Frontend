@@ -1,5 +1,5 @@
 import { loadBackendEnvironment, urls } from './environment';
-import { startWebhookForwarding } from './stripe';
+import { checkWebhookSecret, startWebhookForwarding } from './stripe';
 
 /**
  * Before the run: the backend's environment read, the system checked to be up, and Stripe's webhook
@@ -18,6 +18,7 @@ export default async function globalSetup(): Promise<() => void> {
       );
     }
   }
+  checkWebhookSecret();
   const listener = await startWebhookForwarding();
   return () => {
     listener.kill();

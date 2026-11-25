@@ -194,6 +194,9 @@ test('changes the e-mail address with a link sent to the new one', async () => {
   await expect(page.getByText('E-posta adresin değişti.')).toBeVisible();
   // The old address heard of it.
   await waitForEmail(account.email, /değiştirildi/i, startedAt);
+  // The session still runs on a token issued for the old address; the account page shows the new one at once.
+  await page.goto('/tr/account');
+  await expect(page.getByRole('region', { name: 'Giriş bilgileri' })).toContainText(account.newEmail);
 
   // Signing in takes the new address, not the old one.
   await page.goto('/tr');

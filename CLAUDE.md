@@ -115,7 +115,8 @@ pnpm format:check
   makinede Stripe CLI ve Chrome ister. Playwright'ın kendi Chromium'u değil kurulu Chrome (`channel: 'chrome'`): oynatıcı H.264
   ister. 5173'te bir web sunucusu yoksa production build'i kendisi başlatır (varsa onu kullanır). `deploy/.env`'i
   (`NETBOXPLUS_ENV_FILE`, varsayılan yan yana duran backend reposu) `process.loadEnvFile` ile okur; değerler yazılmaz. Koşu boyunca
-  `stripe listen`'ı kendisi açar (anahtar ortamda, komut satırında değil). E-postalar Mailpit API'sinden. Stripe'ın ödeme sayfası
+  `stripe listen`'ı kendisi açar (anahtar ortamda, komut satırında değil); önce CLI'ın imza anahtarının `.env`'deki
+  `STRIPE_WEBHOOK_SECRET` olduğunu kontrol eder (değilse Billing event'leri reddederdi; hata mesajı düzeltmeyi söyler). E-postalar Mailpit API'sinden. Stripe'ın ödeme sayfası
   sürülmez: yönlendirme yakalanır, ödeme Stripe API'siyle test modunda yapılır (`pm_card_visa`, Billing'in checkout metadata'sıyla).
   Müşteri akışı (`customer.spec.ts`): kayıt → doğrulama → Premium → 7+ profil 13+ başlığı açamaz → dublajlı film, ses/altyazı seçimi
   profilin tercihi olur → izlemeye devam et → Listem → e-posta değiştirme (eski adres reddedilir) → hesap silme. Her koşu
@@ -266,8 +267,9 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   kart "Visa •••• 4242"). Billing'in dönüş adresi `/account/subscription` → `/<dil>/account` (query korunur); `?checkout=success`'te
   abonelik `Active` olana kadar 2 sn'de bir, en fazla 30 sn sorulur (webhook gecikmesi), sonra "birkaç dakika içinde" mesajı.
 - **Hesap ayarları** (F, `/<dil>/account`): sıra giriş bilgileri, üyelik, faturalar, profiller, hesabı sil. Giriş bilgileri: adres
-  (gateway oturumundaki access token'dan; e-posta değişikliği onaylansa da token yenilenene kadar, en fazla 15 dk, eskisi görünür),
-  doğrulama rozeti ve gerekirse yeniden gönder; "E-postayı değiştir" / "Şifreyi değiştir" formları sayfa içinde, biri açıkken öteki
+  (`useAccountEmail`: Auth'un `GET /email-verification` yanıtındaki güncel adres, gelene kadar oturumunki; oturum adresi access
+  token'ın `email` claim'inden gelir ve bir değişiklikten sonra token yenilenene kadar, en fazla 15 dk, eski kalır; profil menüsü de
+  aynı hook'u kullanır), doğrulama rozeti ve gerekirse yeniden gönder; "E-postayı değiştir" / "Şifreyi değiştir" formları sayfa içinde, biri açıkken öteki
   kapalı, açılınca ilk alana odak. `showProblem`'in `byCode`'u alan bilgisi olmayan kodları alana koyar (`User.PasswordIncorrect`,
   `User.EmailTaken`, `User.EmailUnchanged`). Şifre değişince bu oturum sürer, diğerleri kapanır. Silme: Radix Dialog, şifre, canlı
   üyelikte "hemen ve iadesiz iptal" uyarısı; başarıda pencere "Hesabın silindi" der (`useDeleteAccount` sadece CSRF'i siler, oturumu
