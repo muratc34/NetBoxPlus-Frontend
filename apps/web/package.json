@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hookform/resolvers": "7.0.7",
+    "@hookform/resolvers": "7.0.9",
     "@netboxplus/api": "workspace:*",
     "@netboxplus/core": "workspace:*",
     "@netboxplus/i18n": "workspace:*",
