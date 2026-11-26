@@ -167,7 +167,6 @@ export const tr = {
   'search.title': 'Ara',
   'search.label': 'Film ya da dizi ara',
   'search.placeholder': 'Başlık, tür ya da kişi',
-  'search.suggestions': 'Öneriler',
   'search.results': '{count} sonuç',
   'search.none': '"{q}" için sonuç bulunamadı.',
   'search.unavailable': 'Arama şu an kullanılamıyor. Biraz sonra tekrar dene.',

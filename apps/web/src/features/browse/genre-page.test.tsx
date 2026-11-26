@@ -72,7 +72,7 @@ describe('SearchRoute', () => {
     );
 
     expect(loadSearch).toHaveBeenCalledWith({ q: 'kuzey', lang: 'tr', maxAgeRating: 'Age13' }, 2);
-    expect(screen.getByRole('combobox')).toHaveValue('kuzey');
+    expect(screen.getByRole('searchbox')).toHaveValue('kuzey');
     expect(screen.getByRole('link', { name: /Title 3/ })).toBeInTheDocument();
   });
 

@@ -21,7 +21,6 @@ export {
   readPerson,
   readSearch,
   readSeries,
-  readSuggestions,
   readTitlesByIds,
   searchKeys,
   titlesByIdLimit,

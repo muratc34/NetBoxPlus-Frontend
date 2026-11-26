@@ -134,8 +134,6 @@ export const maxSearchLength = 200;
 
 export const searchKeys = {
   results: (filter: SearchFilter) => ['catalog', 'search', filter] as const,
-  suggestions: (q: string, lang: Locale, maxAgeRating: CatalogAgeRating | undefined) =>
-    ['catalog', 'suggest', q, lang, maxAgeRating] as const,
 };
 
 /** One page of search results, best match first. Elasticsearch being down is a 503 `Search.Unavailable`. */
@@ -145,18 +143,4 @@ export function readSearch(
   page = 1,
 ): Promise<SearchPage> {
   return unwrap(catalog.GET('/search', { params: { query: { ...filter, page } } }));
-}
-
-/** Up to ten titles for what has been typed so far. */
-export function readSuggestions(
-  catalog: PublicClients['catalog'],
-  q: string,
-  lang: Locale,
-  maxAgeRating?: CatalogAgeRating,
-): Promise<SearchHit[]> {
-  return unwrap(
-    catalog.GET('/search/suggest', {
-      params: { query: { q, lang, ...(maxAgeRating ? { maxAgeRating } : {}) } },
-    }),
-  );
 }

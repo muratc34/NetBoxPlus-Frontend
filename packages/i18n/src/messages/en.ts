@@ -169,7 +169,6 @@ export const en = {
   'search.title': 'Search',
   'search.label': 'Search movies and series',
   'search.placeholder': 'Title, genre or person',
-  'search.suggestions': 'Suggestions',
   'search.results': '{count} results',
   'search.none': 'No results for "{q}".',
   'search.unavailable': 'Search is unavailable right now. Try again in a moment.',
