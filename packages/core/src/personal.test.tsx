@@ -8,7 +8,7 @@ import { readTitlesByIds, titlesByIdLimit, type TitleSummary } from './catalog-r
 import { createBrowserGateway, GatewayProvider } from './gateway';
 import { personalKeys, useChangeMyList, useContinueWatching, useMyList, type MyListItem } from './personal';
 import { createAppQueryClient } from './query-client';
-import { useSearchPages, useSuggestions } from './search';
+import { useSearchPages } from './search';
 
 const gatewayUrl = 'http://gateway.test';
 const server = setupServer();
@@ -208,27 +208,9 @@ describe('search hooks', () => {
     );
     const { wrapper } = setup();
 
-    renderHook(() => [useSearchPages({ q: '  ', lang: 'tr' }), useSuggestions(' ', 'tr')], { wrapper });
+    renderHook(() => useSearchPages({ q: '  ', lang: 'tr' }), { wrapper });
     await new Promise((resolve) => setTimeout(resolve, 30));
 
     expect(asked).toBe(0);
-  });
-
-  it('suggest for the trimmed text with the age limit', async () => {
-    const asked: string[] = [];
-    server.use(
-      http.get(`${gatewayUrl}/catalog/search/suggest`, ({ request }) => {
-        asked.push(new URL(request.url).search);
-        return HttpResponse.json([title('k')]);
-      }),
-    );
-    const { wrapper } = setup();
-
-    const { result } = renderHook(() => useSuggestions(' kuz ', 'en', 'Age7'), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.data?.[0]?.id).toBe('k');
-    });
-    expect(asked).toEqual(['?q=kuz&lang=en&maxAgeRating=Age7']);
   });
 });

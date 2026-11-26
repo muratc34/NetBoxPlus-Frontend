@@ -1,5 +1,5 @@
 export { useTitlePages, useTitleRow } from './catalog';
-export { useSearchPages, useSuggestions } from './search';
+export { useSearchPages } from './search';
 export {
   billingKeys,
   invoicePageSize,
@@ -45,7 +45,6 @@ export {
   readPerson,
   readSearch,
   readSeries,
-  readSuggestions,
   readTitlesByIds,
   searchKeys,
   titlesByIdLimit,

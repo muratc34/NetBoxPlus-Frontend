@@ -255,9 +255,10 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   azalt"ta istenmez; yaşı seçili profilin sınırını aşan oynamaz (`isWithinAgeLimit`; profilsiz oynar). Ekran dışında ve gizli
   sekmede durur; bitince, hata verince ya da autoplay reddedilince görsele döner.
 - **Arama** (`/<dil>/search?q=`, D3, `noindex`): kutu yazdıkça 300 ms sonra `?q=`'yu `router.replace` ile günceller (geçmişe kayıt
-  eklemez), sonuçlar sayfa sayfa; `q` varsa ilk sayfa SSR (`loadSearch`, 503'te `unavailable`). Öneriler ARIA combobox (`/search/suggest`,
-  en fazla 10; oklar, Enter başlığa gider, Esc kapatır, seçenek `onMouseDown` + `preventDefault` ile odak kutuda kalır). Boşken tür
-  kısayolları. Backend araması tam kelime eşler, öneri önek. Kutu 200 karakterde durur.
+  eklemez), sonuçlar sayfa sayfa; `q` varsa ilk sayfa SSR (`loadSearch`, 503'te `unavailable`). Tek liste sonuç ızgarası (Netflix
+  gibi): kutunun altındaki öneri listesi (`/search/suggest` combobox) aynı başlıkları ikinci kez gösterdiği için kaldırıldı; kutu düz
+  `type="search"`, Enter sadece klavyeyi kapatır. Backend'in `/search/suggest` ucu duruyor, web kullanmıyor. Boşken tür kısayolları.
+  Kutu 200 karakterde durur.
 - **Tür sayfası** (`/<dil>/genres/[id]`): türün film ve dizileri tek ızgarada; tek tür okuma ucu yok, ad `/genres` listesinden (yayında
   içeriği olmayan tür 404).
 - **Kişisel veri** (`useWatchingProfile()`: oturum + seçili profil): sorgular profil id'siyle anahtarlı (`personalKeys`), profilsizken

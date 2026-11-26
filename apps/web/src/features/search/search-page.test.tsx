@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -21,7 +21,7 @@ function search(props: Partial<Parameters<typeof SearchPage>[0]> = {}) {
   );
 }
 
-function catalog(results: ReturnType<typeof titlePage>, suggestions = results.items) {
+function catalog(results: ReturnType<typeof titlePage>) {
   const asked = { search: [] as string[], suggest: [] as string[] };
   server.use(
     http.get(`${gatewayUrl}/catalog/search`, ({ request }) => {
@@ -30,7 +30,7 @@ function catalog(results: ReturnType<typeof titlePage>, suggestions = results.it
     }),
     http.get(`${gatewayUrl}/catalog/search/suggest`, ({ request }) => {
       asked.suggest.push(new URL(request.url).search);
-      return HttpResponse.json(suggestions);
+      return HttpResponse.json(results.items);
     }),
   );
   return asked;
@@ -47,7 +47,7 @@ describe('SearchPage', () => {
     const asked = catalog(titlePage([]));
     search({ initialQuery: 'kuzey', firstPage: titlePage([title(1)], 1, 1) });
 
-    expect(screen.getByRole('combobox')).toHaveValue('kuzey');
+    expect(screen.getByRole('searchbox')).toHaveValue('kuzey');
     expect(screen.getByText('1 sonuç')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Title 1/ })).toBeInTheDocument();
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -55,7 +55,7 @@ describe('SearchPage', () => {
     expect(navigation.replace).not.toHaveBeenCalled();
   });
 
-  it('follows the typing: the address, the results and the suggestions, within the age limit', async () => {
+  it('follows the typing: the address and the results, within the age limit, with no second list', async () => {
     const asked = catalog(titlePage([title(1), title(2)], 1, 2));
     renderPage(
       <SearchPage
@@ -68,62 +68,35 @@ describe('SearchPage', () => {
       />,
     );
 
-    await userEvent.setup().type(screen.getByRole('combobox'), 'gece');
+    await userEvent.setup().type(screen.getByRole('searchbox'), 'gece');
 
     await waitFor(() => {
       expect(navigation.replace).toHaveBeenLastCalledWith('/tr/search?q=gece', { scroll: false });
     });
     expect(await screen.findByText('2 sonuç')).toBeInTheDocument();
-    const suggestions = await screen.findByRole('listbox', { name: 'Öneriler' });
-    expect(within(suggestions).getAllByRole('option')).toHaveLength(2);
     expect(asked.search.at(-1)).toBe('?q=gece&lang=tr&maxAgeRating=Age7&page=1');
-    expect(asked.suggest.at(-1)).toBe('?q=gece&lang=tr&maxAgeRating=Age7');
+    expect(asked.suggest).toEqual([]);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
-  it('moves through the suggestions with the arrows and opens one with Enter', async () => {
-    catalog(titlePage([title(1)]), [title(1), title(2, { kind: 'Series' })]);
-    search();
-    const user = userEvent.setup();
-    const box = screen.getByRole('combobox');
-
-    await user.type(box, 'ti');
-    await screen.findAllByRole('option');
-    await user.keyboard('{ArrowDown}{ArrowDown}');
-
-    const second = screen.getAllByRole('option')[1];
-    expect(second).toHaveAttribute('aria-selected', 'true');
-    expect(box).toHaveAttribute('aria-activedescendant', second?.id);
-
-    await user.keyboard('{ArrowDown}');
-    expect(screen.getAllByRole('option')[0]).toHaveAttribute('aria-selected', 'true');
-    await user.keyboard('{ArrowUp}{Enter}');
-
-    expect(navigation.push).toHaveBeenCalledWith(`/tr/series/${title(2).id}`);
-  });
-
-  it('closes the suggestions with Escape, and opens one chosen with the pointer', async () => {
+  it('puts the keyboard away on Enter, without leaving the page', async () => {
     catalog(titlePage([title(1)]));
     search();
     const user = userEvent.setup();
+    const box = screen.getByRole('searchbox');
 
-    await user.type(screen.getByRole('combobox'), 'ti');
-    await screen.findAllByRole('option');
-    await user.keyboard('{Escape}');
-    expect(screen.queryByRole('option')).not.toBeInTheDocument();
-    expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
+    await user.type(box, 'ti{Enter}');
 
-    await user.type(screen.getByRole('combobox'), 'x');
-    // The box keeps its focus (the list would close on blur before the choice).
-    expect(fireEvent.mouseDown(await screen.findByRole('option'))).toBe(false);
-
-    expect(navigation.push).toHaveBeenCalledWith(`/tr/movies/${title(1).id}`);
+    expect(box).not.toHaveFocus();
+    expect(navigation.push).not.toHaveBeenCalled();
   });
 
   it('goes back to the genres when the box is emptied', async () => {
     catalog(titlePage([title(1)]));
     search({ initialQuery: 'gece', firstPage: titlePage([title(1)]) });
 
-    await userEvent.setup().clear(screen.getByRole('combobox'));
+    await userEvent.setup().clear(screen.getByRole('searchbox'));
 
     await waitFor(() => {
       expect(navigation.replace).toHaveBeenLastCalledWith('/tr/search', { scroll: false });
@@ -132,10 +105,10 @@ describe('SearchPage', () => {
   });
 
   it('says when nothing was found', async () => {
-    catalog(titlePage([]), []);
+    catalog(titlePage([]));
     search();
 
-    await userEvent.setup().type(screen.getByRole('combobox'), 'zzz');
+    await userEvent.setup().type(screen.getByRole('searchbox'), 'zzz');
 
     expect(await screen.findByText('"zzz" için sonuç bulunamadı.')).toBeInTheDocument();
   });
@@ -145,12 +118,9 @@ describe('SearchPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Arama şu an kullanılamıyor.');
     unmount();
 
-    server.use(
-      http.get(`${gatewayUrl}/catalog/search`, () => problem(503, 'Search.Unavailable')),
-      http.get(`${gatewayUrl}/catalog/search/suggest`, () => problem(503, 'Search.Unavailable')),
-    );
+    server.use(http.get(`${gatewayUrl}/catalog/search`, () => problem(503, 'Search.Unavailable')));
     search();
-    await userEvent.setup().type(screen.getByRole('combobox'), 'gece');
+    await userEvent.setup().type(screen.getByRole('searchbox'), 'gece');
 
     expect(await screen.findByRole('alert', {}, { timeout: 5000 })).toHaveTextContent(
       'Arama şu an kullanılamıyor.',
@@ -160,7 +130,7 @@ describe('SearchPage', () => {
   it('stops at what Catalog accepts', () => {
     search();
 
-    expect(screen.getByRole('combobox')).toHaveAttribute('maxLength', '200');
+    expect(screen.getByRole('searchbox')).toHaveAttribute('maxLength', '200');
   });
 });
 

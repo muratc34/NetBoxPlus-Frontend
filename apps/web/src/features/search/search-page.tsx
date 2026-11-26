@@ -5,7 +5,6 @@ import {
   maxSearchLength,
   problemMessageKey,
   useSearchPages,
-  useSuggestions,
   type CatalogAgeRating,
   type Genre,
   type SearchPage as ResultsPage,
@@ -40,8 +39,9 @@ const chip =
 
 /**
  * Search as you type: the address (`?q=`) and the results follow the box once typing rests, replacing
- * the history entry rather than adding one per letter. Suggestions open under the box as a combobox
- * (arrows move, Enter opens the title, Escape closes). With nothing typed, genres to browse instead.
+ * the history entry rather than adding one per letter. The results are the only list, as on Netflix: a
+ * second list of suggestions under the box showed the same titles again. With nothing typed, genres to
+ * browse instead.
  */
 export function SearchPage({
   initialQuery,
@@ -62,10 +62,8 @@ export function SearchPage({
 }>) {
   const { locale, t } = useLocale();
   const router = useRouter();
-  const ids = { input: useId(), list: useId() };
+  const inputId = useId();
   const [text, setText] = useState(initialQuery);
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(-1);
   const query = useSettled(text, delayMs).trim();
   const ageFilter = maxAgeRating ? { maxAgeRating } : {};
 
@@ -73,8 +71,6 @@ export function SearchPage({
     { q: query, lang: locale, ...ageFilter },
     query === initialQuery.trim() ? firstPage : undefined,
   );
-  const suggestions = useSuggestions(query, locale, maxAgeRating);
-  const options = open ? (suggestions.data ?? []) : [];
 
   useEffect(() => {
     if (query === initialQuery.trim()) {
@@ -86,93 +82,35 @@ export function SearchPage({
 
   const down =
     (unavailable && query === initialQuery.trim() && !results.data) ||
-    (isApiError(results.error) && results.error.status === 503) ||
-    (isApiError(suggestions.error) && suggestions.error.status === 503);
-  const optionId = (index: number) => `${ids.list}-${String(index)}`;
+    (isApiError(results.error) && results.error.status === 503);
   const total = results.data?.pages[0]?.totalCount;
 
   return (
     <main className="flex flex-col gap-6 pt-4 pb-12">
       <div className="px-4 sm:px-8">
         <h1 className="sr-only">{t('search.title')}</h1>
-        <div className="relative max-w-2xl">
-          <label htmlFor={ids.input} className="sr-only">
+        <div className="max-w-2xl">
+          <label htmlFor={inputId} className="sr-only">
             {t('search.label')}
           </label>
           <input
-            id={ids.input}
+            id={inputId}
             type="search"
-            role="combobox"
-            aria-expanded={options.length > 0}
-            aria-controls={ids.list}
-            aria-autocomplete="list"
-            aria-activedescendant={active >= 0 && active < options.length ? optionId(active) : undefined}
             autoComplete="off"
             maxLength={maxSearchLength}
             placeholder={t('search.placeholder')}
             value={text}
             onChange={(event) => {
               setText(event.target.value);
-              setOpen(true);
-              setActive(-1);
-            }}
-            onFocus={() => {
-              setOpen(true);
-            }}
-            onBlur={() => {
-              setOpen(false);
             }}
             onKeyDown={(event) => {
-              if (event.key === 'ArrowDown' && options.length > 0) {
-                event.preventDefault();
-                setOpen(true);
-                setActive((index) => (index + 1) % options.length);
-              } else if (event.key === 'ArrowUp' && options.length > 0) {
-                event.preventDefault();
-                setActive((index) => (index <= 0 ? options.length - 1 : index - 1));
-              } else if (event.key === 'Escape') {
-                setOpen(false);
-                setActive(-1);
-              } else if (event.key === 'Enter') {
-                const chosen = options[active];
-                if (chosen) {
-                  event.preventDefault();
-                  router.push(routes.title(locale, chosen.kind, chosen.id));
-                }
-                setOpen(false);
+              // Results already follow the typing: Enter only puts the phone's keyboard away.
+              if (event.key === 'Enter') {
+                event.currentTarget.blur();
               }
             }}
             className="h-14 w-full rounded-md border border-line bg-surface px-4 text-lg text-ink-strong placeholder:text-ink-muted focus-visible:outline-3 focus-visible:outline-focus"
           />
-          <div
-            id={ids.list}
-            role="listbox"
-            aria-label={t('search.suggestions')}
-            hidden={options.length === 0}
-            className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-md border border-line bg-surface shadow-xl shadow-black/50"
-          >
-            {options.map((option, index) => (
-              <div
-                key={option.id}
-                id={optionId(index)}
-                role="option"
-                // Focus stays in the box (aria-activedescendant); -1 keeps the option out of the tab order.
-                tabIndex={-1}
-                aria-selected={index === active}
-                // Chosen before the box loses focus and closes the list.
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  router.push(routes.title(locale, option.kind, option.id));
-                }}
-                className="flex cursor-pointer justify-between gap-3 px-4 py-2 text-ink aria-selected:bg-white/10 aria-selected:text-ink-strong"
-              >
-                <span>{option.title}</span>
-                <span className="text-sm text-ink-muted">
-                  {option.releaseYear} · {t(`kind.${option.kind}`)}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
