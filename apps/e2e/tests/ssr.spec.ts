@@ -17,6 +17,23 @@ test('the home page has its rows and meta tags without JavaScript', async ({ pag
   await expect(page.getByRole('link', { name: /Kuzey Işığı/ }).first()).toBeVisible();
 });
 
+test('the server draws the welcome for a visitor without a chosen profile, and not for one with it', async ({
+  page,
+  context,
+}) => {
+  // Drawn with the page, so nothing under it moves when the browser learns there is no session.
+  await page.goto('/tr');
+  await expect(page.getByRole('link', { name: 'Planları gör' })).toBeVisible();
+
+  const { hostname } = new URL(page.url());
+  await context.addCookies([
+    { name: 'nbp-profile', value: '0195f0e0-0000-7000-8000-000000000001.Age18', domain: hostname, path: '/' },
+  ]);
+  await page.goto('/tr');
+  await expect(page.getByRole('link', { name: /Kuzey Işığı/ }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Planları gör' })).toHaveCount(0);
+});
+
 test('a movie page has its content and Open Graph tags without JavaScript', async ({ page }) => {
   await page.goto('/tr/movies/01a1def6-c6b6-7861-8e7b-ff96b7664cf0');
   await expect(page.getByRole('heading', { level: 1, name: 'Kuzey Işığı' })).toBeVisible();

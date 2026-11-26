@@ -6,9 +6,14 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocale } from '../../i18n/translator';
 import { TitleCard, type CardProgress } from './title-card';
 
+// The widths' `sizes` beside them, for the image optimizer: change them together.
 const cardWidth = 'w-[70vw] shrink-0 snap-start sm:w-[40vw] md:w-[28vw] lg:w-[22vw] xl:w-[18vw]';
+const cardSizes =
+  '(min-width: 1280px) 18vw, (min-width: 1024px) 22vw, (min-width: 768px) 28vw, (min-width: 640px) 40vw, 70vw';
 // A ranked card is the same size whatever its rank's width; the rank stands beside it.
 const rankedCardWidth = 'w-[55vw] shrink-0 sm:w-[30vw] md:w-[21vw] lg:w-[16vw] xl:w-[13vw]';
+const rankedCardSizes =
+  '(min-width: 1280px) 13vw, (min-width: 1024px) 16vw, (min-width: 768px) 21vw, (min-width: 640px) 30vw, 55vw';
 
 /** A heading and its titles in one line: swiped on touch, scrolled with the arrows on a desktop. */
 export function TitleRow({
@@ -41,11 +46,16 @@ export function TitleRow({
               title={title}
               label={t('browse.rank').replace('{rank}', String(index + 1))}
               className={rankedCardWidth}
+              sizes={rankedCardSizes}
             />
           </li>
         ) : (
           <li key={title.id} className={cardWidth}>
-            <TitleCard title={title} {...(progress?.[index] ? { progress: progress[index] } : {})} />
+            <TitleCard
+              title={title}
+              sizes={cardSizes}
+              {...(progress?.[index] ? { progress: progress[index] } : {})}
+            />
           </li>
         ),
       )}

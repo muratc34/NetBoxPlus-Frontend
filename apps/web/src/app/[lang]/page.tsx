@@ -49,7 +49,8 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
     <main className="flex flex-col gap-8 pb-12">
       <h1 className="sr-only">{`${t('brand.name')}: ${t('nav.movies')}, ${t('nav.series')}`}</h1>
       {featured && <Billboard title={featured} />}
-      <WelcomeBand />
+      {/* A chosen profile means a signed-in account; without one a guest is the better guess. */}
+      <WelcomeBand likelyGuest={maxAgeRating === undefined} />
       <PersonalRows />
       {popular.items.length > 0 && <TitleRow heading={t('browse.top10')} titles={popular.items} ranked />}
       {newest.items.length > 0 && <TitleRow heading={t('browse.new')} titles={newest.items} />}

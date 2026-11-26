@@ -128,9 +128,9 @@ pnpm format:check
   içerik, title, açıklama, canonical/hreflang, OG.
 - **Lighthouse** (`pnpm e2e:lighthouse`, Playwright'ın `lighthouse` projesi; `pnpm e2e` onu koşmaz): production build ister (dev
   sunucusunda `hmr-client` görürse reddeder). Ölçüt Lighthouse'un **masaüstü** ön ayarı: performans, erişilebilirlik, SEO ≥ 90
-  (aramada SEO hariç: sayfa bilerek `noindex`). Mobil (yavaş 4G, 4x CPU) da ölçülür ve rapora yazılır, eşik yok: Catalog görsel başına
-  tek boyut tutuyor ve web onu olduğu gibi sunuyor (`unoptimized`), kısıtlanmış telefon çizdiğinden fazla bayt indiriyor. Raporlar
-  `test-results/` altında (HTML + JSON).
+  (aramada SEO hariç: sayfa bilerek `noindex`). Mobil (yavaş 4G, 4x CPU) da ölçülür ve rapora yazılır, eşik yok (görseller optimizer'dan
+  geçtikten, başlık fontu Inter'e geçtikten ve ana sayfanın kayması giderildikten sonra 84–88; kalan maliyet JS). Raporlar `test-results/` altında
+  (HTML + JSON).
 
 ## CI ve image'lar
 
@@ -196,7 +196,7 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   azalt" ayarında otomatik oynatma yok.
 - **Tasarım token'ları** `packages/ui/src/theme.css`'te: renkler `canvas`, `surface`, `surface-raised`, `line`, `ink`,
   `ink-strong`, `ink-muted`, `brand`, `brand-strong`, `focus`; fontlar `font-sans` (Inter), `font-display`
-  (Montserrat). Uygulamalarda ham hex yazılmaz.
+  (başlıklar; aynı Inter, kalın ağırlıklar: telefon iki font dosyası indirir; Montserrat J4'te bırakıldı). Uygulamalarda ham hex yazılmaz.
 - **Fontlar:** web `next/font/google` (build'de indirilip kendi sunucusundan servis edilir), admin `@fontsource`;
   ikisinde de sadece `latin` + `latin-ext` (Türkçe harfler).
 - **Web güvenlik header'ları** `apps/web/next.config.ts`'te (`nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY`,
@@ -227,8 +227,14 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 - **Katalog sayfaları** (D): ana sayfa (billboard = popülerin görselli ilki, Top 10, Yeni, türe göre; ilk iki tür satırı SSR,
   kalanlar ekrana yaklaşınca `useTitleRow`), `/<dil>/movies` ve `/<dil>/series` (`?genre=<uuid>&sort=Newest&page=N`; tanınmayan
   değer filtresiz ilk sayfaya düşer; ızgara sonu yaklaşınca sonraki sayfayı yükler, "Daha fazla göster" JS'siz de `?page=`'e gider).
-  Liste filtreleri sunucuda `nbp-profile` cookie'sindeki yaşla (`viewerAgeLimit()`). Görseller `next/image` `unoptimized` (Catalog
-  tek boy saklıyor; compose'da Next sunucusu storage'ın tarayıcı adresine ulaşamaz). Kart önizlemesi CSS: fareli cihazda 500 ms
+  Liste filtreleri sunucuda `nbp-profile` cookie'sindeki yaşla (`viewerAgeLimit()`). Görseller Next'in optimizer'ından (`/_next/image`,
+  AVIF/WebP) geçer: Catalog tek boy saklıyor, `TitleImage` storage adresini web'in `/media/<ad>` route'una çevirir (`mediaSource`),
+  route görseli `CATALOG_IMAGES_URL`'den (storage'ın images container'ı, sunucunun ulaştığı adresle; container'da tarayıcınınkinden
+  farklı) okuyup bir yıl `immutable` döner. Route sadece `<32 hex>.(jpg|jpeg|png|webp)` adı kabul eder ve sadece `image/*` geçirir;
+  `next.config` `images.localPatterns` yalnız `/media/**`, uzak kaynak yok. Adı kalıba uymayan adres `unoptimized` gösterilir.
+  `sizes` çizilen genişlikle aynı tutulur: ızgara `gridSizes` (`media.ts`), satır kartları `title-row.tsx`'te genişlik sınıflarının
+  yanında, billboard/hero `100vw` (`priority`: preload + `fetchPriority="high"`), ızgaranın ilk 10 kartı `eager`. Ana sayfanın misafir bandı (`WelcomeBand`) sunucuda `nbp-profile` cookie'si yoksa çizilir
+  (`likelyGuest`; gateway oturumunu web göremez), tarayıcı oturumu öğrenince sadece tahmin yanlışsa değişir: altındaki satırlar kaymaz. Kart önizlemesi CSS: fareli cihazda 500 ms
   sonra ya da klavye odağında büyür ("hareketi azalt"ta büyümez); ekran okuyucu önce başlığı okur (DOM'da önde, `order` ile altta).
   Girişli ama profil seçmemiş ziyaretçi hesap sayfaları dışında "Kim izliyor?"a gider. Mobilde menü alt sekme çubuğunda.
   SEO: sayfa başına canonical + `hreflang` (`metadataBase` = `SITE_URL`), `robots.txt`, `sitemap.xml` (yayındaki başlıklar, en
