@@ -142,6 +142,9 @@ export const tr = {
   'page.notFound.title': 'Sayfa bulunamadı',
   'page.notFound.body': 'Aradığın sayfa yok ya da kaldırıldı.',
   'page.notFound.home': 'Ana sayfaya dön',
+  'page.titleNotFound.title': 'Bu içerik yayında değil',
+  'page.titleNotFound.body':
+    'Aradığın film ya da dizi yayından kaldırılmış olabilir. İzleyecek başka bir şey bulmak için ana sayfaya göz at.',
   'title.originalTitle': 'Orijinal adı',
   'title.runtime': '{hours} sa {minutes} dk',
   'title.runtimeMinutes': '{minutes} dk',
