@@ -16,7 +16,8 @@
   --color-focus: #7cc4f5;
 
   --font-sans: var(--font-inter), 'Inter Variable', Inter, system-ui, sans-serif;
-  --font-display: var(--font-montserrat), Montserrat, system-ui, sans-serif;
+  /* Headings in Inter's heavy weights: one family keeps the fonts a phone downloads to two files. */
+  --font-display: var(--font-sans);
 }
 
 @layer base {

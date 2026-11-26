@@ -44,6 +44,9 @@ export function TitleGrid({
   );
 }
 
+/** About what the first screen shows, two rows at the most columns: their images are not lazy. */
+const firstScreen = 10;
+
 /** The grid itself, for any paged list of titles (browsing, search). */
 export function PagedGrid({
   pages,
@@ -91,9 +94,9 @@ export function PagedGrid({
   return (
     <div className="px-4 pb-12 sm:px-8">
       <ul className="grid grid-cols-2 gap-x-3 gap-y-6 py-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {titles.map((title) => (
+        {titles.map((title, index) => (
           <li key={title.id}>
-            <TitleCard title={title} />
+            <TitleCard title={title} eager={index < firstScreen} />
           </li>
         ))}
       </ul>

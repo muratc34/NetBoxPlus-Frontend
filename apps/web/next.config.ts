@@ -20,6 +20,15 @@ const config: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@netboxplus/api', '@netboxplus/ui', '@netboxplus/i18n'],
   headers: () => Promise.resolve([{ source: '/:path*', headers: securityHeaders }]),
+  images: {
+    // Catalog keeps one size per image; the optimizer serves each page the width it draws, as AVIF or WebP.
+    // Only through the web app's own /media route (see src/app/media), never from another origin.
+    localPatterns: [{ pathname: '/media/**', search: '' }],
+    remotePatterns: [],
+    formats: ['image/avif', 'image/webp'],
+    // Image names never change: a new image gets a new name.
+    minimumCacheTTL: 31_536_000,
+  },
 };
 
 export default config;

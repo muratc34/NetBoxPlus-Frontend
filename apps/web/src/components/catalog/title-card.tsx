@@ -28,6 +28,8 @@ export function TitleCard({
   title,
   label,
   progress,
+  sizes,
+  eager,
   className,
 }: Readonly<{
   title: TitleSummary;
@@ -35,6 +37,10 @@ export function TitleCard({
   label?: string;
   /** For continue watching: a bar over the image and the time left. */
   progress?: CardProgress;
+  /** How wide the card is drawn (see TitleImage); a grid card's width by default. */
+  sizes?: string;
+  /** Above the fold: its image is not loaded lazily. */
+  eager?: boolean;
   className?: string;
 }>) {
   const { locale } = useLocale();
@@ -62,7 +68,12 @@ export function TitleCard({
           {progress && <span className="block text-xs font-normal text-ink-muted">{progress.label}</span>}
         </span>
         <span className="relative order-1 block overflow-hidden rounded-md">
-          <TitleImage url={title.backdropUrl ?? title.posterUrl} title={title.title} />
+          <TitleImage
+            url={title.backdropUrl ?? title.posterUrl}
+            title={title.title}
+            {...(sizes ? { sizes } : {})}
+            eager={eager ?? false}
+          />
           <span
             className={classNames(
               'absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/60 to-transparent px-3 pt-8 pb-2',

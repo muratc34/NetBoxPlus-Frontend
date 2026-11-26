@@ -1,6 +1,6 @@
 import { createTranslator, isLocale } from '@netboxplus/i18n';
 import type { Metadata, Viewport } from 'next';
-import { Inter, Montserrat } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
 import { MobileTabBar, SiteHeader } from '../../components/site-header';
@@ -11,12 +11,6 @@ import { Providers } from './providers';
 
 // latin-ext carries the Turkish letters (ç, ğ, ı, ö, ş, ü).
 const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-inter', display: 'swap' });
-const montserrat = Montserrat({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['600', '700', '800'],
-  variable: '--font-montserrat',
-  display: 'swap',
-});
 
 const descriptions = {
   tr: 'Filmler ve diziler, Türkçe ve İngilizce, istediğin cihazda.',
@@ -48,7 +42,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
   }
 
   return (
-    <html lang={lang} className={`${inter.variable} ${montserrat.variable}`}>
+    <html lang={lang} className={inter.variable}>
       <body className="flex min-h-dvh flex-col bg-canvas font-sans text-ink antialiased">
         <Providers locale={lang}>
           <SiteHeader />

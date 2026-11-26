@@ -6,13 +6,17 @@ import { useLocale } from '../i18n/translator';
 import { routes } from '../routes';
 
 /**
- * A short welcome for visitors who are not signed in, under the billboard. The web server cannot tell (the
- * session cookie belongs to the gateway), so it appears once the browser knows there is no session.
+ * A short welcome for visitors who are not signed in, under the billboard. The web server cannot see the
+ * session (its cookie belongs to the gateway), but it sees whether a profile was chosen on this host: without
+ * one the visitor is `likelyGuest` and the band is there from the first paint, so nothing under it moves
+ * when the browser learns there is no session. It goes once the browser knows otherwise, and appears late
+ * only for an account that has not chosen a profile yet.
  */
-export function WelcomeBand() {
+export function WelcomeBand({ likelyGuest = false }: Readonly<{ likelyGuest?: boolean }>) {
   const { locale, t } = useLocale();
   const session = useSession();
-  if (session.data !== null) {
+  const guest = session.data === null || (session.isPending && likelyGuest);
+  if (!guest) {
     return null;
   }
 

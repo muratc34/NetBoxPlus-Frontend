@@ -46,6 +46,20 @@ describe('PersonRoute', () => {
     );
   });
 
+  it("has a Catalog photo resized through the web app's /media route", async () => {
+    const name = '01a1d602b78a700baf02a83be30c9a09.jpg';
+    vi.mocked(loadPerson).mockResolvedValue({
+      ...person,
+      photoUrl: `http://127.0.0.1:10000/devstoreaccount1/images/${name}`,
+    });
+
+    const { container } = renderPage(await serverRendered(PersonRoute(params('tr'))));
+
+    const photo = container.querySelector('img');
+    expect(photo?.getAttribute('src')?.startsWith(`/_next/image?url=%2Fmedia%2F${name}&w=`)).toBe(true);
+    expect(photo).toHaveAttribute('sizes', '(min-width: 640px) 224px, 160px');
+  });
+
   it('shows an initial without a photo', async () => {
     vi.mocked(loadPerson).mockResolvedValue({ ...person, photoUrl: null, biography: null });
 

@@ -2,6 +2,7 @@ import type { PublicPerson, TitleFilter } from '@netboxplus/core/reads';
 import { createTranslator, locales, type Locale } from '@netboxplus/i18n';
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { mediaSource } from '../../components/catalog/media';
 import { TitleGrid } from '../../components/catalog/title-grid';
 import { routes } from '../../routes';
 import { loadTitles, viewerAgeLimit } from '../../server/catalog';
@@ -43,11 +44,12 @@ export async function PersonPage({
       <section className="flex flex-col gap-6 px-4 sm:flex-row sm:px-8">
         {person.photoUrl ? (
           <Image
-            src={person.photoUrl}
+            src={mediaSource(person.photoUrl) ?? person.photoUrl}
             alt=""
             width={240}
             height={360}
-            unoptimized
+            unoptimized={mediaSource(person.photoUrl) === undefined}
+            sizes="(min-width: 640px) 224px, 160px"
             preload
             className="aspect-[2/3] w-40 shrink-0 rounded-md bg-surface-raised object-cover sm:w-56"
           />

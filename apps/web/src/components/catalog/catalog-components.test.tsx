@@ -9,6 +9,7 @@ import { BrowseFilters } from './browse-filters';
 import { LazyTitleRow } from './lazy-title-row';
 import { TitleCard } from './title-card';
 import { TitleGrid } from './title-grid';
+import { TitleImage } from './title-image';
 import { TitleRow } from './title-row';
 
 describe('TitleCard', () => {
@@ -40,9 +41,41 @@ describe('TitleCard', () => {
 
     expect(container.querySelector('img')).toHaveAttribute('src', 'http://storage.test/poster.png');
   });
+
+  it("has a Catalog image resized through the web app's /media route to a card's width", () => {
+    const name = '01a1d602b78a700baf02a83be30c9a09.jpg';
+    const { container } = renderPage(
+      <TitleCard
+        title={title(4, { backdropUrl: `http://127.0.0.1:10000/devstoreaccount1/images/${name}` })}
+      />,
+    );
+
+    const image = container.querySelector('img');
+    expect(image?.getAttribute('src')?.startsWith(`/_next/image?url=%2Fmedia%2F${name}&w=`)).toBe(true);
+    expect(image?.getAttribute('srcset')).toContain(`url=%2Fmedia%2F${name}&w=640`);
+    expect(image).toHaveAttribute(
+      'sizes',
+      '(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw',
+    );
+    expect(image).toHaveAttribute('loading', 'lazy');
+  });
 });
 
 describe('TitleRow', () => {
+  const stored = (n: number) =>
+    title(n, {
+      backdropUrl: `http://127.0.0.1:10000/devstoreaccount1/images/${String(n).padStart(32, '0')}.png`,
+    });
+
+  it("asks the optimizer for a row card's width, a ranked card's narrower", () => {
+    const { container, unmount } = renderPage(<TitleRow heading="Yeni" titles={[stored(1)]} />);
+    expect(container.querySelector('img')?.getAttribute('sizes')).toMatch(/, 70vw$/);
+    unmount();
+
+    const ranked = renderPage(<TitleRow heading="Top" titles={[stored(1)]} ranked />);
+    expect(ranked.container.querySelector('img')?.getAttribute('sizes')).toMatch(/, 55vw$/);
+  });
+
   it('lists the titles under its heading', () => {
     renderPage(<TitleRow heading="Yeni eklenenler" titles={[title(1), title(2)]} />);
 
@@ -111,6 +144,19 @@ describe('LazyTitleRow', () => {
 
 describe('TitleGrid', () => {
   const filter = { lang: 'tr', kind: 'Movie', sort: 'Newest' } as const;
+
+  it('loads the images of the first screen at once and the rest lazily', () => {
+    const titles = Array.from({ length: 12 }, (_, index) => title(index + 1));
+    const { container } = renderPage(
+      <TitleGrid filter={filter} firstPage={titlePage(titles)} pathname="/tr/movies" query={{}} />,
+    );
+
+    expect([...container.querySelectorAll('img')].map((image) => image.getAttribute('loading'))).toEqual([
+      ...Array<string>(10).fill('eager'),
+      'lazy',
+      'lazy',
+    ]);
+  });
 
   it("shows the server's page, links to the next one, and loads it in place", async () => {
     const asked: (string | null)[] = [];
@@ -203,5 +249,23 @@ describe('BrowseFilters', () => {
       ['Yeni', `/tr/series?genre=${comedy.id}&sort=Newest`],
     ]);
     expect(screen.getByRole('link', { name: 'Yeni' })).toHaveAttribute('aria-current', 'page');
+  });
+});
+
+describe('TitleImage', () => {
+  it("draws the page's largest paint across the screen and loads it first", () => {
+    const { container } = renderPage(
+      <TitleImage
+        url="http://127.0.0.1:10000/devstoreaccount1/images/01a1d602b78a700baf02a83be30c9a09.png"
+        title="Kuzey Işığı"
+        priority
+      />,
+    );
+
+    const image = container.querySelector('img');
+    expect(image).toHaveAttribute('sizes', '100vw');
+    expect(image).toHaveAttribute('loading', 'eager');
+    expect(image).toHaveAttribute('fetchpriority', 'high');
+    expect(image?.getAttribute('srcset')).toContain('w=1920');
   });
 });
