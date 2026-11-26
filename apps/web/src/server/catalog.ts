@@ -18,8 +18,9 @@ import {
   type TitleSummary,
 } from '@netboxplus/core/reads';
 import type { Locale } from '@netboxplus/i18n';
-import { unstable_cache } from 'next/cache';
+import { revalidateTag, unstable_cache } from 'next/cache';
 import { cookies } from 'next/headers';
+import { after } from 'next/server';
 import { parseSelectedProfile, profileCookie } from '../profiles/selected-profile';
 import { gatewayForServer, gatewayForVisitor } from './gateway';
 
@@ -31,8 +32,45 @@ import { gatewayForServer, gatewayForVisitor } from './gateway';
  */
 export const catalogRevalidateSeconds = 60;
 
+/** Every catalog read carries it, so they can be dropped together. */
+export const catalogTag = 'catalog';
+
 function cached<T>(key: readonly unknown[], load: () => Promise<T>): Promise<T> {
-  return unstable_cache(load, ['catalog', JSON.stringify(key)], { revalidate: catalogRevalidateSeconds })();
+  return unstable_cache(load, ['catalog', JSON.stringify(key)], {
+    revalidate: catalogRevalidateSeconds,
+    tags: [catalogTag],
+  })();
+}
+
+/** At most one drop in this many milliseconds, so requests for unknown ids cannot keep the cache empty. */
+export const catalogForgetGapMs = 30_000;
+let forgottenAt = Number.NEGATIVE_INFINITY;
+
+/**
+ * Drops every cached catalog read once this response is out (not while rendering, which Next refuses). A
+ * title that answers 404 was most likely taken down after the lists that link to it were cached: without
+ * this, the lists keep it for as long as visits come slower than the cache's minute, since an expired
+ * entry still answers once more while it is refreshed. `expire: 0` makes the next visitor wait for fresh
+ * lists instead of getting the old ones once more.
+ */
+function forgetCatalog(): void {
+  const now = Date.now();
+  if (now - forgottenAt < catalogForgetGapMs) {
+    return;
+  }
+  forgottenAt = now;
+  after(() => {
+    revalidateTag(catalogTag, { expire: 0 });
+  });
+}
+
+/** A title's details, or `null` (and the cached lists dropped) when Catalog has no such published title. */
+async function title<T>(details: Promise<T | null>): Promise<T | null> {
+  const found = await details;
+  if (found === null) {
+    forgetCatalog();
+  }
+  return found;
 }
 
 export async function loadTitles(filter: TitleFilter, page = 1): Promise<TitlePage> {
@@ -59,12 +97,12 @@ async function orNotFound<T>(read: () => Promise<T>): Promise<T | null> {
 
 export async function loadMovie(id: string, lang: Locale): Promise<PublishedMovie | null> {
   const gateway = await gatewayForVisitor();
-  return cached(['movie', id, lang], () => orNotFound(() => readMovie(gateway.catalog, id, lang)));
+  return title(cached(['movie', id, lang], () => orNotFound(() => readMovie(gateway.catalog, id, lang))));
 }
 
 export async function loadSeries(id: string, lang: Locale): Promise<PublishedSeries | null> {
   const gateway = await gatewayForVisitor();
-  return cached(['series', id, lang], () => orNotFound(() => readSeries(gateway.catalog, id, lang)));
+  return title(cached(['series', id, lang], () => orNotFound(() => readSeries(gateway.catalog, id, lang))));
 }
 
 export async function loadPerson(id: string, lang: Locale): Promise<PublicPerson | null> {
@@ -115,7 +153,7 @@ export function loadPublishedTitles(): Promise<PublishedTitle[]> {
       return titles.slice(0, sitemapTitleLimit);
     },
     ['catalog', 'sitemap'],
-    { revalidate: 3600 },
+    { revalidate: 3600, tags: [catalogTag] },
   )();
 }
 

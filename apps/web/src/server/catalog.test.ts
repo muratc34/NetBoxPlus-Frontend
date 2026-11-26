@@ -1,10 +1,13 @@
 // @vitest-environment node
 import { http, HttpResponse } from 'msw';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { title, titlePage } from '../test/catalog';
 import { server } from '../test/render';
 import {
+  catalogForgetGapMs,
   catalogRevalidateSeconds,
+  catalogTag,
+  loadSeries,
   loadGenres,
   loadMovie,
   loadPerson,
@@ -15,17 +18,30 @@ import {
   viewerAgeLimit,
 } from './catalog';
 
-const cacheCalls: { key: string[]; revalidate: number | false | undefined }[] = [];
+const cacheCalls: { key: string[]; revalidate: number | false | undefined; tags: string[] | undefined }[] =
+  [];
+const dropped: unknown[][] = [];
+const afterResponse: (() => void)[] = [];
 const requestCookies = new Map<string, string>();
 const requestHeaders = new Headers();
 
 vi.mock('next/cache', () => ({
   unstable_cache:
-    <T>(load: () => Promise<T>, key: string[], options: { revalidate?: number | false }) =>
+    <T>(load: () => Promise<T>, key: string[], options: { revalidate?: number | false; tags?: string[] }) =>
     () => {
-      cacheCalls.push({ key, revalidate: options.revalidate });
+      cacheCalls.push({ key, revalidate: options.revalidate, tags: options.tags });
       return load();
     },
+  revalidateTag: (...args: unknown[]) => {
+    dropped.push(args);
+  },
+}));
+
+// Runs what the response would run once it is out, when the test says so.
+vi.mock('next/server', () => ({
+  after: (task: () => void) => {
+    afterResponse.push(task);
+  },
 }));
 
 vi.mock('next/headers', () => ({
@@ -41,6 +57,8 @@ const gateway = 'http://gateway.internal';
 
 beforeEach(() => {
   cacheCalls.length = 0;
+  dropped.length = 0;
+  afterResponse.length = 0;
   requestCookies.clear();
   requestHeaders.delete('x-forwarded-for');
   vi.stubEnv('GATEWAY_INTERNAL_URL', gateway);
@@ -66,6 +84,7 @@ describe('loadTitles', () => {
       {
         key: ['catalog', JSON.stringify(['titles', { lang: 'en', genreId: 'g', maxAgeRating: 'Age7' }, 3])],
         revalidate: catalogRevalidateSeconds,
+        tags: [catalogTag],
       },
     ]);
     expect(new URL(sent[0]?.url ?? '').search).toBe('?lang=en&genreId=g&maxAgeRating=Age7&page=3');
@@ -97,6 +116,60 @@ describe('loadMovie and loadPerson', () => {
 
     expect(await loadPerson('gone', 'tr')).toBeNull();
     await expect(loadPerson('broken', 'tr')).rejects.toMatchObject({ status: 503 });
+  });
+});
+
+describe('a title that answers 404', () => {
+  // The drop is rate-limited per process: each test starts well past the previous one.
+  let clock = Date.parse('2026-11-26T12:00:00Z');
+  beforeEach(() => {
+    clock += 10 * catalogForgetGapMs;
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(clock);
+    server.use(
+      http.get(`${gateway}/catalog/movies/:id`, ({ params }) =>
+        params.id === 'm1'
+          ? HttpResponse.json({ id: 'm1' })
+          : HttpResponse.json({ status: 404, code: 'Content.NotFound' }, { status: 404 }),
+      ),
+      http.get(`${gateway}/catalog/series/gone`, () =>
+        HttpResponse.json({ status: 404, code: 'Content.NotFound' }, { status: 404 }),
+      ),
+    );
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('drops every cached catalog read once the response is out, so lists no longer link to it', async () => {
+    expect(await loadMovie('gone', 'tr')).toBeNull();
+
+    expect(dropped).toEqual([]);
+    for (const task of afterResponse) task();
+    expect(dropped).toEqual([[catalogTag, { expire: 0 }]]);
+  });
+
+  it('drops them for a series too', async () => {
+    expect(await loadSeries('gone', 'tr')).toBeNull();
+
+    for (const task of afterResponse) task();
+    expect(dropped).toEqual([[catalogTag, { expire: 0 }]]);
+  });
+
+  it('drops them at most once in the gap, so unknown ids cannot keep the cache empty', async () => {
+    await loadMovie('gone', 'tr');
+    vi.setSystemTime(clock + catalogForgetGapMs - 1);
+    await loadMovie('other', 'tr');
+    expect(afterResponse).toHaveLength(1);
+
+    vi.setSystemTime(clock + catalogForgetGapMs);
+    await loadMovie('other', 'tr');
+    expect(afterResponse).toHaveLength(2);
+  });
+
+  it('keeps them for a title that is there', async () => {
+    expect(await loadMovie('m1', 'tr')).toEqual({ id: 'm1' });
+    expect(afterResponse).toHaveLength(0);
   });
 });
 
@@ -159,7 +232,7 @@ describe('loadPublishedTitles', () => {
       { id: title(3).id, kind: 'Movie' },
     ]);
     expect(pages).toEqual(['1', '2']);
-    expect(cacheCalls).toEqual([{ key: ['catalog', 'sitemap'], revalidate: 3600 }]);
+    expect(cacheCalls).toEqual([{ key: ['catalog', 'sitemap'], revalidate: 3600, tags: [catalogTag] }]);
   });
 
   it('stops at the limit', async () => {

@@ -144,6 +144,9 @@ export const en = {
   'page.notFound.title': 'Page not found',
   'page.notFound.body': 'The page you are looking for does not exist or was removed.',
   'page.notFound.home': 'Back to home',
+  'page.titleNotFound.title': 'This title is not available',
+  'page.titleNotFound.body':
+    'The movie or series you are looking for may have been taken down. Find something else to watch on the home page.',
   'title.originalTitle': 'Original title',
   'title.runtime': '{hours}h {minutes}m',
   'title.runtimeMinutes': '{minutes}m',
