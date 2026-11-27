@@ -229,6 +229,38 @@ describe('Billboard', () => {
   });
 });
 
+describe('a title with a logo', () => {
+  const logo = 'http://127.0.0.1:10000/devstoreaccount1/images/0123456789abcdef0123456789abcdef.png';
+
+  it("draws it on the card's image, keeping the name written under it", () => {
+    const { container } = renderPage(<TitleCard title={title(8, { logoUrl: logo })} />);
+
+    const images = [...container.querySelectorAll('img')];
+    expect(images).toHaveLength(2);
+    expect(images[1]?.getAttribute('src')).toContain('url=%2Fmedia%2F0123456789abcdef0123456789abcdef.png');
+    expect(images[1]).toHaveAttribute('alt', '');
+    expect(screen.getByRole('link')).toHaveTextContent('Title 8');
+  });
+
+  it('stands for the name in the billboard, which is still read out', () => {
+    server.use(signedOut);
+    renderPage(<Billboard title={title(9, { title: 'Kara Şövalye', logoUrl: logo })} />, 'tr', {
+      withProfiles: true,
+    });
+
+    const heading = screen.getByRole('heading', { level: 2, name: 'Kara Şövalye' });
+    expect(within(heading).getByRole('img', { name: 'Kara Şövalye' })).toHaveAttribute('loading', 'eager');
+  });
+
+  it('is not drawn when there is none: the name is written', () => {
+    server.use(signedOut);
+    renderPage(<Billboard title={title(10, { title: 'Kuzey Işığı' })} />, 'tr', { withProfiles: true });
+
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Kuzey Işığı');
+    expect(within(screen.getByRole('heading', { level: 2 })).queryByRole('img')).not.toBeInTheDocument();
+  });
+});
+
 describe('BrowseFilters', () => {
   it('links every genre and sort to its own address, marking the current ones', () => {
     renderPage(

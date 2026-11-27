@@ -6,8 +6,8 @@ import { uploadImage } from './images';
 /** A title Catalog edits as one: a movie, or a series with its seasons and episodes. */
 export type TitleKind = 'movie' | 'series';
 
-/** The two images a title has: a 2:3 poster and a 16:9 backdrop. */
-export type ImageSlotName = 'poster' | 'backdrop';
+/** A title's images: a 2:3 poster, a 16:9 backdrop and an optional transparent logo. */
+export type ImageSlotName = 'poster' | 'backdrop' | 'logo';
 
 export const titleKeys = {
   lists: (kind: TitleKind) => ['admin', 'catalog', kind === 'movie' ? 'movies' : 'series-list'] as const,

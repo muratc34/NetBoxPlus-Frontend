@@ -3,6 +3,7 @@
 import type { CatalogAgeRating, Genre, TitleKind } from '@netboxplus/core';
 import { AgeBadge } from '../../components/catalog/title-facts';
 import { MyListButton } from '../../components/catalog/my-list-button';
+import { TitleLogo } from '../../components/catalog/title-logo';
 import { TrailerBackdrop } from '../../components/catalog/trailer-backdrop';
 import { MovieProgress } from './title-progress';
 import { PlayButtons } from './play-buttons';
@@ -20,6 +21,8 @@ export interface HeroTitle {
   readonly ageRating: CatalogAgeRating;
   readonly genres: readonly Genre[];
   readonly backdropUrl: string | null | undefined;
+  /** The title's logo, drawn instead of its name (which stays its text alternative). */
+  readonly logoUrl: string | null | undefined;
   readonly posterUrl: string | null | undefined;
   readonly audioLanguages: readonly string[];
   readonly subtitleLanguages: readonly string[];
@@ -59,7 +62,17 @@ export function TitleHero({ title }: Readonly<{ title: HeroTitle }>) {
           id="title-name"
           className="font-display text-4xl font-extrabold text-ink-strong drop-shadow-lg sm:text-6xl"
         >
-          {title.title}
+          {title.logoUrl ? (
+            <TitleLogo
+              url={title.logoUrl}
+              alt={title.title}
+              sizes="(min-width: 640px) 32rem, 80vw"
+              priority
+              className="max-h-28 max-w-[min(80vw,32rem)] object-left-bottom sm:max-h-40"
+            />
+          ) : (
+            title.title
+          )}
         </h1>
         {showOriginal && (
           <p className="text-sm text-ink-muted">

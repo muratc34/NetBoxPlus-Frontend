@@ -42,6 +42,7 @@ const kuzey: MovieDetails = {
   version: 4,
   posterUrl: null,
   backdropUrl: null,
+  logoUrl: null,
   genres: [{ id: drama.id, name: 'Dram' }],
   credits: [
     { personId: defne.id, personName: defne.name, role: 'Actor', characterName: 'Nehir', order: 1 },
@@ -536,6 +537,46 @@ describe('MoviePage', () => {
       expect(bodies).toHaveLength(1);
     });
     expect(bodies[0]).toMatchObject({ version: 6 });
+  });
+
+  it('takes a logo, says what it must be, and shows why one is refused', async () => {
+    signInWith(everything);
+    const change = answerMovie();
+    const attached: unknown[] = [];
+    let refuse = true;
+    server.use(
+      http.post(`${catalogUrl}/images/uploads`, () => HttpResponse.json(ticket)),
+      http.put(`${catalogUrl}/movies/${kuzey.id}/images/logo`, async ({ request }) => {
+        if (refuse) {
+          refuse = false;
+          return problem(400, 'Image.LogoNotTransparent');
+        }
+        attached.push(await request.json());
+        change({ logoUrl: 'https://images.test/logo.png', version: 5 });
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    renderApp(`/movies/${kuzey.id}`, { upload: () => Promise.resolve() });
+
+    const images = await screen.findByRole('region', { name: 'Görseller' });
+    expect(within(images).getByText('Logo yok; sitede başlığın adı yazılır.')).toBeInTheDocument();
+    expect(within(images).getByLabelText('Logo yükle')).toHaveAccessibleDescription(
+      'Başlığın kendine özgü yazısı, görsellerin üstüne çizilir. Şeffaf PNG ya da WebP, en az 200×50 piksel, en fazla 10 MB.',
+    );
+
+    await userEvent.upload(within(images).getByLabelText('Logo yükle'), image());
+    expect(await within(images).findByRole('alert')).toHaveTextContent(
+      'Logo şeffaflığı koruyan bir PNG ya da WebP olmalı.',
+    );
+
+    await userEvent.upload(within(images).getByLabelText('Logo yükle'), image());
+    expect(await within(images).findByRole('img', { name: 'Kuzey Işığı: Logo' })).toHaveAttribute(
+      'src',
+      'https://images.test/logo.png',
+    );
+    expect(attached).toEqual([{ uploadId: ticket.uploadId, version: 4 }]);
+    // Optional even when published: it can always go.
+    expect(within(images).getByRole('button', { name: 'Logoyu kaldır' })).toBeInTheDocument();
   });
 
   it('keeps a published movie’s poster and says why', async () => {

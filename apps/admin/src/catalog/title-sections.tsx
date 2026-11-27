@@ -29,6 +29,7 @@ export interface TitleCore {
   readonly publishedAt: string | null;
   readonly posterUrl: string | null;
   readonly backdropUrl: string | null;
+  readonly logoUrl: string | null;
 }
 
 /** The words that name the kind of title. */
@@ -109,7 +110,7 @@ export async function versioned(action: Promise<unknown>, onChanged: () => void,
   }
 }
 
-/** The poster and the backdrop; each change carries the editor's version and moves it on. */
+/** The poster, the backdrop and the logo; each change carries the editor's version and moves it on. */
 export function TitleImages({
   kind,
   title,
@@ -130,6 +131,7 @@ export function TitleImages({
     can(session.data, titlePermission(kind, 'write')) && can(session.data, 'catalog:images:upload');
   const poster = useImageActions(kind, title.id, 'poster', version, onChanged, onConflict);
   const backdrop = useImageActions(kind, title.id, 'backdrop', version, onChanged, onConflict);
+  const logo = useImageActions(kind, title.id, 'logo', version, onChanged, onConflict);
 
   return (
     <section aria-labelledby={id} className="flex flex-col gap-6 rounded-lg bg-surface p-6">
@@ -169,6 +171,22 @@ export function TitleImages({
           {...backdrop}
         />
       </div>
+      <ImageSlot
+        labels={{
+          heading: t('admin.images.logo'),
+          none: t('admin.images.noLogo'),
+          upload: t('admin.images.uploadLogo'),
+          replace: t('admin.images.replaceLogo'),
+          remove: t('admin.images.removeLogo'),
+          hint: t('admin.images.logoHint'),
+        }}
+        imageUrl={title.logoUrl}
+        alt={`${title.title}: ${t('admin.images.logo')}`}
+        // Transparent: shown on a dark checker so its own edges are seen.
+        imageClassName="h-24 w-auto max-w-md object-contain bg-[repeating-conic-gradient(#2a2a2a_0_25%,#1f1f1f_0_50%)] bg-[length:16px_16px] p-2"
+        writable={writable}
+        {...logo}
+      />
     </section>
   );
 }

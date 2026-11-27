@@ -15,6 +15,7 @@ export function title(n: number, overrides: Partial<TitleSummary> = {}): TitleSu
     ageRating: 'Age13',
     posterUrl: null,
     backdropUrl: `http://storage.test/images/${String(n)}.png`,
+    logoUrl: null,
     genres: [drama],
     ...overrides,
   };
@@ -40,6 +41,7 @@ export const movie: PublishedMovie = {
   runtimeMinutes: 108,
   posterUrl: 'http://storage.test/poster.png',
   backdropUrl: 'http://storage.test/backdrop.png',
+  logoUrl: null,
   genres: [drama, comedy],
   credits: [
     { personId: 'p-actor-2', personName: 'Can Erdem', role: 'Actor', characterName: 'Bekçi', order: 3 },
@@ -61,6 +63,7 @@ export const series: PublishedSeries = {
   ageRating: 'All',
   posterUrl: null,
   backdropUrl: null,
+  logoUrl: null,
   genres: [],
   credits: [],
   seasons: [

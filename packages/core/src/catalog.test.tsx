@@ -32,6 +32,7 @@ function title(id: string): TitleSummary {
     ageRating: 'Age7',
     posterUrl: null,
     backdropUrl: null,
+    logoUrl: null,
     genres: [],
   };
 }

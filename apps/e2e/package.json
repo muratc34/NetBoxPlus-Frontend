@@ -6,7 +6,8 @@
     "e2e": "playwright test --project flows",
     "lighthouse": "playwright test --project lighthouse",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "screenshots": "playwright test --config screenshots.config.ts"
   },
   "devDependencies": {
     "@netboxplus/config": "workspace:*",

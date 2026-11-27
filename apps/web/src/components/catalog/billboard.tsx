@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLocale } from '../../i18n/translator';
 import { routes } from '../../routes';
 import { TitleFacts } from './title-facts';
+import { TitleLogo } from './title-logo';
 import { TrailerBackdrop } from './trailer-backdrop';
 
 /**
@@ -28,7 +29,17 @@ export function Billboard({ title }: Readonly<{ title: TitleSummary }>) {
           id="billboard-title"
           className="font-display text-4xl font-extrabold text-ink-strong drop-shadow-lg sm:text-6xl"
         >
-          {title.title}
+          {title.logoUrl ? (
+            <TitleLogo
+              url={title.logoUrl}
+              alt={title.title}
+              sizes="(min-width: 640px) 32rem, 80vw"
+              priority
+              className="max-h-28 max-w-[min(80vw,32rem)] object-left-bottom sm:max-h-40"
+            />
+          ) : (
+            title.title
+          )}
         </h2>
         <TitleFacts year={title.releaseYear} rating={title.ageRating} genres={title.genres} />
         <div>
