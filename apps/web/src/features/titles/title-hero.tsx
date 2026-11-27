@@ -3,6 +3,7 @@
 import type { CatalogAgeRating, Genre, TitleKind } from '@netboxplus/core';
 import { AgeBadge } from '../../components/catalog/title-facts';
 import { MyListButton } from '../../components/catalog/my-list-button';
+import { RatingButton } from '../../components/catalog/rating-button';
 import { TitleLogo } from '../../components/catalog/title-logo';
 import { TrailerBackdrop } from '../../components/catalog/trailer-backdrop';
 import { MovieProgress } from './title-progress';
@@ -117,6 +118,7 @@ export function TitleHero({ title }: Readonly<{ title: HeroTitle }>) {
         <div className="flex flex-wrap items-center gap-3">
           <PlayButtons titleId={title.id} kind={title.kind} episodes={title.episodes ?? []} />
           <MyListButton titleId={title.id} kind={title.kind} title={title.title} variant="hero" />
+          <RatingButton titleId={title.id} title={title.title} variant="hero" />
         </div>
       </div>
     </section>

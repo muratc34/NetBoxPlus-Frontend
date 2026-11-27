@@ -6,7 +6,9 @@ import {
   readPerson,
   readSearch,
   readSeries,
+  readSimilar,
   readTitles,
+  type CatalogAgeRating,
   type Genre,
   type PublicPerson,
   type PublishedMovie,
@@ -121,6 +123,28 @@ export async function loadSearch(filter: SearchFilter, page = 1): Promise<Search
   } catch (error) {
     if (isApiError(error) && error.status === 503) {
       return 'unavailable';
+    }
+    throw error;
+  }
+}
+
+/**
+ * Titles like this one, closest first, within an age limit. Empty when Catalog's search is down (503): the
+ * row is left out and the rest of the page still works.
+ */
+export async function loadSimilar(
+  id: string,
+  lang: Locale,
+  pageSize: number,
+  maxAgeRating?: CatalogAgeRating,
+): Promise<SearchPage['items']> {
+  const gateway = await gatewayForVisitor();
+  const query = { lang, pageSize, ...(maxAgeRating ? { maxAgeRating } : {}) };
+  try {
+    return (await cached(['similar', id, query], () => readSimilar(gateway.catalog, id, query))).items;
+  } catch (error) {
+    if (isApiError(error) && error.status === 503) {
+      return [];
     }
     throw error;
   }

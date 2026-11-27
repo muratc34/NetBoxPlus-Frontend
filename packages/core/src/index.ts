@@ -1,4 +1,4 @@
-export { useTitlePages, useTitleRow } from './catalog';
+export { useRecommendedTitles, useSimilarTitles, useTitlePages, useTitleRow } from './catalog';
 export { useSearchPages } from './search';
 export {
   billingKeys,
@@ -16,16 +16,27 @@ export {
 } from './billing';
 export { formatPrice, readPlans, type PlanOffer, type VideoQuality } from './billing-reads';
 export {
+  historyPageSize,
   personalKeys,
   useChangeMyList,
   useContinueWatching,
+  useHistory,
   useMyList,
   useProgress,
+  useRateTitle,
+  useRating,
+  useRemoveFromHistory,
+  useTaste,
   useTitlesByIds,
   type ContinueWatchingItem,
+  type HistoryItem,
+  type HistoryPage,
   type MyListChange,
   type MyListItem,
   type ProgressView,
+  type RatingChange,
+  type RatingLevel,
+  type Taste,
 } from './personal';
 export {
   catalogKeys,

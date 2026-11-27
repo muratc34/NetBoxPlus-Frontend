@@ -12,7 +12,7 @@ import { SignInDetails } from './sign-in-details';
 
 /**
  * The account's own page: its sign-in details (address, password), membership and invoices, a way to its
- * profiles, and deleting it. It needs no profile; a visitor without a session signs in first and comes back.
+ * profiles and to the watching profile's history, and deleting it. It needs no profile; a visitor without a session signs in first and comes back.
  */
 export function AccountPage() {
   const { locale, t } = useLocale();
@@ -49,6 +49,12 @@ export function AccountPage() {
               className="inline-flex h-11 items-center rounded-md bg-white/15 px-5 font-semibold text-white hover:bg-white/25 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
             >
               {t('account.manageProfiles')}
+            </Link>
+            <Link
+              href={routes.history(locale)}
+              className="inline-flex h-11 items-center rounded-md bg-white/15 px-5 font-semibold text-white hover:bg-white/25 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            >
+              {t('account.openHistory')}
             </Link>
           </section>
           <DeleteAccount

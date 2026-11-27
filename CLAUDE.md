@@ -5,7 +5,7 @@ NetBoxPlus'ın frontend monorepo'su: müşteri sitesi (`apps/web`, Next.js) ve a
 Her geliştirmeden sonra bu dosya ve ilgili doküman güncellenir.
 
 - Kararlar ve gerekçeleri: backend reposundaki `docs/ARCHITECTURE.md` §13 (özellikle §13.2 İstemciler)
-- Aktif faz ve iş dökümü: backend reposundaki `docs/PHASE-8.md`
+- Aktif faz ve iş dökümü: backend reposundaki `docs/PHASE-9.md` (Faz 8, frontend'in kuruluşu, `docs/PHASE-8.md`)
 
 Bu dokümanlar **sadece lokalde** durur (backend'de `.gitignore`'da), GitHub'da yokturlar; commit'lenen hiçbir dosya
 onlara link vermez. Orada karara bağlanmış bir konuyu yeniden tartışmaya açma; kararın yanlış olduğunu düşünüyorsan
@@ -256,8 +256,8 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 - **Detay sayfaları** (D2): `/<dil>/movies/[id]`, `/<dil>/series/[id]`, `/<dil>/people/[id]` SSR; Catalog 404'ü ve uuid olmayan id
   sayfa 404'ü (`loadMovie`/`loadSeries`/`loadPerson` 404'te `null`). Hero: "yıl · yaş · süre/sezon", türler, özet, ses ve altyazı
   dilleri (`formatLanguages`: bölge sadece aynı dilin iki çeşidi varsa). Dizide sezon seçici (native select) ve bölümler; ekip
-  rolüne göre, oyuncular `order`'a göre, kişi sayfasına link; benzerler = ilk türün aynı türden popülerleri, kendisi hariç (en fazla
-  12). Meta: başlık, özetten açıklama, OG (`video.movie`/`video.tv_show`/`profile`, görsel), canonical + hreflang.
+  rolüne göre, oyuncular `order`'a göre, kişi sayfasına link; benzerler Catalog'un `/titles/{id}/similar`'ından (tür, kişi, özet ve başlık;
+  `loadSimilar`, 60 sn önbellek, seçili profilin yaşıyla, en fazla 12; arama kapalıysa 503'te satır yok). Meta: başlık, özetten açıklama, OG (`video.movie`/`video.tv_show`/`profile`, görsel), canonical + hreflang.
 - **Fragman** (`TrailerBackdrop`, billboard ve detay hero'su): 2 sn sonra Streaming'e sorulur (`useTrailer`; 404 = yok), playlist
   Streaming'in gateway'deki köküne göre çözülür (yanıt göreli). hls.js dinamik import, Safari'de kendi HLS'i. **Hep sessiz, ses
   düğmesi yok**: fragmanların altyazısı yok (Streaming sadece orijinal sesi verir), sesli hâli WCAG 1.2.2'ye takılırdı. "Hareketi
@@ -277,6 +277,15 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   etkileşimli öğe yok), sadece profil varken; detayda etiketli, oturumsuz ziyaretçiyi girişe gönderir. Değişiklik iyimser, hata
   gelirse geri alınır ve hata kodundan metin gösterilir. `/<dil>/my-list` istemcide, `noindex`. Detayda filmde "x kaldı", dizide
   bölüm başına ilerleme çubuğu.
+- **Kişiselleştirme** (Faz 9): değerlendirme `RatingButton` (Radix Dropdown radyo grubu: Bana göre değil / Beğendim / Bayıldım,
+  seçiliyse "Değerlendirmeyi kaldır"); detayda etiketli, kartta Listem düğmesinin yanında ikon. Kart değerlendirmeyi menü açılınca
+  sorar (`useRating(..., enabled)`): her kart sorsa ana sayfa onlarca istek atardı. Değişiklik iyimser, sonra profilin zevki
+  (`useTaste`) yeniden sorulur. Ana sayfa sırası: izlemeye devam et → **Senin için** (`useRecommendedTitles`: zevkin `like`/`unlike`/
+  `seen`'i Catalog'un `/titles/recommended`'ına `exclude` olarak, profilin yaşıyla) → Listem → en çok sevilen iki başlık için
+  **"X gibileri"** (`useSimilarTitles`; zevkte tek başlık varken çizilmez, "Senin için" ile aynı olurdu). Sinyal yoksa ya da
+  arama kapalıysa satırlar yok. Catalog profili bilmez, id'leri web taşır. **İzleme geçmişi** `/<dil>/history` (istemcide, `noindex`,
+  profil gerekir; hesap sayfasından link): başlık başına satır, son izlenen başta, "Daha fazla göster" ile sayfalar, "Kaldır"
+  geçmişten, izlemeye devam et'ten ve zevkten çıkarır (`useRemoveFromHistory` profilin bütün sorgularını yeniler).
 - **Planlar** (`/<dil>/plans`, E1): planlar SSR (`loadPlans`, 60 sn paylaşımlı önbellek; sitemap'te), fiyat kuruştan
   `formatPrice` ile (para biriminin ondalığına göre), kalite SD 480p / HD 1080p, ekran sayısı. Düğme ziyaretçiye göre tarayıcıda:
   oturumsuz → `/sign-up?next=/<dil>/plans` (kayıt ve giriş `next`'i birbirine ve profil seçimine taşır); e-posta doğrulanmamış →

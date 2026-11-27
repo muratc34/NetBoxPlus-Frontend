@@ -1,9 +1,15 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import type { Locale } from '@netboxplus/i18n';
 import {
   catalogKeys,
   catalogStaleTime,
   nextTitlePage,
+  readRecommended,
+  readSimilar,
   readTitles,
+  recommendationKeys,
+  type CatalogAgeRating,
+  type RecommendationFilter,
   type TitleFilter,
   type TitlePage,
 } from './catalog-reads';
@@ -32,6 +38,35 @@ export function useTitleRow(filter: TitleFilter, enabled: boolean) {
     queryKey: [...catalogKeys.titles(filter), 'row'],
     queryFn: () => readTitles(clients.catalog, filter),
     enabled,
+    staleTime: catalogStaleTime,
+  });
+}
+
+/** Titles like one title, for a row: asked once `enabled`. Search being down (503) is an error the row hides. */
+export function useSimilarTitles(
+  id: string,
+  lang: Locale,
+  maxAgeRating: CatalogAgeRating | undefined,
+  pageSize: number,
+  enabled: boolean,
+) {
+  const { clients } = useGateway();
+  return useQuery({
+    queryKey: recommendationKeys.similar(id, lang, maxAgeRating, pageSize),
+    queryFn: () =>
+      readSimilar(clients.catalog, id, { lang, pageSize, ...(maxAgeRating ? { maxAgeRating } : {}) }),
+    enabled,
+    staleTime: catalogStaleTime,
+  });
+}
+
+/** Titles recommended from a taste, for a row; not asked without a liked title. */
+export function useRecommendedTitles(filter: RecommendationFilter, enabled: boolean) {
+  const { clients } = useGateway();
+  return useQuery({
+    queryKey: recommendationKeys.recommended(filter),
+    queryFn: () => readRecommended(clients.catalog, filter),
+    enabled: enabled && filter.like.length > 0,
     staleTime: catalogStaleTime,
   });
 }
