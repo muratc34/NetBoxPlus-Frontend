@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { expect, test } from '../support/catalog-fixture';
 import { urls } from '../support/environment';
 import { linkTo, waitForEmail } from '../support/mailpit';
 import { payForPlan } from '../support/stripe';
@@ -18,8 +19,6 @@ const account = {
   password: randomBytes(18).toString('base64url'),
 };
 
-/** Seeded by `./deploy/dev.ps1 seed`: dubbed in en-US, subtitled in tr-TR and en-US, rated 13+. */
-const dubbed = { title: 'Kuzey Işığı', path: '/tr/movies/01a1def6-c6b6-7861-8e7b-ff96b7664cf0' };
 /** The seeder's Premium plan and the Stripe price it sells at. */
 const premium = { name: 'Premium', lookupKey: 'netboxplus-demo-premium' };
 
@@ -94,7 +93,10 @@ test('subscribes to Premium: checkout goes to Stripe, the paid subscription show
     .poll(
       async () => {
         await page.goto('/tr/account');
-        return page.getByRole('region', { name: 'Üyelik' }).textContent();
+        const membership = page.getByRole('region', { name: 'Üyelik' });
+        // Read once the membership has loaded, not while it still says so.
+        await expect(membership).not.toContainText('Yükleniyor');
+        return membership.textContent();
       },
       { timeout: 60_000, intervals: [2000] },
     )
@@ -102,7 +104,7 @@ test('subscribes to Premium: checkout goes to Stripe, the paid subscription show
   await expect(page.getByRole('region', { name: 'Üyelik' })).toContainText(premium.name);
 });
 
-test('adds a 7+ profile that cannot watch a 13+ title', async () => {
+test('adds a 7+ profile that cannot watch a 13+ title', async ({ dubbedMovie: dubbed }) => {
   await page.goto('/tr/profiles');
   await page.getByRole('button', { name: 'Profil ekle' }).click();
   const dialog = page.getByRole('dialog');
@@ -117,7 +119,9 @@ test('adds a 7+ profile that cannot watch a 13+ title', async () => {
   await expect(page.getByText('Bu başlık bu profilin yaş sınırının üstünde.')).toBeVisible();
 });
 
-test('watches the dubbed title, switches audio and subtitles, and finds it to continue', async () => {
+test('watches the dubbed title, switches audio and subtitles, and finds it to continue', async ({
+  dubbedMovie: dubbed,
+}) => {
   await chooseProfile('Main');
   await page.goto(dubbed.path);
   await page.getByRole('link', { name: 'Oynat' }).first().click();
@@ -155,18 +159,18 @@ test('watches the dubbed title, switches audio and subtitles, and finds it to co
   await page.getByRole('link', { name: 'Geri dön' }).click();
   await page.goto('/tr');
   const continuing = page.getByRole('region', { name: 'İzlemeye devam et' });
-  await expect(continuing.getByRole('link', { name: new RegExp(dubbed.title) }).first()).toBeVisible({
+  await expect(continuing.getByRole('link', { name: dubbed.title }).first()).toBeVisible({
     timeout: 30_000,
   });
 });
 
-test('keeps a title on My List once, and takes it off', async () => {
+test('keeps a title on My List once, and takes it off', async ({ dubbedMovie: dubbed }) => {
   await page.goto(dubbed.path);
   await page.getByRole('button', { name: 'Listeme ekle', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Listemden çıkar', exact: true })).toBeVisible();
 
   await page.goto('/tr/my-list');
-  await expect(page.getByRole('link', { name: new RegExp(dubbed.title) })).toHaveCount(1);
+  await expect(page.getByRole('link', { name: dubbed.title })).toHaveCount(1);
 
   await page.goto(dubbed.path);
   await page.getByRole('button', { name: 'Listemden çıkar', exact: true }).click();

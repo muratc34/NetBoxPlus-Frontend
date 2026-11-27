@@ -116,8 +116,8 @@ pnpm format:check
   (CI'da ve image'larda set edilir).
 - Testler Vitest + Testing Library; globals yok (`describe`/`it`/`expect` import edilir), DOM matcher'ları
   `@netboxplus/config/vitest/setup`'tan.
-- **Uçtan uca** (`apps/e2e`, Playwright): `pnpm e2e`. Backend'de `./deploy/dev.ps1 up -App` ve `seed` (Stripe test anahtarıyla),
-  makinede Stripe CLI ve Chrome ister. Playwright'ın kendi Chromium'u değil kurulu Chrome (`channel: 'chrome'`): oynatıcı H.264
+- **Uçtan uca** (`apps/e2e`, Playwright): `pnpm e2e`. Backend'de `./deploy/dev.ps1 up -App` ve `seed` (Stripe test anahtarıyla, Premium planı için;
+  katalog içeriğine ihtiyaç yok, en az bir tür ve yayında bir dizi yeter), makinede ffmpeg, Stripe CLI ve Chrome ister. Playwright'ın kendi Chromium'u değil kurulu Chrome (`channel: 'chrome'`): oynatıcı H.264
   ister. 5173'te bir web sunucusu yoksa production build'i kendisi başlatır (varsa onu kullanır). `deploy/.env`'i
   (`NETBOXPLUS_ENV_FILE`, varsayılan yan yana duran backend reposu) `process.loadEnvFile` ile okur; değerler yazılmaz. Koşu boyunca
   `stripe listen`'ı kendisi açar (anahtar ortamda, komut satırında değil); önce CLI'ın imza anahtarının `.env`'deki
@@ -125,12 +125,14 @@ pnpm format:check
   sürülmez: yönlendirme yakalanır, ödeme Stripe API'siyle test modunda yapılır (`pm_card_visa`, Billing'in checkout metadata'sıyla).
   Müşteri akışı (`customer.spec.ts`): kayıt → doğrulama → Premium → 7+ profil 13+ başlığı açamaz → dublajlı film, ses/altyazı seçimi
   profilin tercihi olur → izlemeye devam et → Listem → e-posta değiştirme (eski adres reddedilir) → hesap silme. Her koşu
-  `e2e-<koşu>@example.test` açar ve sonunda siler; yarıda kalan koşunun hesabı admin panelinden silinir.
+  `e2e-<koşu>@example.test` açar ve sonunda siler; yarıda kalan koşunun hesabı admin panelinden silinir. Dublajlı film koşunun kendisi:
+  `support/catalog-fixture.ts`'teki worker fixture'ı (`dubbedMovie`) admin API'siyle `Uçtan Uca Dublaj <koşu>` filmini açar (13+, ffmpeg'le
+  afiş/arka plan/30 sn video, en-US dublaj, tr-TR ve en-US altyazı, yayın) ve worker bitince yayından kaldırıp siler.
   Admin akışı (`admin.spec.ts`, admin 5174'te çalışıyor olmalı; `AUTH_ADMIN_EMAIL`/`PASSWORD` `deploy/.env`'den): film + tür, ffmpeg'le
   koşuda üretilen afiş/arka plan, asıl video (Hazır'ı bekler) + en-US dublaj + tr-TR altyazı, fragman, yayın; web'de diller ve
   fragman oynar (yayın Streaming'e event'le ulaştığı için sayfa fragman oynayana kadar yeniden açılır). Film `afterAll`'da gateway
-  üzerinden yayından kaldırılıp silinir (videoları Streaming'de kalır). `ssr.spec.ts`: JS kapalı ana sayfa, film, dizi, arama;
-  içerik, title, açıklama, canonical/hreflang, OG.
+  üzerinden yayından kaldırılıp silinir (videoları Streaming'de kalır). `ssr.spec.ts`: JS kapalı ana sayfa, film (koşunun dublajlı filmi), dizi
+  (katalogdaki herhangi biri), arama (filmin adıyla, index'e girmesi beklenir); içerik, title, açıklama, canonical/hreflang, OG.
 - **Ekran görüntüleri** (`pnpm e2e:screenshots`, ayrı config `apps/e2e/screenshots.config.ts`: Stripe ve Mailpit kontrolü yok): çalışan
   sistemden README'nin görüntüleri ve demo GIF'i `docs/screenshots/`'a (JPEG, GIF ffmpeg ile). Web `load-user-01` (Premium, test modu)
   ile çekilir: e-postası doğrulanmamışsa Mailpit'ten doğrular, eksik profilleri ve Listem'i API'den kurar; `reducedMotion: 'reduce'`
@@ -138,7 +140,7 @@ pnpm format:check
   Oynatıcı yok (video sentetik test deseni). İçerik lokale TMDB'den aktarıldı (repo dışı tek seferlik script); README'de TMDB atfı.
 - **Lighthouse** (`pnpm e2e:lighthouse`, Playwright'ın `lighthouse` projesi; `pnpm e2e` onu koşmaz): production build ister (dev
   sunucusunda `hmr-client` görürse reddeder). Ölçüt Lighthouse'un **masaüstü** ön ayarı: performans, erişilebilirlik, SEO ≥ 90
-  (aramada SEO hariç: sayfa bilerek `noindex`). Mobil (yavaş 4G, 4x CPU) da ölçülür ve rapora yazılır, eşik yok (görseller optimizer'dan
+  (aramada SEO hariç: sayfa bilerek `noindex`). Ölçülen film ve dizi katalogdaki en çok izlenenler (`sort=Popular`), arama o filmin adıyla. Mobil (yavaş 4G, 4x CPU) da ölçülür ve rapora yazılır, eşik yok (görseller optimizer'dan
   geçtikten, başlık fontu Inter'e geçtikten ve ana sayfanın kayması giderildikten sonra 84–88; kalan maliyet JS). Raporlar `test-results/` altında
   (HTML + JSON).
 

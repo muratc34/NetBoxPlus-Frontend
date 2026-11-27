@@ -8,16 +8,31 @@ import { urls } from '../support/environment';
  * Lighthouse on the catalog pages (Phase 8 exit criterion 5), against the web app's production build only
  * (a development server is slow by design). The criterion is Lighthouse's desktop preset: performance,
  * accessibility and SEO at least 90. The mobile preset (slow 4G, 4x CPU) is measured and reported but not
- * held to it: Catalog keeps one size per image and the web app serves it as stored, so a throttled phone
- * fetches more image bytes than it draws. The reports go to the test's output folder.
+ * held to it (it is held back by JavaScript, not by images). The movie and series measured are the catalog's
+ * most watched ones, whatever it holds. The reports go to the test's output folder.
  */
+async function mostWatched(kind: 'Movie' | 'Series'): Promise<{ id: string; title: string }> {
+  const response = await fetch(`${urls.gateway}/catalog/titles?lang=tr&kind=${kind}&sort=Popular&pageSize=1`);
+  const found = ((await response.json()) as { items: { id: string; title: string }[] }).items[0];
+  if (!found) {
+    throw new Error(`The catalog has no published ${kind.toLowerCase()} to measure.`);
+  }
+  return found;
+}
+
+const movie = await mostWatched('Movie');
+const series = await mostWatched('Series');
 const pages = [
   { name: 'home', path: '/tr' },
   { name: 'movies', path: '/tr/movies' },
-  { name: 'movie', path: '/tr/movies/01a1def6-c6b6-7861-8e7b-ff96b7664cf0' },
-  { name: 'series', path: '/tr/series/01a1def7-8fdc-76e7-9d41-6d5e2628c2bf' },
+  { name: 'movie', path: `/tr/movies/${movie.id}` },
+  { name: 'series', path: `/tr/series/${series.id}` },
   // Kept out of search engines on purpose (noindex), which Lighthouse's SEO score counts against it.
-  { name: 'search', path: '/tr/search?q=deniz', indexed: false },
+  {
+    name: 'search',
+    path: `/tr/search?q=${encodeURIComponent(movie.title.split(' ')[0] ?? '')}`,
+    indexed: false,
+  },
 ];
 const categories = ['performance', 'accessibility', 'seo'] as const;
 type Scores = Record<(typeof categories)[number], number>;
