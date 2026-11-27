@@ -42,6 +42,17 @@ describe('MoviePage', () => {
     expect(screen.getByRole('link', { name: 'Oynat' })).toHaveAttribute('href', `/tr/watch/${movie.id}`);
   });
 
+  it("draws the movie's logo for its name, which stays its text", async () => {
+    vi.mocked(loadMovie).mockResolvedValue({
+      ...movie,
+      logoUrl: 'http://127.0.0.1:10000/devstoreaccount1/images/0123456789abcdef0123456789abcdef.png',
+    });
+    renderPage(await serverRendered(MoviePage(params('tr', movie.id))), 'tr', { withProfiles: true });
+
+    const heading = screen.getByRole('heading', { level: 1, name: 'Kuzey Işığı' });
+    expect(within(heading).getByRole('img', { name: 'Kuzey Işığı' })).toBeInTheDocument();
+  });
+
   it('lists the crew by role and the cast in order, each leading to their page', async () => {
     renderPage(await serverRendered(MoviePage(params('en', movie.id))), 'en', { withProfiles: true });
 

@@ -8,6 +8,7 @@ import { routes } from '../../routes';
 import { MyListButton } from './my-list-button';
 import { TitleFacts } from './title-facts';
 import { TitleImage } from './title-image';
+import { TitleLogo } from './title-logo';
 
 export interface CardProgress {
   /** How much has been watched, 0 to 1. */
@@ -74,6 +75,23 @@ export function TitleCard({
             {...(sizes ? { sizes } : {})}
             eager={eager ?? false}
           />
+          {title.logoUrl && (
+            // The name is written under the card; the logo makes the image say which title it is.
+            <span
+              aria-hidden="true"
+              className={classNames(
+                'pointer-events-none absolute inset-x-3 top-1/3 bottom-3 flex items-end',
+                'transition-opacity group-hover:opacity-0 group-hover:delay-500 group-focus-within:opacity-0',
+              )}
+            >
+              <TitleLogo
+                url={title.logoUrl}
+                alt=""
+                sizes="(min-width: 1024px) 15vw, 45vw"
+                className="max-h-full max-w-[70%] object-left-bottom"
+              />
+            </span>
+          )}
           <span
             className={classNames(
               'absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/60 to-transparent px-3 pt-8 pb-2',

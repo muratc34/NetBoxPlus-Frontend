@@ -24,6 +24,7 @@ const movie: MovieDetails = {
   version: 4,
   posterUrl: null,
   backdropUrl: null,
+  logoUrl: null,
   genres: [],
   credits: [],
   createdAt: '2026-11-01T10:00:00Z',
@@ -360,6 +361,7 @@ describe('ContentVideos', () => {
       version: 3,
       posterUrl: null,
       backdropUrl: null,
+      logoUrl: null,
       genres: [],
       credits: [],
       seasons: [

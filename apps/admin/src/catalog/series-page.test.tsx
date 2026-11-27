@@ -56,6 +56,7 @@ const ruzgar: SeriesDetails = {
   version: 10,
   posterUrl: 'https://images.test/poster.jpg',
   backdropUrl: null,
+  logoUrl: null,
   genres: [{ id: drama.id, name: 'Dram' }],
   credits: [{ personId: elif.id, personName: elif.name, role: 'Creator', characterName: null, order: 0 }],
   seasons: [first],

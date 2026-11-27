@@ -83,6 +83,7 @@ function hero(details: TitleDetails): HeroTitle {
     ageRating: item.ageRating,
     genres: item.genres,
     backdropUrl: item.backdropUrl,
+    logoUrl: item.logoUrl,
     posterUrl: item.posterUrl,
     audioLanguages: item.audioLanguages,
     subtitleLanguages: item.subtitleLanguages,
