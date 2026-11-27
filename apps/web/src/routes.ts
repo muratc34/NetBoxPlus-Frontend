@@ -20,6 +20,7 @@ export const routes = {
   genre: (locale: Locale, id: string) => `/${locale}/genres/${id}`,
   search: (locale: Locale) => `/${locale}/search`,
   myList: (locale: Locale) => `/${locale}/my-list`,
+  history: (locale: Locale) => `/${locale}/history`,
   signIn: (locale: Locale) => `/${locale}/sign-in`,
   signUp: (locale: Locale) => `/${locale}/sign-up`,
   forgotPassword: (locale: Locale) => `/${locale}/forgot-password`,

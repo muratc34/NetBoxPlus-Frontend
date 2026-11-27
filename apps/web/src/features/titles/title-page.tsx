@@ -3,7 +3,7 @@ import { createTranslator, locales, type Locale } from '@netboxplus/i18n';
 import type { Metadata } from 'next';
 import { TitleRow } from '../../components/catalog/title-row';
 import { routes } from '../../routes';
-import { loadTitles, viewerAgeLimit } from '../../server/catalog';
+import { loadSimilar, viewerAgeLimit } from '../../server/catalog';
 import { Credits } from './credits';
 import { EpisodeList } from './episode-list';
 import { orderEpisodes } from '../watch/episodes';
@@ -51,24 +51,12 @@ export function titleMetadata(lang: Locale, details: TitleDetails): Metadata {
 }
 
 /**
- * Titles like this one: the most watched of its first genre and kind, without itself, within the chosen
- * profile's age limit. None when it has no genre.
+ * Titles like this one, by genres, people, synopsis and title (Catalog's similarity), within the chosen
+ * profile's age limit. None when search is down.
  */
-export async function loadSimilar(lang: Locale, details: TitleDetails): Promise<TitleSummary[]> {
-  const genre = details.item.genres[0];
-  if (!genre) {
-    return [];
-  }
+export async function loadSimilarTitles(lang: Locale, details: TitleDetails): Promise<TitleSummary[]> {
   const maxAgeRating = await viewerAgeLimit();
-  const page = await loadTitles({
-    lang,
-    kind: details.kind,
-    genreId: genre.id,
-    sort: 'Popular',
-    pageSize: similarCount + 1,
-    ...(maxAgeRating ? { maxAgeRating } : {}),
-  });
-  return page.items.filter((title) => title.id !== details.item.id).slice(0, similarCount);
+  return loadSimilar(details.item.id, lang, similarCount, maxAgeRating);
 }
 
 function hero(details: TitleDetails): HeroTitle {
@@ -100,7 +88,7 @@ function hero(details: TitleDetails): HeroTitle {
 /** A movie's or a series' page: the hero, a series' episodes, the cast and crew, and similar titles. */
 export async function TitlePage({ lang, details }: Readonly<{ lang: Locale; details: TitleDetails }>) {
   const t = createTranslator(lang);
-  const similar = await loadSimilar(lang, details);
+  const similar = await loadSimilarTitles(lang, details);
 
   return (
     <main className="flex flex-col gap-10 pb-12">

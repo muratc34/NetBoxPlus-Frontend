@@ -136,6 +136,44 @@ export const searchKeys = {
   results: (filter: SearchFilter) => ['catalog', 'search', filter] as const,
 };
 
+/** What recommendations are drawn from: title ids, strongest first, as Streaming's taste gives them. */
+export interface RecommendationFilter {
+  readonly like: readonly string[];
+  readonly unlike?: readonly string[];
+  readonly exclude?: readonly string[];
+  readonly lang: Locale;
+  readonly maxAgeRating?: CatalogAgeRating;
+  readonly pageSize?: number;
+}
+
+export const recommendationKeys = {
+  similar: (id: string, lang: Locale, maxAgeRating: CatalogAgeRating | undefined, pageSize: number) =>
+    ['catalog', 'similar', id, lang, maxAgeRating ?? null, pageSize] as const,
+  recommended: (filter: RecommendationFilter) => ['catalog', 'recommended', filter] as const,
+};
+
+/** Published titles like this one, closest first; none for a title that is not published. 503 without search. */
+export function readSimilar(
+  catalog: PublicClients['catalog'],
+  id: string,
+  query: { readonly lang: Locale; readonly maxAgeRating?: CatalogAgeRating; readonly pageSize: number },
+): Promise<SearchPage> {
+  return unwrap(catalog.GET('/titles/{id}/similar', { params: { path: { id }, query } }));
+}
+
+/** Published titles like the liked ones and unlike the unliked ones; none of the given ones. 503 without search. */
+export function readRecommended(
+  catalog: PublicClients['catalog'],
+  filter: RecommendationFilter,
+): Promise<SearchPage> {
+  const { like, unlike = [], exclude = [], ...rest } = filter;
+  return unwrap(
+    catalog.GET('/titles/recommended', {
+      params: { query: { ...rest, like: [...like], unlike: [...unlike], exclude: [...exclude] } },
+    }),
+  );
+}
+
 /** One page of search results, best match first. Elasticsearch being down is a 503 `Search.Unavailable`. */
 export function readSearch(
   catalog: PublicClients['catalog'],

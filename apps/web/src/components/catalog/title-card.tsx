@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLocale } from '../../i18n/translator';
 import { routes } from '../../routes';
 import { MyListButton } from './my-list-button';
+import { RatingButton } from './rating-button';
 import { TitleFacts } from './title-facts';
 import { TitleImage } from './title-image';
 import { TitleLogo } from './title-logo';
@@ -22,7 +23,7 @@ export interface CardProgress {
 /**
  * A wide card that opens the title's page. Where the pointer can hover (Tailwind's `hover:` applies only
  * there), resting on it for half a second, or focusing something in it from the keyboard, grows it and
- * shows the year, rating and genres, and for a signed-in profile the My List button (next to the link,
+ * shows the year, rating and genres, and for a signed-in profile the rating and My List buttons (next to the link,
  * not inside it); on touch a tap opens the page. Growing is left out when the visitor asks for less motion.
  */
 export function TitleCard({
@@ -110,7 +111,8 @@ export function TitleCard({
           )}
         </span>
       </Link>
-      <span className={classNames('absolute top-2 right-2', reveal)}>
+      <span className={classNames('absolute top-2 right-2 flex gap-2', reveal)}>
+        <RatingButton titleId={title.id} title={title.title} variant="card" />
         <MyListButton titleId={title.id} kind={title.kind} title={title.title} variant="card" />
       </span>
     </div>

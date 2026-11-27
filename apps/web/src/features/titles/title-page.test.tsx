@@ -3,15 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import MoviePage, { generateMetadata as movieMetadata } from '../../app/[lang]/movies/[id]/page';
 import SeriesPage from '../../app/[lang]/series/[id]/page';
-import { loadMovie, loadSeries, loadTitles, viewerAgeLimit } from '../../server/catalog';
-import { comedy, drama, movie, series, title, titlePage } from '../../test/catalog';
+import { loadMovie, loadSeries, loadSimilar, viewerAgeLimit } from '../../server/catalog';
+import { movie, series, title } from '../../test/catalog';
 import { renderPage, serverRendered, server, signedOut } from '../../test/render';
-import { loadSimilar, similarCount, titleMetadata } from './title-page';
+import { loadSimilarTitles, similarCount, titleMetadata } from './title-page';
 
 vi.mock('../../server/catalog', () => ({
   loadMovie: vi.fn(),
   loadSeries: vi.fn(),
-  loadTitles: vi.fn(),
+  loadSimilar: vi.fn(),
   viewerAgeLimit: vi.fn(),
 }));
 
@@ -25,7 +25,7 @@ beforeEach(() => {
   vi.mocked(viewerAgeLimit).mockResolvedValue(undefined);
   vi.mocked(loadMovie).mockResolvedValue(movie);
   vi.mocked(loadSeries).mockResolvedValue(series);
-  vi.mocked(loadTitles).mockResolvedValue(titlePage([title(1), title(2)]));
+  vi.mocked(loadSimilar).mockResolvedValue([title(1), title(2)]);
 });
 
 describe('MoviePage', () => {
@@ -77,8 +77,13 @@ describe('MoviePage', () => {
 
   it('shows similar titles', async () => {
     renderPage(await serverRendered(MoviePage(params('tr', movie.id))), 'tr', { withProfiles: true });
-
     expect(screen.getByRole('region', { name: 'Benzer içerikler' })).toHaveTextContent('Title 1');
+  });
+
+  it('leaves the similar row out when there is nothing like it', async () => {
+    vi.mocked(loadSimilar).mockResolvedValue([]);
+    renderPage(await serverRendered(MoviePage(params('tr', movie.id))), 'tr', { withProfiles: true });
+    expect(screen.queryByRole('region', { name: 'Benzer içerikler' })).not.toBeInTheDocument();
   });
 
   it('is a 404 for an unknown, unpublished or malformed id', async () => {
@@ -153,30 +158,17 @@ describe('SeriesPage', () => {
     expect(screen.getByText('Başlangıç')).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Cast and crew' })).not.toBeInTheDocument();
     expect(screen.queryByText('Subtitles')).not.toBeInTheDocument();
-    // No genre, nothing to compare with.
-    expect(loadTitles).not.toHaveBeenCalled();
   });
 });
 
-describe('loadSimilar', () => {
-  it("lists the most watched of the first genre and kind, without itself, within the profile's limit", async () => {
+describe('loadSimilarTitles', () => {
+  it("asks Catalog for titles like this one, within the chosen profile's limit", async () => {
     vi.mocked(viewerAgeLimit).mockResolvedValue('Age7');
-    const many = Array.from({ length: similarCount + 1 }, (_, index) => title(index + 1));
-    vi.mocked(loadTitles).mockResolvedValue(titlePage([title(99, { id: movie.id }), ...many]));
 
-    const similar = await loadSimilar('en', { kind: 'Movie', item: movie });
+    const similar = await loadSimilarTitles('en', { kind: 'Movie', item: movie });
 
-    expect(loadTitles).toHaveBeenCalledWith({
-      lang: 'en',
-      kind: 'Movie',
-      genreId: drama.id,
-      sort: 'Popular',
-      pageSize: similarCount + 1,
-      maxAgeRating: 'Age7',
-    });
-    expect(similar).toHaveLength(similarCount);
-    expect(similar.map((item) => item.id)).not.toContain(movie.id);
-    expect(comedy.id).not.toBe(drama.id);
+    expect(loadSimilar).toHaveBeenCalledWith(movie.id, 'en', similarCount, 'Age7');
+    expect(similar.map((item) => item.id)).toEqual([title(1).id, title(2).id]);
   });
 });
 
