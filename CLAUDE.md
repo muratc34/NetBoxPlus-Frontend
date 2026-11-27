@@ -124,7 +124,8 @@ pnpm format:check
   `STRIPE_WEBHOOK_SECRET` olduğunu kontrol eder (değilse Billing event'leri reddederdi; hata mesajı düzeltmeyi söyler). E-postalar Mailpit API'sinden. Stripe'ın ödeme sayfası
   sürülmez: yönlendirme yakalanır, ödeme Stripe API'siyle test modunda yapılır (`pm_card_visa`, Billing'in checkout metadata'sıyla).
   Müşteri akışı (`customer.spec.ts`): kayıt → doğrulama → Premium → 7+ profil 13+ başlığı açamaz → dublajlı film, ses/altyazı seçimi
-  profilin tercihi olur → izlemeye devam et → Listem → e-posta değiştirme (eski adres reddedilir) → hesap silme. Her koşu
+  profilin tercihi olur → izlemeye devam et → Listem → değerlendirme ve öneriler (izlenen film "Senin için"i doldurur, katalogdan
+  en çok izlenen filme "Bayıldım" → iki "X gibileri" satırı; geçmişten kaldırılan film izlemeye devam et'ten ve zevkten çıkar) → e-posta değiştirme (eski adres reddedilir) → hesap silme. Her koşu
   `e2e-<koşu>@example.test` açar ve sonunda siler; yarıda kalan koşunun hesabı admin panelinden silinir. Dublajlı film koşunun kendisi:
   `support/catalog-fixture.ts`'teki worker fixture'ı (`dubbedMovie`) admin API'siyle `Uçtan Uca Dublaj <koşu>` filmini açar (13+, ffmpeg'le
   afiş/arka plan/30 sn video, en-US dublaj, tr-TR ve en-US altyazı, yayın) ve worker bitince yayından kaldırıp siler.

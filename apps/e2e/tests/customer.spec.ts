@@ -7,7 +7,7 @@ import { payForPlan } from '../support/stripe';
 
 /**
  * One customer from sign-up to deletion, through the web app as a visitor uses it: Phase 7's E1 flows in a
- * browser. Each step builds on the one before, so they run in order on one page.
+ * browser, and Phase 9's ratings, recommendations and history. Each step builds on the one before, so they run in order on one page.
  */
 test.describe.configure({ mode: 'serial' });
 
@@ -177,6 +177,55 @@ test('keeps a title on My List once, and takes it off', async ({ dubbedMovie: du
   await expect(page.getByRole('button', { name: 'Listeme ekle', exact: true })).toBeVisible();
   await page.goto('/tr/my-list');
   await expect(page.getByText(/Listende henüz bir şey yok/)).toBeVisible();
+});
+
+/** The catalog's most watched movie other than the run's own: something real to rate. */
+async function aCatalogMovie(except: string): Promise<{ id: string; title: string }> {
+  const response = await fetch(`${urls.gateway}/catalog/titles?lang=tr&kind=Movie&sort=Popular&pageSize=5`);
+  const found = ((await response.json()) as { items: { id: string; title: string }[] }).items.find(
+    (item) => item.id !== except,
+  );
+  if (!found) {
+    throw new Error('The catalog has no published movie to rate.');
+  }
+  return found;
+}
+
+test('rates a title, gets recommendations from the taste, and forgets a watched title', async ({
+  dubbedMovie: dubbed,
+}) => {
+  // Watching the dubbed movie is already a signal: "For you" draws on it.
+  await page.goto('/tr');
+  const forYou = page.getByRole('region', { name: 'Senin için' });
+  await expect(forYou.getByRole('link').first()).toBeVisible({ timeout: 30_000 });
+  await expect(forYou.getByRole('link', { name: dubbed.title })).toHaveCount(0);
+
+  const loved = await aCatalogMovie(dubbed.id);
+  await page.goto(`/tr/movies/${loved.id}`);
+  await page.getByRole('button', { name: `${loved.title}: değerlendir`, exact: true }).click();
+  await page.getByRole('menuitemradio', { name: /Bayıldım/ }).click();
+  await expect(page.getByRole('button', { name: `${loved.title}: değerlendir: Bayıldım` })).toBeVisible();
+
+  // Two titles in the taste: each gets a row of its own, the loved one first.
+  await page.goto('/tr');
+  await expect(page.getByRole('region', { name: `${loved.title} gibileri` })).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByRole('region', { name: `${dubbed.title} gibileri` })).toBeVisible();
+
+  await page.goto('/tr/history');
+  const watched = page.getByRole('listitem').filter({ hasText: dubbed.title });
+  await expect(watched).toHaveCount(1);
+  await page.getByRole('button', { name: `${dubbed.title}: geçmişten kaldır` }).click();
+  await expect(page.getByText('Bu profil henüz bir şey izlemedi.')).toBeVisible();
+
+  // Forgotten everywhere: nothing to continue, and only the loved title is left in the taste.
+  await page.goto('/tr');
+  await expect(page.getByRole('region', { name: 'Senin için' }).getByRole('link').first()).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByRole('region', { name: 'İzlemeye devam et' })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: `${dubbed.title} gibileri` })).toHaveCount(0);
 });
 
 test('changes the e-mail address with a link sent to the new one', async () => {
