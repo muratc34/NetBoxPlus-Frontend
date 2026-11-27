@@ -23,6 +23,8 @@ behind a YARP gateway that keeps browser sessions in httpOnly cookies, so no acc
 - Plans and subscription through Stripe Checkout, managed in Stripe's customer portal.
 - An HLS player with quality, audio language (dubbing) and subtitle choices remembered per profile, a screen limit,
   resume and "continue watching"; My List.
+- Ratings (not for me, like, love) and recommendations from them: "For you" and "More like …" rows on the home page,
+  similar titles on every title's page, and a watching history to take titles out of.
 - Account page: changing the e-mail address or the password, invoices, and deleting the account.
 
 **Admin panel**:
@@ -117,9 +119,10 @@ The admin panel is told the gateway's address at build time (`VITE_GATEWAY_URL`;
 - **Images sized for the screen:** Catalog keeps one size per image; Next's optimizer serves each page the width it
   draws, as AVIF or WebP.
 - **Tested end to end:** Playwright drives a customer from sign-up through a Stripe test payment, playback with
-  dubbing and subtitles, My List, an e-mail change and account deletion; and an administrator from a new movie
+  dubbing and subtitles, My List, rating a title and getting recommendations from it, the watching history, an
+  e-mail change and account deletion; and an administrator from a new movie
   through video, dubbing, subtitles and trailer to publishing. Lighthouse scores the catalog pages 98–100 for
-  performance, accessibility and SEO on desktop (search is `noindex` on purpose) and 84–88 for performance on a
+  performance, accessibility and SEO on desktop (search is `noindex` on purpose) and 83–88 for performance on a
   throttled phone.
 
 ## Containers
