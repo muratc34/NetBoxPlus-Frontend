@@ -131,7 +131,9 @@ pnpm format:check
   afiş/arka plan/30 sn video, en-US dublaj, tr-TR ve en-US altyazı, yayın) ve worker bitince yayından kaldırıp siler.
   Admin akışı (`admin.spec.ts`, admin 5174'te çalışıyor olmalı; `AUTH_ADMIN_EMAIL`/`PASSWORD` `deploy/.env`'den): film + tür, ffmpeg'le
   koşuda üretilen afiş/arka plan, asıl video (Hazır'ı bekler) + en-US dublaj + tr-TR altyazı, fragman, yayın; web'de diller ve
-  fragman oynar (yayın Streaming'e event'le ulaştığı için sayfa fragman oynayana kadar yeniden açılır). Film `afterAll`'da gateway
+  fragman oynar (yayın Streaming'e event'le ulaştığı için sayfa fragman oynayana kadar yeniden açılır). Fragman 90 sn içinde oynamazsa hata
+  mesajı sayfanın fragman ucu ve playlist yanıtlarının durum kodlarını, başarısız isteklerini ve konsol hatalarını yazar (bir koşuda
+  sebebi belirsiz bir kez takıldı; tekrar olursa bununla teşhis edilecek). Film `afterAll`'da gateway
   üzerinden yayından kaldırılıp silinir (videoları Streaming'de kalır). `ssr.spec.ts`: JS kapalı ana sayfa, film (koşunun dublajlı filmi), dizi
   (katalogdaki herhangi biri), arama (filmin adıyla, index'e girmesi beklenir); içerik, title, açıklama, canonical/hreflang, OG.
 - **Ekran görüntüleri** (`pnpm e2e:screenshots`, ayrı config `apps/e2e/screenshots.config.ts`: Stripe ve Mailpit kontrolü yok): çalışan

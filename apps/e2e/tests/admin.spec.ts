@@ -123,6 +123,30 @@ test('the published movie shows on the web app with its languages and plays its 
   browser,
 }) => {
   const visitor = await browser.newPage();
+  // What the page asked about the trailer and what went wrong in it, to say why when the trailer never plays:
+  // once it waited 90 s with a single 404 reaching Streaming, and nothing else to tell from.
+  const seen: string[] = [];
+  const aboutTrailer = (url: string) => {
+    const { pathname } = new URL(url);
+    return pathname.endsWith('/trailer') || pathname.endsWith('.m3u8') ? pathname : undefined;
+  };
+  visitor.on('response', (response) => {
+    const path = aboutTrailer(response.url());
+    if (path) {
+      seen.push(`${String(response.status())} ${path}`);
+    }
+  });
+  visitor.on('requestfailed', (request) => {
+    const path = aboutTrailer(request.url());
+    if (path) {
+      seen.push(`failed ${path}: ${request.failure()?.errorText ?? ''}`);
+    }
+  });
+  visitor.on('console', (message) => {
+    if (message.type() === 'error') {
+      seen.push(`console: ${message.text()}`);
+    }
+  });
   try {
     await expect
       .poll(
@@ -148,7 +172,17 @@ test('the published movie shows on the web app with its languages and plays its 
       await visitor.waitForTimeout(2000);
       return trailer.evaluate((element: HTMLVideoElement) => element.currentTime).catch(() => 0);
     };
-    await expect.poll(trailerPlays, { timeout: 90_000, intervals: [1000] }).toBeGreaterThan(0.5);
+    await expect
+      .poll(trailerPlays, { timeout: 90_000, intervals: [1000] })
+      .toBeGreaterThan(0.5)
+      .catch((error: unknown) => {
+        throw new Error(
+          `The trailer did not play. The page saw: ${seen.slice(-30).join('; ') || 'nothing'}`,
+          {
+            cause: error,
+          },
+        );
+      });
   } finally {
     await visitor.close();
   }
