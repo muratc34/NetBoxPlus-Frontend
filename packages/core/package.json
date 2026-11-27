@@ -14,7 +14,7 @@
   "dependencies": {
     "@netboxplus/api": "workspace:*",
     "@netboxplus/i18n": "workspace:*",
-    "@tanstack/react-query": "5.108.0"
+    "@tanstack/react-query": "5.108.4"
   },
   "devDependencies": {
     "@netboxplus/config": "workspace:*",
