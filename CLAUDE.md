@@ -131,6 +131,11 @@ pnpm format:check
   fragman oynar (yayın Streaming'e event'le ulaştığı için sayfa fragman oynayana kadar yeniden açılır). Film `afterAll`'da gateway
   üzerinden yayından kaldırılıp silinir (videoları Streaming'de kalır). `ssr.spec.ts`: JS kapalı ana sayfa, film, dizi, arama;
   içerik, title, açıklama, canonical/hreflang, OG.
+- **Ekran görüntüleri** (`pnpm e2e:screenshots`, ayrı config `apps/e2e/screenshots.config.ts`: Stripe ve Mailpit kontrolü yok): çalışan
+  sistemden README'nin görüntüleri ve demo GIF'i `docs/screenshots/`'a (JPEG, GIF ffmpeg ile). Web `load-user-01` (Premium, test modu)
+  ile çekilir: e-postası doğrulanmamışsa Mailpit'ten doğrular, eksik profilleri ve Listem'i API'den kurar; `reducedMotion: 'reduce'`
+  (fragman ve kart önizlemesi oynamaz). Admin adresi CSS ile gizlenir, kullanıcı ve e-posta listeleri çekilmez (gerçek adres olabilir).
+  Oynatıcı yok (video sentetik test deseni). İçerik lokale TMDB'den aktarıldı (repo dışı tek seferlik script); README'de TMDB atfı.
 - **Lighthouse** (`pnpm e2e:lighthouse`, Playwright'ın `lighthouse` projesi; `pnpm e2e` onu koşmaz): production build ister (dev
   sunucusunda `hmr-client` görürse reddeder). Ölçüt Lighthouse'un **masaüstü** ön ayarı: performans, erişilebilirlik, SEO ≥ 90
   (aramada SEO hariç: sayfa bilerek `noindex`). Mobil (yavaş 4G, 4x CPU) da ölçülür ve rapora yazılır, eşik yok (görseller optimizer'dan
@@ -238,7 +243,9 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   farklı) okuyup bir yıl `immutable` döner. Route sadece `<32 hex>.(jpg|jpeg|png|webp)` adı kabul eder ve sadece `image/*` geçirir;
   `next.config` `images.localPatterns` yalnız `/media/**`, uzak kaynak yok. Adı kalıba uymayan adres `unoptimized` gösterilir.
   `sizes` çizilen genişlikle aynı tutulur: ızgara `gridSizes` (`media.ts`), satır kartları `title-row.tsx`'te genişlik sınıflarının
-  yanında, billboard/hero `100vw` (`priority`: preload + `fetchPriority="high"`), ızgaranın ilk 10 kartı `eager`. Ana sayfanın misafir bandı (`WelcomeBand`) sunucuda `nbp-profile` cookie'si yoksa çizilir
+  yanında, billboard/hero `100vw` (`priority`: preload + `fetchPriority="high"`), ızgaranın ilk 10 kartı `eager`. Başlığın logosu varsa (`logoUrl`, şeffaf PNG/WebP; `TitleLogo`): kartta görselin sol altına çizilir
+  (`alt=""`, ad kartın altında yazılı; üzerine gelince bilgiler açılırken kaybolur), billboard ve başlık sayfasında başlığın yerine geçer
+  (`h1`/`h2` içinde, `alt` başlığın adı). Logosuz başlık metinle görünür. Admin'de film/dizi "Görseller"inde üçüncü yuva. Ana sayfanın misafir bandı (`WelcomeBand`) sunucuda `nbp-profile` cookie'si yoksa çizilir
   (`likelyGuest`; gateway oturumunu web göremez), tarayıcı oturumu öğrenince sadece tahmin yanlışsa değişir: altındaki satırlar kaymaz. Kart önizlemesi CSS: fareli cihazda 500 ms
   sonra ya da klavye odağında büyür ("hareketi azalt"ta büyümez); ekran okuyucu önce başlığı okur (DOM'da önde, `order` ile altta).
   Girişli ama profil seçmemiş ziyaretçi hesap sayfaları dışında "Kim izliyor?"a gider. Mobilde menü alt sekme çubuğunda.

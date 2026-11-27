@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "e2e": "pnpm --filter @netboxplus/e2e e2e",
     "e2e:lighthouse": "pnpm --filter @netboxplus/e2e lighthouse",
+    "e2e:screenshots": "pnpm --filter @netboxplus/e2e screenshots",
     "generate": "turbo run generate",
     "api:sync": "pnpm --filter @netboxplus/api sync"
   },

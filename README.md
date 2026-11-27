@@ -10,12 +10,14 @@ behind a YARP gateway that keeps browser sessions in httpOnly cookies, so no acc
 > This is the rewrite of an earlier graduation project (Create React App), which is preserved under the
 > [`v1-graduation`](../../tree/v1-graduation) tag.
 
+![A visitor browsing the home page, searching and opening a title](docs/screenshots/demo.gif)
+
 ## What is in it
 
 **Web app** (customers, Turkish and English):
 
 - Home page with a billboard that plays the title's trailer, a weekly Top 10, new titles and genre rows; movie, series,
-  person and genre pages; search with suggestions. All of them render on the server, so they work without JavaScript.
+  person and genre pages; search as you type. All of them render on the server, so they work without JavaScript.
 - Sign-up, sign-in, e-mail verification and password reset; up to five profiles per account, each with an age limit
   that filters what it sees.
 - Plans and subscription through Stripe Checkout, managed in Stripe's customer portal.
@@ -28,6 +30,26 @@ behind a YARP gateway that keeps browser sessions in httpOnly cookies, so no acc
 - Movies, series (seasons and episodes), people and genres in both languages, with posters and backgrounds; publishing.
 - Video upload straight to storage, transcoding progress, dubbing, subtitles and trailers.
 - Users and their roles, roles and permissions; plans, subscriptions and invoices; the outgoing e-mail queue.
+
+## Screenshots
+
+|                                                                                               |                                                                   |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| ![Home page with the billboard, continue watching and My List](docs/screenshots/web-home.jpg) | ![A movie's page with its cast](docs/screenshots/web-movie.jpg)   |
+| Home: billboard, continue watching, My List                                                   | A movie, its languages and cast                                   |
+| ![A series' page with its seasons and episodes](docs/screenshots/web-series.jpg)              | ![Search results](docs/screenshots/web-search.jpg)                |
+| A series, its seasons and episodes                                                            | Search as you type                                                |
+| ![Choosing a profile](docs/screenshots/web-profiles.jpg)                                      | ![Plans](docs/screenshots/web-plans.jpg)                          |
+| Profiles, each with an age limit                                                              | Plans, paid through Stripe Checkout                               |
+| ![The admin panel's movie editor](docs/screenshots/admin-movie.jpg)                           | ![The admin panel's video page](docs/screenshots/admin-video.jpg) |
+| Admin: a movie in both languages                                                              | Admin: a video, its qualities and tracks                          |
+
+<p align="center"><img src="docs/screenshots/web-phone.jpg" alt="The home page on a phone" width="260"></p>
+
+The catalog in these pictures is from [TMDB](https://www.themoviedb.org/) (titles, overviews, posters, cast), imported
+into a local system for demonstration; the videos behind them are synthetic. Taken with `pnpm e2e:screenshots`.
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
 
 ## Layout
 
@@ -54,16 +76,17 @@ pnpm dev
 The web app runs on http://localhost:5173 and the admin panel on http://localhost:5174. These ports are the ones
 the backend's gateway allows, so start the backend first (`./deploy/dev.ps1 up -App` in the backend repository).
 
-| Command               | What it does                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------- |
-| `pnpm dev`            | Both apps in development mode                                                                |
-| `pnpm build`          | Production builds (web: Next.js standalone output; admin: static files in `apps/admin/dist`) |
-| `pnpm lint`           | ESLint with type-aware and accessibility rules                                               |
-| `pnpm typecheck`      | TypeScript in strict mode                                                                    |
-| `pnpm test`           | Vitest and Testing Library                                                                   |
-| `pnpm format:check`   | Prettier                                                                                     |
-| `pnpm e2e`            | Playwright against the whole system (backend `up -App` and `seed`, Stripe CLI, Chrome)       |
-| `pnpm e2e:lighthouse` | Lighthouse on the catalog pages, against the web app's production build                      |
+| Command                | What it does                                                                                 |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| `pnpm dev`             | Both apps in development mode                                                                |
+| `pnpm build`           | Production builds (web: Next.js standalone output; admin: static files in `apps/admin/dist`) |
+| `pnpm lint`            | ESLint with type-aware and accessibility rules                                               |
+| `pnpm typecheck`       | TypeScript in strict mode                                                                    |
+| `pnpm test`            | Vitest and Testing Library                                                                   |
+| `pnpm format:check`    | Prettier                                                                                     |
+| `pnpm e2e`             | Playwright against the whole system (backend `up -App` and `seed`, Stripe CLI, Chrome)       |
+| `pnpm e2e:lighthouse`  | Lighthouse on the catalog pages, against the web app's production build                      |
+| `pnpm e2e:screenshots` | The README's screenshots and demo GIF, from the running system                               |
 
 ### Configuration
 
