@@ -314,13 +314,8 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
 - **Güvenlik** (`/<dil>/account/security`, Faz 10, istemcide, `noindex`, profil gerekmez; hesap sayfasından link, yeni giriş uyarısı e-postası
   buraya gelir): **Cihazlar** (`useDevices`: etiket ya da "Bilinmeyen cihaz", "Bu cihaz" ve "Yönetim paneli" rozetleri, son etkinlik; satırda
   "Çıkış yap", onaylı "Diğer tüm cihazlardan çıkış yap"; kendi cihazını kapatmak çıkış gibi: oturum `null`, diğer sorgular kaldırılır —
-  `clear()` değil, gözlemciler eski sorguda kalırdı), **Passkey'ler** (liste; ekle penceresi ad (varsayılan bu cihazın etiketi, ≤ 50) +
-  şifre → `/session/passkeys/options` → `createPasskey` → `/session/passkeys`; pencere kapatılırsa sessiz, "zaten kayıtlı" ayrı metin;
-  yeniden adlandır, onaylı sil; tarayıcı desteklemiyorsa not), **Bildirimler** (`role="switch"` checkbox, `/notification/me/notification-preferences`).
-  Passkey töreni `packages/core/src/passkey-ceremony.ts`: paket yok, tarayıcının `PublicKeyCredential.parse…OptionsFromJSON` ve `toJSON()`'ı
-  (`passkeysSupported`, `createPasskey`, `signWithPasskey`; `NotAllowedError`/`AbortError` → `PasskeyCancelled`, `InvalidStateError` →
-  `PasskeyAlreadyRegistered`). Destek sunucuda bilinmez: `useSyncExternalStore` sunucuda `undefined` verir. Testte `PublicKeyCredential`
-  ve `navigator.credentials` taklit edilir. **Abonelikten çıkma** (`/<dil>/unsubscribe?token=`, `noindex`, profil gerekmez, uyarı e-postasının
+  `clear()` değil, gözlemciler eski sorguda kalırdı), **Bildirimler** (`role="switch"` checkbox, `/notification/me/notification-preferences`).
+  Passkey yok (Faz 10'da eklenip kullanıcı kararıyla kaldırıldı). **Abonelikten çıkma** (`/<dil>/unsubscribe?token=`, `noindex`, profil gerekmez, uyarı e-postasının
   altındaki link): açılınca bir şey değişmez (link tarayıcıları açar), "Uyarıları kapat" `POST /notification/unsubscribe?token=`; geçersiz ya da
   süresi geçmiş token metinle Güvenlik sayfasını söyler. Public client'larda artık `notification` da var (tercih ve abonelikten çıkma).
 - **Oynatıcı** (`/<dil>/watch/[titleId]`, E2a, `noindex`; dizide `?episode=`, baştan `?from=start`): başlık SSR (adreste bölüm varsa

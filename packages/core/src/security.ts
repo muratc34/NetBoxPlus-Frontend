@@ -1,18 +1,14 @@
 import { unwrap, type PublicClients } from '@netboxplus/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useGateway } from './gateway';
-import { createPasskey } from './passkey-ceremony';
 import { queryKeys } from './session';
 
 const readDevices = (session: PublicClients['session']) => session.GET('/session/devices');
-const readPasskeys = (session: PublicClients['session']) => session.GET('/session/passkeys');
 const readNotificationPreferences = (notification: PublicClients['notification']) =>
   notification.GET('/me/notification-preferences');
 
 /** A sign-in of the account: one browser or device, as the devices list shows it. */
 export type Device = NonNullable<Awaited<ReturnType<typeof readDevices>>['data']>[number];
-
-export type Passkey = NonNullable<Awaited<ReturnType<typeof readPasskeys>>['data']>[number];
 
 export type NotificationPreferences = NonNullable<
   Awaited<ReturnType<typeof readNotificationPreferences>>['data']
@@ -20,7 +16,6 @@ export type NotificationPreferences = NonNullable<
 
 export const securityKeys = {
   devices: ['devices'] as const,
-  passkeys: ['passkeys'] as const,
   notificationPreferences: ['notification-preferences'] as const,
 };
 
@@ -70,71 +65,6 @@ export function useEndOtherDevices() {
   return useMutation({
     mutationFn: () => unwrap(clients.session.DELETE('/session/devices')),
     onSettled: () => queryClient.invalidateQueries({ queryKey: securityKeys.devices }),
-  });
-}
-
-/** The account's passkeys, oldest first; only asked while there is a session. */
-export function usePasskeys(enabled: boolean) {
-  const { clients } = useGateway();
-  return useQuery({
-    queryKey: securityKeys.passkeys,
-    queryFn: () => unwrap(readPasskeys(clients.session)),
-    enabled,
-  });
-}
-
-export interface NewPasskey {
-  readonly password: string;
-  readonly name: string;
-}
-
-/**
- * Adds a passkey: the password again (a wrong one counts as a failed sign-in), the browser's window, then the
- * gateway checks the answer. Throws `PasskeyCancelled` when the person closes the window.
- */
-export function useAddPasskey() {
-  const { clients } = useGateway();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ password, name }: NewPasskey) => {
-      const ceremony = await unwrap(
-        clients.session.POST('/session/passkeys/options', { body: { password } }),
-      );
-      const credential = await createPasskey(ceremony.options);
-      return unwrap(
-        clients.session.POST('/session/passkeys', {
-          body: { challengeId: ceremony.challengeId, name, credential },
-        }),
-      );
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: securityKeys.passkeys }),
-  });
-}
-
-export function useRenamePasskey() {
-  const { clients } = useGateway();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, name }: { readonly id: string; readonly name: string }) =>
-      unwrap(
-        clients.session.PUT('/session/passkeys/{passkeyId}', {
-          params: { path: { passkeyId: id } },
-          body: { name },
-        }),
-      ),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: securityKeys.passkeys }),
-  });
-}
-
-export function useRemovePasskey() {
-  const { clients } = useGateway();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) =>
-      unwrap(
-        clients.session.DELETE('/session/passkeys/{passkeyId}', { params: { path: { passkeyId: id } } }),
-      ),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: securityKeys.passkeys }),
   });
 }
 
