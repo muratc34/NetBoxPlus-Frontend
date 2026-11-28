@@ -67,8 +67,10 @@ Paketler derlenmez; uygulamalar TypeScript kaynağını doğrudan alır (`transp
 - **Sunucu tarafı önbellek** (`apps/web/src/server/catalog.ts`): katalog okumaları `unstable_cache` ile 60 sn, anahtar sadece
   yol + filtre + sayfa. Next'in fetch önbelleği header'ları da anahtara katıyor; her istekte farklı `X-Forwarded-For` ziyaretçi
   başına ayrı kopya demekti. Önbellekte olmayan istek yine ziyaretçinin limitine sayılır. Sitemap'in listesi `gatewayForServer()` ile
-  saatte bir. Süresi dolan kayıt bir kez daha eski haliyle döner ve arkada yenilenir; seyrek açılan bir listede bu,
-  yayından kalkmış bir başlığın uzun süre görünmesi demek. Bu yüzden film ya da dizi sayfası 404 alınca bütün katalog önbelleği
+  saatte bir. Süresi dolan kayıt Next'te bir kez daha eski haliyle döner ve arkada yenilenir, ne kadar eski olursa olsun (bir
+  dev sunucusu iki gün önceki listeyi, silinmiş demo filmleriyle gösterdi). Bu yüzden okumalar `boundedCache`'ten (`src/server/bounded-cache.ts`):
+  kayıt okunduğu zamanı taşır, `maxAge`'den eskisi gösterilmez, ziyaretçi taze okumayı bekler (katalog ve planlar 5 dk, sitemap 2 saat;
+  damgasız eski kayıt da eski sayılır). Aradaki bayatlıkta yayından kalkmış bir başlık hâlâ görünebilir. Bu yüzden film ya da dizi sayfası 404 alınca bütün katalog önbelleği
   (`catalog` etiketi) yanıt gittikten sonra (`after`; render sırasında Next izin vermiyor) `revalidateTag(..., { expire: 0 })` ile
   düşer: sonraki istek güncel listeyi bekler. Süreç başına 30 sn'de en fazla bir kez (bilinmeyen id'lerle önbellek sürekli boşaltılamasın).
   O ilk tıklayan kişi genel 404 yerine "Bu içerik yayında değil" sayfasını görür (`TitleNotFound`, HTTP 404 kalır). Katalog sürümüyle
