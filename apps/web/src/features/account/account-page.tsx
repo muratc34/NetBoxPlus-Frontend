@@ -51,6 +51,12 @@ export function AccountPage() {
               {t('account.manageProfiles')}
             </Link>
             <Link
+              href={routes.accountSecurity(locale)}
+              className="inline-flex h-11 items-center rounded-md bg-white/15 px-5 font-semibold text-white hover:bg-white/25 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            >
+              {t('account.openSecurity')}
+            </Link>
+            <Link
               href={routes.history(locale)}
               className="inline-flex h-11 items-center rounded-md bg-white/15 px-5 font-semibold text-white hover:bg-white/25 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
             >

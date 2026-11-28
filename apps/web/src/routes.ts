@@ -27,6 +27,7 @@ export const routes = {
   profiles: (locale: Locale) => `/${locale}/profiles`,
   plans: (locale: Locale) => `/${locale}/plans`,
   account: (locale: Locale) => `/${locale}/account`,
+  accountSecurity: (locale: Locale) => `/${locale}/account/security`,
   /** The player: a movie, or a series' `episode` (the series goes on where it stopped without one). */
   watch: (locale: Locale, titleId: string, options: WatchOptions = {}) => {
     const query = new URLSearchParams();
@@ -70,9 +71,10 @@ const accountPages = new Set([
   'profiles',
   'plans',
   'account',
+  'unsubscribe',
 ]);
 
-/** Pages that work without a chosen profile: signing in, the e-mail links, choosing one, plans and the account. */
+/** Pages that work without a chosen profile: signing in, the e-mail links (unsubscribing too), choosing one, plans and the account. */
 export function isAccountPage(pathname: string): boolean {
   const [first = '', second = ''] = pathname.split('/').filter((segment) => segment !== '');
   return isLocale(first) && accountPages.has(second);

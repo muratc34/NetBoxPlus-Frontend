@@ -5,7 +5,7 @@ NetBoxPlus'ın frontend monorepo'su: müşteri sitesi (`apps/web`, Next.js) ve a
 Her geliştirmeden sonra bu dosya ve ilgili doküman güncellenir.
 
 - Kararlar ve gerekçeleri: backend reposundaki `docs/ARCHITECTURE.md` §13 (özellikle §13.2 İstemciler)
-- Aktif faz ve iş dökümü: backend reposundaki `docs/PHASE-9.md` (Faz 8, frontend'in kuruluşu, `docs/PHASE-8.md`)
+- Aktif faz ve iş dökümü: backend reposundaki `docs/PHASE-10.md` (Faz 8, frontend'in kuruluşu, `docs/PHASE-8.md`)
 
 Bu dokümanlar **sadece lokalde** durur (backend'de `.gitignore`'da), GitHub'da yokturlar; commit'lenen hiçbir dosya
 onlara link vermez. Orada karara bağlanmış bir konuyu yeniden tartışmaya açma; kararın yanlış olduğunu düşünüyorsan
@@ -309,6 +309,18 @@ docker build --file apps/admin/Dockerfile --tag netboxplus/admin:local .
   silmez: sayfa ziyaretçiyi önce girişe atardı); "Ana sayfaya dön" ya da pencereyi kapatmak oturumu `null` yapar, diğer sorguları
   kaldırır (`clear()` değil: gözlemciler eski sorguda kalırdı), profil cookie'sini siler ve ana sayfaya gider; hesap sayfası bu sırada
   (`onLeave`) girişe yönlendirmez.
+- **Güvenlik** (`/<dil>/account/security`, Faz 10, istemcide, `noindex`, profil gerekmez; hesap sayfasından link, yeni giriş uyarısı e-postası
+  buraya gelir): **Cihazlar** (`useDevices`: etiket ya da "Bilinmeyen cihaz", "Bu cihaz" ve "Yönetim paneli" rozetleri, son etkinlik; satırda
+  "Çıkış yap", onaylı "Diğer tüm cihazlardan çıkış yap"; kendi cihazını kapatmak çıkış gibi: oturum `null`, diğer sorgular kaldırılır —
+  `clear()` değil, gözlemciler eski sorguda kalırdı), **Passkey'ler** (liste; ekle penceresi ad (varsayılan bu cihazın etiketi, ≤ 50) +
+  şifre → `/session/passkeys/options` → `createPasskey` → `/session/passkeys`; pencere kapatılırsa sessiz, "zaten kayıtlı" ayrı metin;
+  yeniden adlandır, onaylı sil; tarayıcı desteklemiyorsa not), **Bildirimler** (`role="switch"` checkbox, `/notification/me/notification-preferences`).
+  Passkey töreni `packages/core/src/passkey-ceremony.ts`: paket yok, tarayıcının `PublicKeyCredential.parse…OptionsFromJSON` ve `toJSON()`'ı
+  (`passkeysSupported`, `createPasskey`, `signWithPasskey`; `NotAllowedError`/`AbortError` → `PasskeyCancelled`, `InvalidStateError` →
+  `PasskeyAlreadyRegistered`). Destek sunucuda bilinmez: `useSyncExternalStore` sunucuda `undefined` verir. Testte `PublicKeyCredential`
+  ve `navigator.credentials` taklit edilir. **Abonelikten çıkma** (`/<dil>/unsubscribe?token=`, `noindex`, profil gerekmez, uyarı e-postasının
+  altındaki link): açılınca bir şey değişmez (link tarayıcıları açar), "Uyarıları kapat" `POST /notification/unsubscribe?token=`; geçersiz ya da
+  süresi geçmiş token metinle Güvenlik sayfasını söyler. Public client'larda artık `notification` da var (tercih ve abonelikten çıkma).
 - **Oynatıcı** (`/<dil>/watch/[titleId]`, E2a, `noindex`; dizide `?episode=`, baştan `?from=start`): başlık SSR (adreste bölüm varsa
   önce dizi sorulur; bölümsüz dizi 404), oynatma istemcide, sayfanın üstünde `fixed` katman. Bölümsüz dizi profilin ilerlemesinden
   devam eder (`chooseEpisode`: son güncellenen; bittiyse sonraki, son bölüm bittiyse baştan). Oturum `usePlaybackSession`: başlatma
