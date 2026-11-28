@@ -116,3 +116,27 @@ export {
   type Profile,
   type ProfileFields,
 } from './profiles';
+export {
+  PasskeyAlreadyRegistered,
+  PasskeyCancelled,
+  createPasskey,
+  passkeysSupported,
+  signWithPasskey,
+} from './passkey-ceremony';
+export {
+  securityKeys,
+  useAddPasskey,
+  useDevices,
+  useEndDevice,
+  useEndOtherDevices,
+  useNotificationPreferences,
+  usePasskeys,
+  useRemovePasskey,
+  useRenamePasskey,
+  useSetNotificationPreferences,
+  useUnsubscribe,
+  type Device,
+  type NewPasskey,
+  type NotificationPreferences,
+  type Passkey,
+} from './security';

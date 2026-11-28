@@ -33,7 +33,7 @@ describe('the selected profile cookie', () => {
 });
 
 describe('isStillValid', () => {
-  const profiles = [{ id, name: 'Deniz', maxAgeRating: 'Age7' as const }];
+  const profiles = [{ id, name: 'Deniz', maxAgeRating: 'Age7' as const, locked: false }];
 
   it('holds while the profile exists with the same age limit', () => {
     expect(isStillValid({ id, maxAgeRating: 'Age7' }, profiles)).toBe(true);

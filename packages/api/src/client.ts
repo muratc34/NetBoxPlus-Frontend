@@ -8,6 +8,7 @@ import type { paths as CatalogPublicPaths } from './generated/catalog.public';
 import type { paths as GatewayAdminPaths } from './generated/gateway.admin';
 import type { paths as GatewayPublicPaths } from './generated/gateway.public';
 import type { paths as NotificationAdminPaths } from './generated/notification.admin';
+import type { paths as NotificationPublicPaths } from './generated/notification.public';
 import type { paths as StreamingAdminPaths } from './generated/streaming.admin';
 import type { paths as StreamingPublicPaths } from './generated/streaming.public';
 import { servicePrefix, type ServiceName } from './services';
@@ -79,6 +80,7 @@ export function createPublicClients(options: GatewayClientOptions) {
     catalog: create<CatalogPublicPaths>(options, publicMount('catalog')),
     billing: create<BillingPublicPaths>(options, publicMount('billing')),
     streaming: create<StreamingPublicPaths>(options, publicMount('streaming')),
+    notification: create<NotificationPublicPaths>(options, publicMount('notification')),
   };
 }
 
