@@ -20,10 +20,11 @@ import {
   type TitleSummary,
 } from '@netboxplus/core/reads';
 import type { Locale } from '@netboxplus/i18n';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { after } from 'next/server';
 import { parseSelectedProfile, profileCookie } from '../profiles/selected-profile';
+import { boundedCache } from './bounded-cache';
 import { gatewayForServer, gatewayForVisitor } from './gateway';
 
 /**
@@ -34,14 +35,18 @@ import { gatewayForServer, gatewayForVisitor } from './gateway';
  */
 export const catalogRevalidateSeconds = 60;
 
+/** The oldest a catalog read is shown, in seconds: a page opened after a long quiet spell reads again. */
+export const catalogMaxAgeSeconds = 300;
+
 /** Every catalog read carries it, so they can be dropped together. */
 export const catalogTag = 'catalog';
 
 function cached<T>(key: readonly unknown[], load: () => Promise<T>): Promise<T> {
-  return unstable_cache(load, ['catalog', JSON.stringify(key)], {
+  return boundedCache(load, ['catalog', JSON.stringify(key)], {
     revalidate: catalogRevalidateSeconds,
+    maxAge: catalogMaxAgeSeconds,
     tags: [catalogTag],
-  })();
+  });
 }
 
 /** At most one drop in this many milliseconds, so requests for unknown ids cannot keep the cache empty. */
@@ -51,9 +56,8 @@ let forgottenAt = Number.NEGATIVE_INFINITY;
 /**
  * Drops every cached catalog read once this response is out (not while rendering, which Next refuses). A
  * title that answers 404 was most likely taken down after the lists that link to it were cached: without
- * this, the lists keep it for as long as visits come slower than the cache's minute, since an expired
- * entry still answers once more while it is refreshed. `expire: 0` makes the next visitor wait for fresh
- * lists instead of getting the old ones once more.
+ * this, the lists keep it for up to `catalogMaxAgeSeconds`, since an expired entry still answers while it
+ * is refreshed. `expire: 0` makes the next visitor wait for fresh lists instead of getting the old ones.
  */
 function forgetCatalog(): void {
   const now = Date.now();
@@ -163,7 +167,7 @@ export interface PublishedTitle {
  * an hour.
  */
 export function loadPublishedTitles(): Promise<PublishedTitle[]> {
-  return unstable_cache(
+  return boundedCache(
     async () => {
       const gateway = gatewayForServer();
       const titles: PublishedTitle[] = [];
@@ -177,8 +181,8 @@ export function loadPublishedTitles(): Promise<PublishedTitle[]> {
       return titles.slice(0, sitemapTitleLimit);
     },
     ['catalog', 'sitemap'],
-    { revalidate: 3600, tags: [catalogTag] },
-  )();
+    { revalidate: 3600, maxAge: 2 * 3600, tags: [catalogTag] },
+  );
 }
 
 /**
